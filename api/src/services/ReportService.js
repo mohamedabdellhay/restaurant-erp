@@ -8,7 +8,11 @@ function num(value) {
 
 function parseRangeDate(value, end = false) {
   if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    return new Date(`${value}T${end ? "23:59:59.999" : "00:00:00"}`);
+    const [year, month, day] = value.split("-").map(Number);
+    // Local calendar bounds. The Date(y, m, d, h, min, s, ms) form is local time.
+    return end
+      ? new Date(year, month - 1, day, 23, 59, 59, 999)
+      : new Date(year, month - 1, day, 0, 0, 0, 0);
   }
   return new Date(value);
 }

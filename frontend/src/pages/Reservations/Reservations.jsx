@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import PageHeader from "@components/PageHeader";
 import "./Reservations.css";
 import { useTranslation } from "react-i18next";
 import { useRestaurant } from "@hooks/useRestaurant";
@@ -430,27 +431,24 @@ const Reservations = () => {
 
   return (
     <div data-direction={i18n.dir()}>
-      <div className="page-header">
-        <div className="header-content">
-          <h1>
-            <Calendar size={28} />
-            {t("reservations.reservations")}
-          </h1>
-          <p>{t("reservations.manage_description")}</p>
-        </div>
-        <button
-          onClick={() => {
-            resetForm();
-            setShowAddModal(true);
-          }}
-          className="btn-primary"
-        >
-          <RoleBasedUI user={user} allowedRoles={["admin", "manager"]}>
+      <PageHeader
+        icon={Calendar}
+        title={t("reservations.reservations")}
+        subtitle={t("reservations.manage_description")}
+      >
+        <RoleBasedUI user={user} allowedRoles={["admin", "manager"]}>
+          <button
+            onClick={() => {
+              resetForm();
+              setShowAddModal(true);
+            }}
+            className="btn-primary"
+          >
             <Plus size={20} />
             {t("reservations.add_new")}
-          </RoleBasedUI>
-        </button>
-      </div>
+          </button>
+        </RoleBasedUI>
+      </PageHeader>
 
       {/* Stats Cards */}
       <div className="stats-grid">

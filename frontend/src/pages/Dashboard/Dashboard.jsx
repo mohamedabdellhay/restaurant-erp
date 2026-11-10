@@ -19,6 +19,7 @@ import RealTimeMetrics from "@components/dashboard/RealTimeMetrics";
 import InventoryAlerts from "@components/dashboard/InventoryAlerts";
 import { useLocation, useNavigate } from "react-router-dom";
 import { CheckCircle2, XCircle, X } from "lucide-react";
+import PageHeader from "@components/PageHeader";
 import "./Dashboard.css";
 
 const Dashboard = () => {
@@ -198,16 +199,16 @@ const Dashboard = () => {
         "--primary-content": themeColors.primaryContent,
       }}
     >
-      <header className="dashboard-hero">
-        <div>
-          <p className="dashboard-kicker">{getRestaurantName()}</p>
-          <h1 className="page-title">{t("dashboard.title")}</h1>
-          <p className="page-subtitle">{t("dashboard.subtitle")}</p>
-        </div>
+      <PageHeader
+        icon={BarChart3}
+        eyebrow={getRestaurantName()}
+        title={t("dashboard.title")}
+        subtitle={t("dashboard.subtitle")}
+      >
         <time className="today-chip" dateTime={todayISO}>
           {todayLabel}
         </time>
-      </header>
+      </PageHeader>
 
       {paymentStatus && (
         <div className={`payment-banner ${paymentStatus.type}`}>

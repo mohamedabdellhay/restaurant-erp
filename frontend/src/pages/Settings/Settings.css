@@ -1,20 +1,4 @@
 
-        .settings-header {
-          margin-bottom: 2rem;
-        }
-
-        .settings-header h1 {
-          font-size: 2rem;
-          font-weight: 700;
-          color: var(--text-primary);
-          margin-bottom: 0.5rem;
-        }
-
-        .settings-header p {
-          color: var(--text-secondary);
-          font-size: 1rem;
-        }
-
         .message {
           display: flex;
           align-items: center;

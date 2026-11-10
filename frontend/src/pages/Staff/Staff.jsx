@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import PageHeader from "@components/PageHeader";
 import {
   ProtectedElement,
   ProtectedButton,
@@ -213,14 +214,11 @@ const Staff = () => {
 
   return (
     <div>
-      <div className="page-header">
-        <div className="header-content">
-          <h1>
-            <Users size={28} />
-            {t("nav.staff")}
-          </h1>
-          <p>{t("staff.manage_description")}</p>
-        </div>
+      <PageHeader
+        icon={Users}
+        title={t("nav.staff")}
+        subtitle={t("staff.manage_description")}
+      >
         <ProtectedButton
           permission={PERMISSIONS.MANAGE_STAFF}
           onClick={() => {
@@ -232,7 +230,7 @@ const Staff = () => {
           <Plus size={20} />
           {t("staff.add_new")}
         </ProtectedButton>
-      </div>
+      </PageHeader>
 
       {/* Stats Cards */}
       <div className="stats-grid">

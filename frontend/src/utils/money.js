@@ -1,7 +1,7 @@
-export function formatMoney(amount, currency = "EGP") {
+export function formatMoney(amount, currency = "USD") {
   const value = Number(amount);
   const safe = Number.isFinite(value) ? value : 0;
-  const code = currency || "EGP";
+  const code = currency || "USD";
   try {
     return new Intl.NumberFormat(undefined, {
       style: "currency",

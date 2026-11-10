@@ -14,6 +14,7 @@ import {
   ArrowUpRight,
   ArrowDownRight,
 } from "lucide-react";
+import PageHeader from "@components/PageHeader";
 import "./Reports.css";
 import api from "../../services/api";
 import { useRestaurant } from "../../hooks/useRestaurant";
@@ -193,18 +194,13 @@ const Reports = () => {
   return (
     <div data-direction={i18n.dir()}>
       {/* Header */}
-      <div className="page-header">
-        <div className="header-content">
-          <h1>
-            <BarChart2 size={28} />
-            {t("reports.title") || "Reports & Analytics"}
-          </h1>
-          <p>
-            {t("reports.subtitle") ||
-              "Comprehensive insights for your restaurant"}
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        icon={BarChart2}
+        title={t("reports.title") || "Reports & Analytics"}
+        subtitle={
+          t("reports.subtitle") || "Comprehensive insights for your restaurant"
+        }
+      />
 
       {/* Date range */}
       <div className="reports-controls">

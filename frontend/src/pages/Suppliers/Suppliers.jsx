@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import PageHeader from "@components/PageHeader";
 import "./Suppliers.css";
 import { useTranslation } from "react-i18next";
 import {
@@ -234,22 +235,19 @@ const Suppliers = () => {
   return (
     <div data-direction={i18n.dir()}>
       {/* Page Header */}
-      <div className="page-header">
-        <div className="header-content">
-          <h1>
-            <Users size={28} />
-            {t("nav.suppliers") || "Suppliers Management"}
-          </h1>
-          <p>
-            {t("suppliers.manage_description") ||
-              "Manage your suppliers and track payments"}
-          </p>
-        </div>
+      <PageHeader
+        icon={Users}
+        title={t("nav.suppliers") || "Suppliers Management"}
+        subtitle={
+          t("suppliers.manage_description") ||
+          "Manage your suppliers and track payments"
+        }
+      >
         <button onClick={() => setShowAddModal(true)} className="btn-primary">
           <Plus size={20} />
           {t("suppliers.add_new") || "Add Supplier"}
         </button>
-      </div>
+      </PageHeader>
 
       {/* Message */}
       {message.text && (

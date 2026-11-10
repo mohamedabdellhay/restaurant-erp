@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import PageHeader from "@components/PageHeader";
 import "./Invoices.css";
 import { useTranslation } from "react-i18next";
 import { useRestaurant } from "@hooks/useRestaurant";
@@ -307,14 +308,11 @@ const Invoices = () => {
 
   return (
     <div>
-      <div className="page-header">
-        <div className="header-content">
-          <h1>
-            <Receipt size={28} />
-            {t("nav.invoices")}
-          </h1>
-          <p>{t("invoices.manage_description")}</p>
-        </div>
+      <PageHeader
+        icon={Receipt}
+        title={t("nav.invoices")}
+        subtitle={t("invoices.manage_description")}
+      >
         <RoleBasedUI user={user} allowedRoles={["admin", "manager", "cashier"]}>
           <button
             onClick={() => {
@@ -327,7 +325,7 @@ const Invoices = () => {
             {t("invoices.add_new")}
           </button>
         </RoleBasedUI>
-      </div>
+      </PageHeader>
 
       {/* Stats Cards */}
       {statistics && (

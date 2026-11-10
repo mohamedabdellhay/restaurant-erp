@@ -79,6 +79,14 @@
     "orders_item": "عناصر"
   },
   "departments": {
+    "title": "الأقسام",
+    "subtitle": "إدارة أقسام المطعم والموظفين التابعين لها.",
+    "add_department": "إضافة قسم",
+    "no_departments": "لا توجد أقسام",
+    "no_departments_desc": "أضف قسماً لتنظيم الموظفين.",
+    "no_permission": "ليست لديك صلاحية لعرض الأقسام.",
+    "name_placeholder": "أدخل اسم القسم",
+    "description_placeholder": "أدخل وصفاً مختصراً",
     "total_departments": "إجمالي الأقسام",
     "active_departments": "الأقسام النشطة",
     "inactive_departments": "الأقسام غير النشطة",

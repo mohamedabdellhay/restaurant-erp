@@ -164,6 +164,24 @@
     "low": "Low",
     "good": "Good"
   },
+  "departments": {
+    "title": "Departments",
+    "subtitle": "Manage restaurant departments and the staff assigned to them.",
+    "add_department": "Add Department",
+    "edit_department": "Edit Department",
+    "total_departments": "Total Departments",
+    "active_departments": "Active Departments",
+    "inactive_departments": "Inactive Departments",
+    "search_placeholder": "Search departments...",
+    "no_departments": "No departments found",
+    "no_departments_desc": "Add a department to organize your staff.",
+    "no_permission": "You do not have permission to view departments.",
+    "name": "Name",
+    "description": "Description",
+    "staff_count": "Staff",
+    "name_placeholder": "Enter department name",
+    "description_placeholder": "Enter a short description"
+  },
   "staff": {
     "reservations_table": "Reservations",
     "reservations_actions": "Reservations Actions",

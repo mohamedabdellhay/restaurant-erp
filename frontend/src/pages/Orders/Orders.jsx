@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import PageHeader from "@components/PageHeader";
 import "./Orders.css";
 import { useTranslation } from "react-i18next";
 import {
@@ -469,14 +470,11 @@ const Orders = () => {
 
   return (
     <div data-direction={i18n.dir()}>
-      <div className="page-header">
-        <div className="header-content">
-          <h1>
-            <Package size={28} />
-            {t("nav.orders")}
-          </h1>
-          <p>{t("nav.orders_manage_description")}</p>
-        </div>
+      <PageHeader
+        icon={Package}
+        title={t("nav.orders")}
+        subtitle={t("nav.orders_manage_description")}
+      >
         <ProtectedElement permission={PERMISSIONS.MANAGE_ORDERS}>
           <button
             onClick={() => {
@@ -489,7 +487,7 @@ const Orders = () => {
             {t("nav.orders_add_new")}
           </button>
         </ProtectedElement>
-      </div>
+      </PageHeader>
 
       {/* Message */}
       {message.text && (

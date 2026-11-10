@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import PageHeader from "@components/PageHeader";
 import "./Menu.css";
 import { useTranslation } from "react-i18next";
 import { useRestaurant } from "@hooks/useRestaurant";
@@ -441,37 +442,32 @@ const Menu = () => {
   return (
     <div>
       {/* Header */}
-      <div className="page-header">
-        <div className="header-content">
-          <h1>
-            <Utensils size={28} />
-            {t("menu.title")}
-          </h1>
-          <p>{t("menu.page_description")}</p>
-        </div>
+      <PageHeader
+        icon={Utensils}
+        title={t("menu.title")}
+        subtitle={t("menu.page_description")}
+      >
         <RoleBasedUI user={user} allowedRoles={["admin", "manager"]}>
-          <div className="header-actions">
-            <button
-              onClick={() => handleOpenCategoryModal()}
-              className="btn-secondary"
-            >
-              <Filter size={20} />
-              {t("menu.manage_categories")}
-            </button>
-            <button
-              onClick={() => {
-                setShowAddModal(true);
-                setSelectedItem(null);
-                resetForm();
-              }}
-              className="btn-primary"
-            >
-              <Plus size={20} />
-              {t("menu.add_item")}
-            </button>
-          </div>
+          <button
+            onClick={() => handleOpenCategoryModal()}
+            className="btn-secondary"
+          >
+            <Filter size={20} />
+            {t("menu.manage_categories")}
+          </button>
+          <button
+            onClick={() => {
+              setShowAddModal(true);
+              setSelectedItem(null);
+              resetForm();
+            }}
+            className="btn-primary"
+          >
+            <Plus size={20} />
+            {t("menu.add_item")}
+          </button>
         </RoleBasedUI>
-      </div>
+      </PageHeader>
 
       {/* Statistics */}
       <div className="stats-grid">

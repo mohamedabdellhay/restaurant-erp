@@ -10,7 +10,7 @@ export const useRestaurant = () => {
       theme: null,
       // Helper functions return defaults
       getRestaurantName: () => "Restaurant",
-      getCurrency: () => "EGP",
+      getCurrency: () => "USD",
       getTaxPercent: () => 0,
       getServiceCharge: () => 0,
       getThemeColors: () => ({
@@ -40,7 +40,7 @@ export const useRestaurant = () => {
     // Helper functions
     getRestaurantName: () => restaurant?.name || "Restaurant",
     getRestaurantId: () => restaurant?._id || restaurant?.id,
-    getCurrency: () => restaurant?.currency || "EGP",
+    getCurrency: () => restaurant?.currency || "USD",
     getTaxPercent: () => settings?.taxPercent || 0,
     getServiceCharge: () => settings?.serviceChargePercent || 0,
     getThemeColors: () => ({
@@ -64,7 +64,7 @@ export const useRestaurant = () => {
       phone: restaurant?.phone || "",
       email: restaurant?.email || "",
       website: restaurant?.website || "",
-      currency: restaurant?.currency || "EGP",
+      currency: restaurant?.currency || "USD",
       vatNumber: restaurant?.vatNumber || "",
       crNumber: restaurant?.crNumber || "",
       settings: settings || {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import PageHeader from "@components/PageHeader";
 import "./Inventory.css";
 import { useTranslation } from "react-i18next";
 import {
@@ -295,17 +296,15 @@ const Inventory = () => {
   return (
     <div data-direction={i18n.dir()}>
       {/* Page Header */}
-      <div className="page-header">
-        <h1 className="page-title">
-          {t("nav.inventory") || "Inventory Management"}
-        </h1>
-        <div className="page-actions">
-          <button onClick={() => setShowAddModal(true)} className="btn-primary">
-            <Plus size={20} />
-            {t("inventory.add_new") || "Add Item"}
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        icon={Package}
+        title={t("nav.inventory") || "Inventory Management"}
+      >
+        <button onClick={() => setShowAddModal(true)} className="btn-primary">
+          <Plus size={20} />
+          {t("inventory.add_new") || "Add Item"}
+        </button>
+      </PageHeader>
 
       {message.text && (
         <div className={`message ${message.type}`}>{message.text}</div>

@@ -1,0 +1,169 @@
+.sidebar {
+  contain: layout paint;
+  width: 260px;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--sidebar-primary) 18%, var(--bg-sidebar)) 0%,
+      color-mix(in srgb, var(--sidebar-secondary) 12%, var(--bg-sidebar)) 100%
+    );
+  border-inline-end: 1px solid color-mix(in srgb, var(--sidebar-primary) 24%, var(--border-color));
+  display: flex;
+  flex-direction: column;
+  transition: width var(--transition-normal);
+  position: fixed;
+  top: 0;
+  inset-inline-start: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.sidebar.collapsed {
+  width: 80px;
+}
+
+.sidebar-header {
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid color-mix(in srgb, var(--sidebar-primary) 20%, var(--border-color));
+  height: 70px;
+}
+
+.logo-text {
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.sidebar-logo {
+  height: 32px;
+  max-width: 100px;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+}
+
+.logo-text span {
+  color: var(--sidebar-primary);
+}
+
+.restaurant-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toggle-btn {
+  color: var(--text-secondary);
+  padding: 0.25rem;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.toggle-btn:hover {
+  background: color-mix(in srgb, var(--sidebar-primary) 14%, transparent);
+  color: var(--sidebar-primary);
+}
+
+.toggle-btn .rotate {
+  transform: rotate(180deg);
+}
+
+.sidebar-nav {
+  padding: 1.5rem 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  padding: 0.875rem 1.5rem;
+  color: var(--text-secondary);
+  gap: 1rem;
+  transition: background-color 0.2s, color 0.2s;
+  border-left: 3px solid transparent;
+  position: relative;
+}
+
+[dir="rtl"] .nav-link {
+  border-left: none;
+  border-right: 3px solid transparent;
+}
+
+.sidebar.collapsed .nav-link {
+  justify-content: center;
+  padding: 0.875rem;
+}
+
+.sidebar.collapsed .nav-link span {
+  display: none;
+}
+
+.nav-link:hover {
+  background: color-mix(in srgb, var(--sidebar-primary) 10%, transparent);
+  color: var(--sidebar-primary);
+}
+
+.nav-link.active {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--sidebar-primary) 16%, transparent), transparent);
+  color: var(--sidebar-primary);
+  border-left-color: var(--sidebar-primary);
+  font-weight: 600;
+}
+
+[dir="rtl"] .nav-link.active {
+  border-left-color: transparent;
+  border-right-color: var(--sidebar-primary);
+}
+
+.nav-link.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--sidebar-primary);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--sidebar-primary) 35%, transparent);
+}
+
+[dir="rtl"] .nav-link.active::before {
+  left: auto;
+  right: 0;
+}
+
+.nav-link.active svg {
+  color: var(--sidebar-accent);
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--sidebar-accent) 35%, transparent));
+}
+
+.sidebar-footer {
+  padding: 1.5rem 0;
+  border-top: 1px solid color-mix(in srgb, var(--sidebar-primary) 20%, var(--border-color));
+}
+
+.logout-btn {
+  width: 100%;
+  text-align: start;
+}
+
+.logout-btn:hover,
+[dir="rtl"] .logout-btn:hover {
+  color: var(--danger);
+  background: var(--danger)15;
+  transform: none;
+}
+
+.logout-btn:hover svg {
+  color: var(--danger);
+}

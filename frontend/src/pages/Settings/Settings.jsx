@@ -25,10 +25,12 @@ import {
   CreditCard,
   Lock,
   Shield,
+  Settings as SettingsIcon,
   Eye,
   EyeOff,
 } from "lucide-react";
 import { presetThemes } from "@utils/demoTheme";
+import PageHeader from "@components/PageHeader";
 
 const Settings = () => {
   const { getRestaurantData, getRestaurantId } = useRestaurant();
@@ -465,10 +467,11 @@ const Settings = () => {
 
   return (
     <div>
-      <div className="settings-header">
-        <h1>{t("settings.title")}</h1>
-        <p>{t("settings.subtitle")}</p>
-      </div>
+      <PageHeader
+        icon={SettingsIcon}
+        title={t("settings.title")}
+        subtitle={t("settings.subtitle")}
+      />
 
       {message.text && (
         <div className={`message ${message.type}`}>

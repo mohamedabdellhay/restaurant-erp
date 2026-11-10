@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import roleService from "@services/roleService";
 import { PERMISSIONS } from "@utils/permissionUtils";
+import PageHeader from "@components/PageHeader";
 import "./Roles.css";
 
 const Roles = () => {
@@ -200,29 +201,24 @@ const Roles = () => {
   return (
     <div>
       {/* Header */}
-      <div className="page-header">
-        <div className="header-content">
-          <h1>
-            <Shield size={28} />
-            {t("roles.title")}
-          </h1>
-          <p>{t("roles.page_description")}</p>
-        </div>
+      <PageHeader
+        icon={Shield}
+        title={t("roles.title")}
+        subtitle={t("roles.page_description")}
+      >
         {canManageRoles && (
-          <div className="header-actions">
-            <button
-              onClick={() => {
-                setShowAddModal(true);
-                resetForm();
-              }}
-              className="btn-primary"
-            >
-              <Plus size={20} />
-              {t("roles.add_role")}
-            </button>
-          </div>
+          <button
+            onClick={() => {
+              setShowAddModal(true);
+              resetForm();
+            }}
+            className="btn-primary"
+          >
+            <Plus size={20} />
+            {t("roles.add_role")}
+          </button>
         )}
-      </div>
+      </PageHeader>
 
       {/* Search and Filter */}
       <div className="search-filter-container">

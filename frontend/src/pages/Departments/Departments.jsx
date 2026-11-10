@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import departmentService from "@services/departmentService";
 import { hasPermission, PERMISSIONS } from "@utils/permissionUtils";
+import PageHeader from "@components/PageHeader";
 import "./Departments.css";
 
 const Departments = () => {
@@ -244,32 +245,24 @@ const Departments = () => {
 
   return (
     <div>
-      <div className="departments-header">
-        <div className="header-content">
-          <div className="page-title">
-            <Building size={28} />
-            <div>
-              <h1>{t("departments.title")}</h1>
-              <p>{t("departments.subtitle")}</p>
-            </div>
-          </div>
-        </div>
-
+      <PageHeader
+        icon={Building}
+        title={t("departments.title")}
+        subtitle={t("departments.subtitle")}
+      >
         {canManageDepartmentsFixed && (
-          <div className="header-actions">
-            <button
-              onClick={() => {
-                setShowAddModal(true);
-                resetForm();
-              }}
-              className="btn-primary"
-            >
-              <Plus size={20} />
-              {t("departments.add_department")}
-            </button>
-          </div>
+          <button
+            onClick={() => {
+              setShowAddModal(true);
+              resetForm();
+            }}
+            className="btn-primary"
+          >
+            <Plus size={20} />
+            {t("departments.add_department")}
+          </button>
         )}
-      </div>
+      </PageHeader>
 
       {/* Stats Cards */}
       <div className="stats-grid">

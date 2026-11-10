@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import PageHeader from "@components/PageHeader";
 import "./Profile.css";
 import { useAuth } from "@hooks/useAuth";
 import { useTranslation } from "react-i18next";
@@ -78,9 +79,7 @@ const Profile = () => {
 
   return (
     <div>
-      <div className="profile-header">
-        <h1>{t("profile.title")}</h1>
-      </div>
+      <PageHeader icon={User} title={t("profile.title")} />
 
       <div className="profile-content">
         <div className="profile-sidebar card">

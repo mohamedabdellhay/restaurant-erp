@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import PageHeader from "@components/PageHeader";
 import "./Tables.css";
 import { useTranslation } from "react-i18next";
 // import { useRestaurant } from "@hooks/useRestaurant";
@@ -193,14 +194,11 @@ const Tables = () => {
 
   return (
     <div data-direction={i18n.dir()}>
-      <div className="page-header">
-        <div className="header-content">
-          <h1>
-            <SquareMenu size={28} />
-            {t("nav.tables")}
-          </h1>
-          <p>{t("table.tables_manage_description")}</p>
-        </div>
+      <PageHeader
+        icon={SquareMenu}
+        title={t("nav.tables")}
+        subtitle={t("table.tables_manage_description")}
+      >
         <button
           onClick={() => {
             resetForm();
@@ -211,7 +209,7 @@ const Tables = () => {
           <Plus size={20} />
           {t("table.tables_add_new")}
         </button>
-      </div>
+      </PageHeader>
 
       {/* Stats Cards */}
       <div className="stats-grid">

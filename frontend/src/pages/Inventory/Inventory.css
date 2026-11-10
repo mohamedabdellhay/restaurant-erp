@@ -1,26 +1,4 @@
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.page-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.page-actions {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-
 .search-filter-bar {
   display: flex;
   gap: 1rem;
@@ -476,11 +454,6 @@ tr:hover {
 }
 
 @media (max-width: 768px) {
-  .page-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
   .search-filter-bar {
     flex-direction: column;
   }

@@ -1,31 +1,6 @@
 /* ─── Reports Page – aligned with system UI patterns ─── */
 
 
-/* ── Header ─────────────────────────────────────────── */
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 2rem;
-  gap: 1rem;
-}
-
-.header-content h1 {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin: 0 0 0.5rem 0;
-  color: var(--text-primary);
-  font-size: 2rem;
-  font-weight: 700;
-}
-
-.header-content p {
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 1rem;
-}
-
 /* ── Controls: date row + tab bar ────────────────────── */
 .reports-controls {
   background: var(--bg-card);
@@ -442,12 +417,10 @@
 }
 
 /* ── RTL ─────────────────────────────────────────────── */
-[data-direction="rtl"] .header-content h1,
 [data-direction="rtl"] .staff-name {
   flex-direction: row-reverse;
 }
 
-[data-direction="rtl"] .page-header { flex-direction: row-reverse; }
 [data-direction="rtl"] .date-row    { flex-direction: row-reverse; }
 [data-direction="rtl"] .tab-bar     { flex-direction: row-reverse; }
 [data-direction="rtl"] .section-header-row { flex-direction: row-reverse; }
@@ -463,8 +436,6 @@
 
 /* ── Responsive ──────────────────────────────────────── */
 @media (max-width: 768px) {
-  .header-content h1 { font-size: 1.5rem; }
-
   .date-row { flex-direction: column; align-items: stretch; }
   .date-group { width: 100%; }
   .date-input { width: 100%; }
