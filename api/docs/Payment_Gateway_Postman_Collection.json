@@ -1,0 +1,318 @@
+{
+  "info": {
+    "_postman_id": "8b5f3a0c-4d2a-4a7b-9c1f-1d8e9f2a3b4c",
+    "name": "Restaurant ERP - Payment Gateway System",
+    "description": "Postman collection to test the unified Payment Gateway System including Kashier.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Payment Gateway Test Flow",
+      "item": [
+        {
+          "name": "1. Initiate Subscription Payment (Register)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restaurantName\": \"Test Restaurant Setup\",\n  \"restaurantAddress\": \"123 Cairo St\",\n  \"restaurantPhone\": \"01012345678\",\n  \"adminName\": \"John Doe Admin\",\n  \"adminEmail\": \"admin.payment@test.com\",\n  \"adminPassword\": \"Password123\",\n  \"planId\": \"INSERT_PLAN_ID_HERE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/subscription/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "subscription",
+                "register"
+              ]
+            },
+            "description": "Registers a new restaurant -> creates a pending subscription -> opens a Transaction record -> returns a Kashier checkoutUrl."
+          },
+          "response": []
+        },
+        {
+          "name": "Generate Order Payment Link",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/{{orderId}}/payment-link",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orders",
+                "{{orderId}}",
+                "payment-link"
+              ]
+            },
+            "description": "Generates a payment link for a specific restaurant order. This uses the restaurant's own Kashier credentials stored in its settings."
+          },
+          "response": []
+        },
+        {
+          "name": "2. Simulate Kashier Callback (success redirect)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/callback/kashier?paymentStatus=SUCCESS&merchantOrderId=INSERT_TX_ID_FROM_DB&amount=500&currency=EGP",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payments",
+                "callback",
+                "kashier"
+              ],
+              "query": [
+                {
+                  "key": "paymentStatus",
+                  "value": "SUCCESS"
+                },
+                {
+                  "key": "merchantOrderId",
+                  "value": "INSERT_TX_ID_FROM_DB",
+                  "description": "Grab the transactionId generated in step 1 from MongoDB"
+                },
+                {
+                  "key": "amount",
+                  "value": "500"
+                },
+                {
+                  "key": "currency",
+                  "value": "EGP"
+                }
+              ]
+            },
+            "description": "This tests the frontend redirect callback. The backend will parse `paymentStatus=SUCCESS`, mark the Transaction as `success`, activate the Subscription, and reply with a 302 Redirect to the frontend Dashboard."
+          },
+          "response": []
+        },
+        {
+          "name": "3. Simulate Kashier Server Webhook (POST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentStatus\": \"SUCCESS\",\n  \"merchantOrderId\": \"INSERT_TX_ID_FROM_DB\",\n  \"amount\": 500,\n  \"currency\": \"EGP\",\n  \"kashierOrderHash\": \"mocked_hash_value\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/webhook/kashier",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payments",
+                "webhook",
+                "kashier"
+              ]
+            },
+            "description": "Simulates an S2S (Server to Server) webhook call if Kashier is configured to fire webhooks entirely in the background outside of the frontend redirect logic."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Payment Settings",
+      "item": [
+        {
+          "name": "Get Available Gateways",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/gateways",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payments",
+                "gateways"
+              ]
+            },
+            "description": "Returns a list of all supported payment gateway providers in the system with their custom logos."
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Gateway Logo",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "logo",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/settings/kashier/logo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payments",
+                "settings",
+                "kashier",
+                "logo"
+              ]
+            },
+            "description": "Uploads a custom logo for a specific payment gateway. The file should be sent using multipart/form-data."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Kashier Settings",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"merchantId\": \"MID-123-456\",\n  \"apiKey\": \"api_test_789\",\n  \"iframeSecret\": \"sec_test_abc\",\n  \"testMode\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/settings/kashier",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payments",
+                "settings",
+                "kashier"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Kashier Settings",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/settings/kashier",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payments",
+                "settings",
+                "kashier"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+
+        .login-container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 100vh;
+          padding: 1rem;
+        }
+
+        .login-card {
+          width: 100%;
+          max-width: 440px;
+          padding: 3rem;
+          border-radius: var(--radius-xl);
+          animation: slideUp 0.6s ease-out;
+        }
+
+        .brand-section {
+          text-align: center;
+          margin-bottom: 2.5rem;
+        }
+
+        .logo-icon {
+          display: inline-flex;
+          padding: 1rem;
+          background: rgba(245, 158, 11, 0.1);
+          border-radius: var(--radius-lg);
+          margin-bottom: 1.5rem;
+        }
+
+        .brand-section h1 {
+          font-size: 1.875rem;
+          font-weight: 700;
+          color: var(--text-primary);
+          margin-bottom: 0.5rem;
+        }
+
+        .brand-section p {
+          color: var(--text-secondary);
+        }
+
+        .error-alert {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 1rem;
+          background: rgba(239, 68, 68, 0.1);
+          border: 1px solid rgba(239, 68, 68, 0.2);
+          border-radius: var(--radius-md);
+          color: #ef4444;
+          margin-bottom: 2rem;
+          font-size: 0.875rem;
+        }
+
+        .login-form {
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+        }
+
+        .input-group {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .input-group label {
+          font-size: 0.875rem;
+          font-weight: 500;
+          color: var(--text-secondary);
+        }
+
+        .input-wrapper {
+          position: relative;
+        }
+
+        .input-icon {
+          position: absolute;
+          left: 1rem;
+          top: 50%;
+          transform: translateY(-50%);
+          color: var(--text-muted);
+          pointer-events: none;
+        }
+
+        .input-field {
+          padding-left: 3rem;
+        }
+
+        .login-footer {
+          margin-top: 2rem;
+          text-align: center;
+          font-size: 0.875rem;
+          color: var(--text-muted);
+        }
+
+        .login-footer a {
+          color: var(--primary);
+          font-weight: 500;
+        }
+
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      

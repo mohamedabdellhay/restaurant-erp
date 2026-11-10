@@ -1,0 +1,23 @@
+ERP System Roles and Permissions Summary
+
+Roles:
+- **Owner**: Top-level system role with all permissions. Cannot be edited or deleted.
+- Admin: Full system access (All Permissions)
+- Manager: Operational management (Staff, Menu, Inventory, Orders, etc.)
+- Cashier: Point of sale (Orders, Invoices, Customers)
+- Chef: Kitchen operations (Menu, Orders, Inventory)
+- Waiter: Floor service (Menu, Orders, Tables, Reservations)
+
+Permissions:
+- view_staff, manage_staff
+- view_menu, manage_menu
+- view_categories, manage_categories
+- view_inventory, manage_inventory
+- view_orders, manage_orders
+- view_reservations, manage_reservations
+- view_tables, manage_tables
+- view_reports
+- manage_settings
+- view_invoices, manage_invoices
+- view_customers, manage_customers
+- view_roles, manage_roles

@@ -1,0 +1,60 @@
+# User Roles and Permissions Documentation (Dynamic System)
+
+This document describes the new dynamic roles and permissions system for the Restaurant ERP. 
+
+## Overview
+
+Roles are now **restaurant-specific** and **permission-based**. Instead of a fixed set of strings, the system now uses a `Role` model that stores a list of specific permissions.
+
+## Default Roles (Auto-Seeded)
+
+Every restaurant starts with these default system roles:
+
+1. **Owner**: Top-level access (All Permissions). Cannot be edited or deleted.
+2. **Admin**: Full system access (includes all permissions).
+3. **Manager**: High administrative access (Staff, Menu, Inventory, Orders, Reports).
+3. **Cashier**: POS operations (Orders, Invoices, Customers).
+4. **Chef**: Kitchen operations (Menu orders, Inventory viewing).
+5. **Waiter**: Floor service (Orders, Tables, Reservations).
+
+## Available Permissions
+
+The frontend should use these permission strings for granular UI control:
+
+| Permission | Description |
+| :--- | :--- |
+| `view_staff`, `manage_staff` | Access to staff directory and management |
+| `view_menu`, `manage_menu` | Access to menu items and pricing |
+| `view_categories`, `manage_categories` | Organizational grouping access |
+| `view_inventory`, `manage_inventory` | Stock and supplier management |
+| `view_orders`, `manage_orders` | POS and order fulfillment |
+| `view_reservations`, `manage_reservations` | Table booking |
+| `view_tables`, `manage_tables` | Floor plan management |
+| `view_reports` | Business analytics |
+| `manage_settings` | Restaurant configuration |
+| `view_invoices`, `manage_invoices` | Billing and financial docs |
+| `view_customers`, `manage_customers` | CRM access |
+| `view_roles`, `manage_roles` | Custom role management |
+
+---
+
+## Frontend Integration
+
+### 1. Token Information
+The authenticated user's profile (`GET /api/auth/me`) now returns the `role` object, which includes the `permissions` array.
+
+### 2. UI Protection
+Frontend developers should check for the presence of a permission string in `user.role.permissions` to show/hide UI elements.
+
+### 3. Role Management Endpoints
+- `GET /api/roles`: List all roles for the current restaurant.
+- `GET /api/roles/permissions`: List all possible system permissions.
+- `POST /api/roles`: Create a new custom role.
+- `PUT /api/roles/:id`: Update role name or permissions.
+- `DELETE /api/roles/:id`: Delete a custom role (System roles cannot be deleted).
+
+---
+
+## Technical Notes
+- **Multi-Tenant**: All roles are automatically scoped to the logged-in user's restaurant.
+- **Role Assignment**: When creating/updating staff, pass the `role` ObjectId.
