@@ -39,6 +39,17 @@ const NAV_ITEMS = [
   { label: "nav.settings", icon: Settings, path: "/settings", permission: "manage_settings", footer: true },
 ];
 
+function readableText(color) {
+  const hex = String(color || "").trim().replace("#", "");
+  const full = hex.length === 3 ? hex.split("").map((part) => part + part).join("") : hex;
+  if (!/^[0-9a-fA-F]{6}$/.test(full)) return "#f8fafc";
+  const red = parseInt(full.slice(0, 2), 16);
+  const green = parseInt(full.slice(2, 4), 16);
+  const blue = parseInt(full.slice(4, 6), 16);
+  const luminance = (0.299 * red + 0.587 * green + 0.114 * blue) / 255;
+  return luminance > 0.62 ? "#0f172a" : "#f8fafc";
+}
+
 const NavItem = memo(function NavItem({ to, icon: Icon, label }) {
   return (
     <NavLink to={to} className="nav-link">
@@ -66,21 +77,25 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
   const themeColors = getThemeColors();
   const savedTheme = restaurantSettings?.theme;
-  const sidebarColors = useMemo(
-    () => ({
-      "--sidebar-primary": savedTheme?.primaryColor || themeColors.primary,
-      "--sidebar-secondary": savedTheme?.secondaryColor || themeColors.secondary,
-      "--sidebar-accent": savedTheme?.accentColor || themeColors.accent,
-    }),
-    [
-      savedTheme?.primaryColor,
-      savedTheme?.secondaryColor,
-      savedTheme?.accentColor,
-      themeColors.primary,
-      themeColors.secondary,
-      themeColors.accent,
-    ],
-  );
+  const sidebarColors = useMemo(() => {
+    const primary = savedTheme?.primaryColor || themeColors.primary;
+    const secondary = savedTheme?.secondaryColor || themeColors.secondary;
+    const accent = savedTheme?.accentColor || themeColors.accent;
+    return {
+      "--sidebar-primary": primary,
+      "--sidebar-secondary": secondary,
+      "--sidebar-accent": accent,
+      "--sidebar-bg": secondary,
+      "--sidebar-fg": readableText(secondary),
+    };
+  }, [
+    savedTheme?.primaryColor,
+    savedTheme?.secondaryColor,
+    savedTheme?.accentColor,
+    themeColors.primary,
+    themeColors.secondary,
+    themeColors.accent,
+  ]);
 
   const menuItems = useMemo(() => {
     if (!user) return [];

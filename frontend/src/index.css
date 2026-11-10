@@ -22,6 +22,12 @@
     #6366f1
   ); /* Fallback to Indigo 500 */
   --accent: var(--restaurant-accent, #10b981); /* Fallback to Emerald 500 */
+  --primary-bg: color-mix(in srgb, var(--primary) 16%, transparent);
+  --accent-bg: color-mix(in srgb, var(--accent) 16%, transparent);
+  --success-bg: color-mix(in srgb, var(--success) 16%, transparent);
+  --warning-bg: color-mix(in srgb, var(--warning) 16%, transparent);
+  --primary-dark: color-mix(in srgb, var(--primary) 75%, black);
+  --primary-light: color-mix(in srgb, var(--primary) 70%, white);
 
   --bg-base: #f8fafc; /* Slate 50 */
   --bg-sidebar: #ffffff;

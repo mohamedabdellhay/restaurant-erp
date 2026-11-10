@@ -4,9 +4,20 @@ const ThemeContext = createContext(null);
 
 export { ThemeContext };
 
+function readBusinessMode() {
+  try {
+    const settings = JSON.parse(localStorage.getItem("restaurantSettings") || "null");
+    const mode = settings?.theme?.mode;
+    if (mode === "light" || mode === "dark") return mode;
+  } catch {
+    return null;
+  }
+  return null;
+}
+
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem("theme") || "light";
+    return readBusinessMode() || localStorage.getItem("theme") || "light";
   });
 
   const [restaurantSettings, setRestaurantSettings] = useState(() => {
@@ -82,6 +93,13 @@ export const ThemeProvider = ({ children }) => {
       root.style.setProperty("--accent", accentColor);
     }
   }, [theme, restaurantSettings]);
+
+  useEffect(() => {
+    const mode = restaurantSettings?.theme?.mode;
+    if (mode === "light" || mode === "dark") {
+      setTheme(mode);
+    }
+  }, [restaurantSettings?.theme?.mode]);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === "light" ? "dark" : "light"));

@@ -25,7 +25,7 @@ import "./Dashboard.css";
 const Dashboard = () => {
   const { t } = useTranslation();
   const { user, hasPermission } = useAuth();
-  const { getThemeColors, getRestaurantName } = useRestaurant();
+  const { getRestaurantName } = useRestaurant();
   const [activeTab, setActiveTab] = useState("overview");
   const [dateRange, setDateRange] = useState({});
   const [paymentStatus, setPaymentStatus] = useState(null);
@@ -64,9 +64,6 @@ const Dashboard = () => {
       return () => clearTimeout(timer);
     }
   }, [location.search, navigate, t]);
-
-  // Get theme colors
-  const themeColors = getThemeColors();
 
   const allTabs = [
     {
@@ -192,13 +189,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div
-      style={{
-        "--primary": themeColors.primary,
-        "--primary-focus": themeColors.primaryFocus,
-        "--primary-content": themeColors.primaryContent,
-      }}
-    >
+    <div className="dashboard">
       <PageHeader
         icon={BarChart3}
         eyebrow={getRestaurantName()}

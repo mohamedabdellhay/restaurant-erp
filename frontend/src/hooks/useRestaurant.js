@@ -1,7 +1,9 @@
 import { useAuth } from "../hooks/useAuth";
+import { useTheme } from "../hooks/useTheme";
 
 export const useRestaurant = () => {
   const { user } = useAuth();
+  const { restaurantSettings: liveSettings } = useTheme();
 
   if (!user) {
     return {
@@ -31,7 +33,7 @@ export const useRestaurant = () => {
   }
 
   const restaurant = user.restaurant;
-  const settings = user.restaurantSettings || restaurant?.settings;
+  const settings = liveSettings || user.restaurantSettings || restaurant?.settings;
   const theme = settings?.theme;
 
   return {
