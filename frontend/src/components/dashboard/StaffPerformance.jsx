@@ -14,6 +14,8 @@ import {
 import dashboardService from "../../services/dashboardService";
 import { useRestaurant } from "../../hooks/useRestaurant";
 import { formatMoney } from "../../utils/money";
+import { getErrorMessage } from "../../utils/errorMessage";
+import Alert from "../Alert";
 
 const StaffPerformance = ({ dateRange = {} }) => {
   const { t } = useTranslation();
@@ -42,7 +44,7 @@ const StaffPerformance = ({ dateRange = {} }) => {
         setError(response.message || "Failed to fetch staff performance");
       }
     } catch (err) {
-      setError(err.message || "An error occurred");
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -147,9 +149,7 @@ const StaffPerformance = ({ dateRange = {} }) => {
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <p className="text-red-600">{error}</p>
-      </div>
+      <Alert type="error" message={error} />
     );
   }
 

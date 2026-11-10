@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import "./Login.css";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@hooks/useAuth";
-import { Utensils, Lock, Mail, AlertCircle } from "lucide-react";
+import { Utensils, Lock, Mail } from "lucide-react";
+import Alert from "@components/Alert";
 import { useTranslation } from "react-i18next";
 
 const Login = () => {
@@ -31,12 +32,7 @@ const Login = () => {
           <p>{t("auth.login_subtitle")}</p>
         </div>
 
-        {error && (
-          <div className="error-alert">
-            <AlertCircle size={20} />
-            <span>{error}</span>
-          </div>
-        )}
+        <Alert type="error" message={error} />
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="input-group">

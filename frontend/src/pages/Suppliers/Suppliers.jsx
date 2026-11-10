@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PageHeader from "@components/PageHeader";
+import Alert from "@components/Alert";
 import "./Suppliers.css";
 import { useTranslation } from "react-i18next";
 import {
@@ -17,8 +18,6 @@ import {
   Calendar,
   X,
   Save,
-  AlertCircle,
-  CheckCircle,
   Eye,
   Download,
   Filter,
@@ -250,16 +249,7 @@ const Suppliers = () => {
       </PageHeader>
 
       {/* Message */}
-      {message.text && (
-        <div className={`message ${message.type}`}>
-          {message.type === "success" ? (
-            <CheckCircle size={20} />
-          ) : (
-            <AlertCircle size={20} />
-          )}
-          <span>{message.text}</span>
-        </div>
-      )}
+      <Alert type={message.type} message={message.text} />
 
       {/* Statistics Cards */}
       <div className="stats-grid">

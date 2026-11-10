@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { X, Loader2, CheckCircle2, ShieldCheck } from "lucide-react";
 import paymentService from "../../services/paymentService";
 import { formatMoney } from "../../utils/money";
+import { getErrorMessage } from "../../utils/errorMessage";
+import Alert from "../Alert";
 
 const RegistrationForm = ({ selectedPlan, onClose }) => {
   const { t } = useTranslation();
@@ -57,7 +59,7 @@ const RegistrationForm = ({ selectedPlan, onClose }) => {
         setError("Registration successful but no checkout URL returned.");
       }
     } catch (err) {
-      setError(err.message || "Registration failed. Please try again.");
+      setError(getErrorMessage(err, "Registration failed. Please try again."));
       // For development/mocking purposes if API fails
       if (import.meta.env.DEV && err.message?.includes("Failed to fetch")) {
         console.warn("Dev mode: Simulation redirect since API failed");
@@ -115,11 +117,7 @@ const RegistrationForm = ({ selectedPlan, onClose }) => {
             </div>
           </div>
 
-          {error && (
-            <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm font-medium">
-              {error}
-            </div>
-          )}
+          <Alert type="error" message={error} />
 
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Restaurant Section */}

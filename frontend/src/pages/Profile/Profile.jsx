@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import PageHeader from "@components/PageHeader";
+import Alert from "@components/Alert";
 import "./Profile.css";
 import { useAuth } from "@hooks/useAuth";
 import { useTranslation } from "react-i18next";
@@ -8,8 +9,6 @@ import {
   Mail,
   Lock,
   Save,
-  AlertCircle,
-  CheckCircle,
   Store,
   Briefcase,
 } from "lucide-react";
@@ -108,16 +107,7 @@ const Profile = () => {
         </div>
 
         <div className="profile-main card">
-          {message.text && (
-            <div className={`alert ${message.type}`}>
-              {message.type === "success" ? (
-                <CheckCircle size={18} />
-              ) : (
-                <AlertCircle size={18} />
-              )}
-              {message.text}
-            </div>
-          )}
+          <Alert type={message.type} message={message.text} />
 
           {activeTab === "personal" ? (
             <form onSubmit={handleInfoSubmit} className="profile-form">

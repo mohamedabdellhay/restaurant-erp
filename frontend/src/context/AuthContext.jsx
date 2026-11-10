@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useCallback } from "react";
 import api from "../services/api";
+import { getErrorMessage } from "../utils/errorMessage";
 import { useTheme } from "../hooks/useTheme";
 import {
   hasPermission,
@@ -166,10 +167,7 @@ export const AuthProvider = ({ children }) => {
 
       return true;
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          "Login failed. Please check your credentials.",
-      );
+      setError(getErrorMessage(err, "Login failed. Please check your credentials."));
       return false;
     } finally {
       setLoading(false);

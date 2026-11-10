@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PageHeader from "@components/PageHeader";
+import Alert from "@components/Alert";
 import "./Inventory.css";
 import { useTranslation } from "react-i18next";
 import {
@@ -306,9 +307,7 @@ const Inventory = () => {
         </button>
       </PageHeader>
 
-      {message.text && (
-        <div className={`message ${message.type}`}>{message.text}</div>
-      )}
+      <Alert type={message.type} message={message.text} />
 
       {/* Low Stock Alert */}
       {lowStockItems.length > 0 && (

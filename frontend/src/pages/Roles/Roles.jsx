@@ -16,6 +16,7 @@ import {
 import roleService from "@services/roleService";
 import { PERMISSIONS } from "@utils/permissionUtils";
 import PageHeader from "@components/PageHeader";
+import Alert from "@components/Alert";
 import "./Roles.css";
 
 const Roles = () => {
@@ -398,9 +399,7 @@ const Roles = () => {
       )}
 
       {/* Message Display */}
-      {message.text && (
-        <div className={`message ${message.type}`}>{message.text}</div>
-      )}
+      <Alert type={message.type} message={message.text} />
     </div>
   );
 };

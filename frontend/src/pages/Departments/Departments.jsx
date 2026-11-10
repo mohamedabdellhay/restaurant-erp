@@ -16,6 +16,7 @@ import {
 import departmentService from "@services/departmentService";
 import { hasPermission, PERMISSIONS } from "@utils/permissionUtils";
 import PageHeader from "@components/PageHeader";
+import Alert from "@components/Alert";
 import "./Departments.css";
 
 const Departments = () => {
@@ -296,9 +297,7 @@ const Departments = () => {
       </div>
 
       {/* Message Display */}
-      {message.text && (
-        <div className={`message ${message.type}`}>{message.text}</div>
-      )}
+      <Alert type={message.type} message={message.text} />
 
       {/* Search and Filter */}
       <div className="search-filter-container">

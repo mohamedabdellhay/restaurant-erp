@@ -10,6 +10,8 @@ import {
 import dashboardService from "../../services/dashboardService";
 import { useRestaurant } from "../../hooks/useRestaurant";
 import { formatMoney } from "../../utils/money";
+import { getErrorMessage } from "../../utils/errorMessage";
+import Alert from "../Alert";
 import "./InventoryAlerts.css";
 
 const InventoryAlerts = () => {
@@ -33,7 +35,7 @@ const InventoryAlerts = () => {
         setError(response.message || "Failed to fetch inventory alerts");
       }
     } catch (err) {
-      setError(err.message || "An error occurred");
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -92,9 +94,7 @@ const InventoryAlerts = () => {
 
   if (error) {
     return (
-      <div className="error-container">
-        <p className="error-message">{error}</p>
-      </div>
+      <Alert type="error" message={error} />
     );
   }
 

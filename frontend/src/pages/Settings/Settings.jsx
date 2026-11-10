@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { presetThemes } from "@utils/demoTheme";
 import PageHeader from "@components/PageHeader";
+import Alert from "@components/Alert";
 
 const Settings = () => {
   const { getRestaurantData, getRestaurantId } = useRestaurant();
@@ -473,12 +474,7 @@ const Settings = () => {
         subtitle={t("settings.subtitle")}
       />
 
-      {message.text && (
-        <div className={`message ${message.type}`}>
-          {message.type === "success" ? <Check size={20} /> : <X size={20} />}
-          <span>{message.text}</span>
-        </div>
-      )}
+      <Alert type={message.type} message={message.text} />
 
       <form onSubmit={handleSubmit} className="settings-form">
         {/* Basic Information */}

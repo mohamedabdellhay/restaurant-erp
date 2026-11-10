@@ -4,6 +4,8 @@ import { TrendingUp, DollarSign, CreditCard, ShoppingCart } from "lucide-react";
 import dashboardService from "../../services/dashboardService";
 import { useRestaurant } from "../../hooks/useRestaurant";
 import { formatMoney } from "../../utils/money";
+import { getErrorMessage } from "../../utils/errorMessage";
+import Alert from "../Alert";
 
 const RevenueAnalytics = ({ dateRange = {} }) => {
   const { t } = useTranslation();
@@ -32,7 +34,7 @@ const RevenueAnalytics = ({ dateRange = {} }) => {
         setError(response.message || "Failed to fetch revenue analytics");
       }
     } catch (err) {
-      setError(err.message || "An error occurred");
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -173,9 +175,7 @@ const RevenueAnalytics = ({ dateRange = {} }) => {
   if (error) {
     return (
       <div className="revenue-analytics">
-        <div className="error-card">
-          <p className="error-message">{error}</p>
-        </div>
+        <Alert type="error" message={error} />
       </div>
     );
   }

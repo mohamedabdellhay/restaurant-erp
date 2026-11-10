@@ -4,6 +4,8 @@ import { Users, TrendingUp, UserCheck, UserPlus, Star } from "lucide-react";
 import dashboardService from "../../services/dashboardService";
 import { useRestaurant } from "../../hooks/useRestaurant";
 import { formatMoney } from "../../utils/money";
+import { getErrorMessage } from "../../utils/errorMessage";
+import Alert from "../Alert";
 
 const CustomerAnalytics = ({ dateRange = {} }) => {
   const { t } = useTranslation();
@@ -31,7 +33,7 @@ const CustomerAnalytics = ({ dateRange = {} }) => {
         setError(response.message || "Failed to fetch customer analytics");
       }
     } catch (err) {
-      setError(err.message || "An error occurred");
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -128,9 +130,7 @@ const CustomerAnalytics = ({ dateRange = {} }) => {
 
   if (error) {
     return (
-      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-        <p className="text-red-600 dark:text-red-400">{error}</p>
-      </div>
+      <Alert type="error" message={error} />
     );
   }
 

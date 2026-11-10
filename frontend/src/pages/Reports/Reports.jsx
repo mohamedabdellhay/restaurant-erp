@@ -15,6 +15,8 @@ import {
   ArrowDownRight,
 } from "lucide-react";
 import PageHeader from "@components/PageHeader";
+import Alert from "@components/Alert";
+import { getErrorMessage } from "../../utils/errorMessage";
 import "./Reports.css";
 import api from "../../services/api";
 import { useRestaurant } from "../../hooks/useRestaurant";
@@ -153,11 +155,7 @@ const Reports = () => {
         };
         await map[activeTab]?.();
       } catch (err) {
-        setError(
-          err.response?.data?.message ||
-            err.message ||
-            "Could not load this report.",
-        );
+        setError(getErrorMessage(err, "Could not load this report."));
       } finally {
         setLoading(false);
       }
@@ -263,7 +261,7 @@ const Reports = () => {
         </div>
       )}
 
-      {!loading && error && <EmptyState text={error} />}
+      {!loading && <Alert type="error" message={error} />}
 
       {/* ── SALES ── */}
       {!loading && !error && activeTab === "sales" && (

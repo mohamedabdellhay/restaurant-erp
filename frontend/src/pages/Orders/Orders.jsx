@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PageHeader from "@components/PageHeader";
+import Alert from "@components/Alert";
 import "./Orders.css";
 import { useTranslation } from "react-i18next";
 import {
@@ -490,9 +491,7 @@ const Orders = () => {
       </PageHeader>
 
       {/* Message */}
-      {message.text && (
-        <div className={`message ${message.type}`}>{message.text}</div>
-      )}
+      <Alert type={message.type} message={message.text} />
 
       {/* Stats Cards */}
       <div className="stats-grid">

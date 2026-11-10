@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import PageHeader from "@components/PageHeader";
+import Alert from "@components/Alert";
 import "./Menu.css";
 import { useTranslation } from "react-i18next";
 import { useRestaurant } from "@hooks/useRestaurant";
@@ -534,9 +535,7 @@ const Menu = () => {
       </div>
 
       {/* Message */}
-      {message.text && (
-        <div className={`message ${message.type}`}>{message.text}</div>
-      )}
+      <Alert type={message.type} message={message.text} />
 
       {/* Menu Items Grid */}
       {loading ? (
@@ -1226,9 +1225,7 @@ const CategoryManagementModal = ({
           </button>
         </div>
 
-        {message.text && (
-          <div className={`message ${message.type}`}>{message.text}</div>
-        )}
+        <Alert type={message.type} message={message.text} />
 
         <div className="category-modal-content">
           {/* Category Form */}

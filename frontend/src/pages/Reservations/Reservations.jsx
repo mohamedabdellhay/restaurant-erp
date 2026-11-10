@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PageHeader from "@components/PageHeader";
+import Alert from "@components/Alert";
 import "./Reservations.css";
 import { useTranslation } from "react-i18next";
 import { useRestaurant } from "@hooks/useRestaurant";
@@ -536,9 +537,7 @@ const Reservations = () => {
       </div>
 
       {/* Message */}
-      {message.text && (
-        <div className={`message ${message.type}`}>{message.text}</div>
-      )}
+      <Alert type={message.type} message={message.text} />
 
       {/* Reservations Table */}
       <div className="reservations-container">

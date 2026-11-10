@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { X, UserPlus, Save, Phone, Mail, MapPin, User } from "lucide-react";
 import customerService from "../services/customerService";
+import Alert from "./Alert";
 
 const CustomerModal = ({
   isOpen,
@@ -128,9 +129,7 @@ const CustomerModal = ({
           </button>
         </div>
 
-        {message.text && (
-          <div className={`message ${message.type}`}>{message.text}</div>
-        )}
+        <Alert type={message.type} message={message.text} />
 
         <form onSubmit={handleSubmit} className="customer-form">
           <div className="form-grid">

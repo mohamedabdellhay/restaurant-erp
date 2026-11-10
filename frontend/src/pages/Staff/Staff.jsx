@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import PageHeader from "@components/PageHeader";
+import Alert from "@components/Alert";
 import {
   ProtectedElement,
   ProtectedButton,
@@ -297,9 +298,7 @@ const Staff = () => {
       </div>
 
       {/* Message */}
-      {message.text && (
-        <div className={`message ${message.type}`}>{message.text}</div>
-      )}
+      <Alert type={message.type} message={message.text} />
 
       {/* Staff Table */}
       <div className="staff-table-container">
