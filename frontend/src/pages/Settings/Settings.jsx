@@ -746,7 +746,8 @@ const Settings = () => {
                       <div
                         className="preset-preview"
                         style={{
-                          background: `linear-gradient(135deg, ${preset.theme.primaryColor} 50%, ${preset.theme.secondaryColor} 50%)`,
+                          backgroundColor: preset.theme.primaryColor,
+                          boxShadow: `inset -18px 0 0 ${preset.theme.secondaryColor}`,
                         }}
                       >
                         <div

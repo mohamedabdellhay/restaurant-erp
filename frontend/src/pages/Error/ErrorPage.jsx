@@ -174,11 +174,7 @@ const ErrorPage = ({
           display: flex;
           align-items: center;
           justify-content: center;
-          background: linear-gradient(
-            135deg,
-            var(--bg-primary) 0%,
-            var(--bg-secondary) 100%
-          );
+          background: var(--bg-base);
           padding: 2rem;
         }
 

@@ -48,13 +48,19 @@ const NavItem = memo(function NavItem({ to, icon: Icon, label }) {
   );
 });
 
-function hideBrokenLogo(event) {
-  event.currentTarget.style.display = "none";
+function showDefaultLogo(event) {
+  const image = event.currentTarget;
+  if (image.dataset.fallback === "1") {
+    image.style.display = "none";
+    return;
+  }
+  image.dataset.fallback = "1";
+  image.src = "/restaurant-logo.svg";
 }
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const { user, logout, hasPermission } = useAuth();
-  const { getRestaurantName, getThemeColors } = useRestaurant();
+  const { getBusinessLogo, getThemeColors } = useRestaurant();
   const { restaurantSettings } = useTheme();
   const { t, i18n } = useTranslation();
 
@@ -87,7 +93,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     setIsOpen((open) => !open);
   }, [setIsOpen]);
 
-  const logo = themeColors.logo;
+  const logo = getBusinessLogo();
   const mainItems = menuItems.filter((item) => !item.footer);
   const footerItems = menuItems.filter((item) => item.footer);
 
@@ -98,21 +104,13 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     >
       <div className="sidebar-header">
         {isOpen && (
-          <div className="logo-text">
-            {logo ? (
-              <img
-                src={logo}
-                alt=""
-                className="sidebar-logo"
-                onError={hideBrokenLogo}
-              />
-            ) : (
-              <>
-                <span className="restaurant-name">{getRestaurantName()}</span>
-                <span>ERP</span>
-              </>
-            )}
-          </div>
+          <img
+            key={logo}
+            src={logo}
+            alt=""
+            className="sidebar-logo"
+            onError={showDefaultLogo}
+          />
         )}
         <button type="button" onClick={toggle} className="toggle-btn" aria-label="Toggle sidebar">
           <ChevronLeft size={20} className={!isOpen ? "rotate" : ""} />

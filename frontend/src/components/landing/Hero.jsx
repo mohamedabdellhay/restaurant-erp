@@ -47,10 +47,7 @@ const Hero = () => {
         }
 
         .hero-title-gradient {
-          background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
+          color: #f59e0b;
           margin-top: 0.5rem;
         }
 
@@ -79,7 +76,7 @@ const Hero = () => {
           justify-content: center;
           padding: 1rem 2.5rem;
           border-radius: 0.75rem;
-          background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+          background: #f59e0b;
           color: white;
           text-decoration: none;
           font-weight: 600;
@@ -132,7 +129,7 @@ const Hero = () => {
         .hero-background-shape {
           aspect-ratio: 1155/678;
           width: min(72.1875rem, 100%);
-          background: linear-gradient(135deg, rgba(245, 158, 11, 0.3) 0%, rgba(217, 119, 6, 0.3) 100%);
+          background: rgba(245, 158, 11, 0.3);
           opacity: 0.4;
           clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%);
         }

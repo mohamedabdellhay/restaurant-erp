@@ -213,14 +213,12 @@ const DashboardOverview = ({ dateRange = {} }) => {
           padding: 1.1rem 1.15rem;
           border: 1px solid var(--border-color);
           border-radius: 16px;
-          background:
-            linear-gradient(180deg, color-mix(in srgb, var(--tone, var(--primary)) 8%, transparent), transparent 55%),
-            var(--bg-card);
+          background: var(--bg-card);
         }
 
         .metric-card-skeleton {
           min-height: 92px;
-          background: linear-gradient(90deg, var(--bg-card), var(--bg-secondary), var(--bg-card));
+          background: var(--bg-secondary);
           background-size: 200% 100%;
           animation: metric-shimmer 1.2s ease-in-out infinite;
         }

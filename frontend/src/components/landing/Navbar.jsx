@@ -62,10 +62,7 @@ const Navbar = () => {
         }
 
         .navbar-brand-gradient {
-          background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
+          color: #f59e0b;
         }
 
         .navbar-brand-text {
@@ -129,7 +126,7 @@ const Navbar = () => {
           align-items: center;
           padding: 0.625rem 1.5rem;
           border-radius: 2rem;
-          background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+          background: #f59e0b;
           color: white;
           text-decoration: none;
           font-weight: 600;

@@ -19,6 +19,7 @@ export const useRestaurant = () => {
         accent: "#10b981",
         mode: "light",
       }),
+      getBusinessLogo: () => "/restaurant-logo.svg",
       getRestaurantId: () => null,
       getOpeningHours: () => ({}),
       getSocialMedia: () => ({}),
@@ -50,6 +51,10 @@ export const useRestaurant = () => {
       mode: theme?.mode || "light",
       logo: theme?.logo ? decodeURIComponent(theme.logo) : "",
     }),
+    getBusinessLogo: () => {
+      const uploaded = restaurant?.logo || theme?.logo || "";
+      return uploaded ? decodeURIComponent(uploaded) : "/restaurant-logo.svg";
+    },
     getOpeningHours: () => restaurant?.openingHours || {},
     getSocialMedia: () => restaurant?.socialMedia || {},
     getBusinessDetails: () => ({

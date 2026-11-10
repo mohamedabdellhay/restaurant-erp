@@ -166,7 +166,7 @@
 }
 
 .message.success {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: #10b981;
   color: white;
   border: 1px solid #10b981;
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
@@ -186,7 +186,7 @@
 }
 
 .message.error {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: #ef4444;
   color: white;
   border: 1px solid #ef4444;
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);

@@ -11,7 +11,7 @@ const DashboardLayout = () => {
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
       <div className={`main-container ${!sidebarOpen ? 'full-width' : ''}`}>
-        <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+        <Header />
 
         <main className="content-area">
           <Outlet />
