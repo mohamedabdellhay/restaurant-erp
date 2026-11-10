@@ -1,10 +1,4 @@
 
-        .settings-page {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 2rem;
-        }
-
         .settings-header {
           margin-bottom: 2rem;
         }
@@ -696,9 +690,6 @@
         }
 
         @media (max-width: 768px) {
-          .settings-page {
-            padding: 1rem;
-          }
 
           .form-grid {
             grid-template-columns: 1fr;

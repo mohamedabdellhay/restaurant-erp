@@ -32,9 +32,13 @@ import {
   ProtectedButton,
 } from "@components/ProtectedElement";
 import { PERMISSIONS } from "@utils/permissionUtils";
+import { useRestaurant } from "@hooks/useRestaurant";
+import { formatMoney } from "../../utils/money";
 
 const Orders = () => {
   const { t, i18n } = useTranslation();
+  const { getCurrency } = useRestaurant();
+  const currency = getCurrency();
   const [orders, setOrders] = useState([]);
   const [tables, setTables] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
@@ -464,7 +468,7 @@ const Orders = () => {
   };
 
   return (
-    <div className="orders-page" data-direction={i18n.dir()}>
+    <div data-direction={i18n.dir()}>
       <div className="page-header">
         <div className="header-content">
           <h1>
@@ -646,11 +650,11 @@ const Orders = () => {
                 </td>
                 <td data-direction={i18n.dir()}>
                   <div className="total-info">
-                    <DollarSign size={16} />
                     <span>
-                      $
-                      {order.total?.toFixed(2) ||
-                        calculateTotal(order.items || []).toFixed(2)}
+                      {formatMoney(
+                        order.total ?? calculateTotal(order.items || []),
+                        currency,
+                      )}
                     </span>
                   </div>
                 </td>
@@ -905,7 +909,7 @@ const Orders = () => {
                         .filter((item) => item.isActive !== false)
                         .map((item) => (
                           <option key={item._id} value={item._id}>
-                            {item.name} - ${item.price?.toFixed(2)}
+                            {item.name} - {formatMoney(item.price, currency)}
                           </option>
                         ))}
                     </select>
@@ -919,7 +923,7 @@ const Orders = () => {
                           <div className="item-info">
                             <span className="item-name">{item.name}</span>
                             <span className="item-price">
-                              ${item.price?.toFixed(2)}
+                              {formatMoney(item.price, currency)}
                             </span>
                           </div>
                           <div className="item-controls">
@@ -959,7 +963,7 @@ const Orders = () => {
                       {/* Order Total */}
                       <div className="order-total">
                         <strong>{t("nav.orders_total")}:</strong>
-                        <span>${calculateOrderTotal().toFixed(2)}</span>
+                        <span>{formatMoney(calculateOrderTotal(), currency)}</span>
                       </div>
                     </div>
                   )}

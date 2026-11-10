@@ -6,11 +6,18 @@ function num(value) {
   return value == null ? 0 : Number(value);
 }
 
+function parseRangeDate(value, end = false) {
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return new Date(`${value}T${end ? "23:59:59.999" : "00:00:00"}`);
+  }
+  return new Date(value);
+}
+
 function dateClause(column, from, to) {
   const expr = column.includes(".") ? column : `"${column}"`;
   const parts = [];
-  if (from) parts.push(Prisma.sql`${Prisma.raw(expr)} >= ${new Date(from)}`);
-  if (to) parts.push(Prisma.sql`${Prisma.raw(expr)} <= ${new Date(to)}`);
+  if (from) parts.push(Prisma.sql`${Prisma.raw(expr)} >= ${parseRangeDate(from, false)}`);
+  if (to) parts.push(Prisma.sql`${Prisma.raw(expr)} <= ${parseRangeDate(to, true)}`);
   if (!parts.length) return Prisma.empty;
   return Prisma.sql`AND ${Prisma.join(parts, " AND ")}`;
 }

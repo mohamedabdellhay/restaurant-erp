@@ -111,11 +111,11 @@ function App() {
                   }
                 />
 
-                {/* Suppliers - view_suppliers permission */}
+                {/* Suppliers share the inventory permission used by the API */}
                 <Route
                   path="/suppliers"
                   element={
-                    <ProtectedRoute permission="view_suppliers">
+                    <ProtectedRoute permission="view_inventory">
                       <Suppliers />
                     </ProtectedRoute>
                   }

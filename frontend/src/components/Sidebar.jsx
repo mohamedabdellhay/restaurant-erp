@@ -20,21 +20,22 @@ import {
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { useRestaurant } from "../hooks/useRestaurant";
+import { useTheme } from "../hooks/useTheme";
 import { useTranslation } from "react-i18next";
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const { user, logout, hasPermission } = useAuth();
   const { getRestaurantName, getThemeColors } = useRestaurant();
+  const { restaurantSettings } = useTheme();
   const { t, i18n } = useTranslation();
 
-  // Get theme colors for dynamic styling
-  const themeColors = getThemeColors();
-  const primaryColor = themeColors.primary || "#f59e0b";
-  //   const secondaryColor = themeColors.secondary || "#6366f1";
-  //   const accentColor = themeColors.accent || "#10b981";
-
-  // Debug logging
-  console.log("Sidebar - themeColors:", themeColors);
+  const savedTheme = restaurantSettings?.theme;
+  const fallbackTheme = getThemeColors();
+  const sidebarColors = {
+    "--sidebar-primary": savedTheme?.primaryColor || fallbackTheme.primary,
+    "--sidebar-secondary": savedTheme?.secondaryColor || fallbackTheme.secondary,
+    "--sidebar-accent": savedTheme?.accentColor || fallbackTheme.accent,
+  };
 
   // Define all possible menu items with their required permissions
   const allMenuItems = [
@@ -90,7 +91,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       name: t("nav.suppliers"),
       icon: Truck,
       path: "/suppliers",
-      requiredPermission: "view_suppliers",
+      requiredPermission: "view_inventory",
     },
     {
       name: t("nav.invoices"),
@@ -131,6 +132,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
   return (
     <aside
       className={`sidebar ${!isOpen ? "collapsed" : ""} ${isRTL ? "rtl" : ""}`}
+      style={sidebarColors}
     >
       <div className="sidebar-header">
         {isOpen && (
@@ -190,14 +192,21 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       <style>{`
         .sidebar {
           width: 260px;
-          background: var(--bg-sidebar);
-          border-right: 1px solid var(--border-color);
+          background:
+            linear-gradient(
+              180deg,
+              color-mix(in srgb, var(--sidebar-primary) 18%, var(--bg-sidebar)) 0%,
+              color-mix(in srgb, var(--sidebar-secondary) 12%, var(--bg-sidebar)) 100%
+            );
+          border-inline-end: 1px solid color-mix(in srgb, var(--sidebar-primary) 24%, var(--border-color));
           display: flex;
           flex-direction: column;
           transition: width var(--transition-normal);
-          position: sticky;
+          position: fixed;
           top: 0;
+          inset-inline-start: 0;
           height: 100vh;
+          height: 100dvh;
           overflow-y: auto;
           z-index: 100;
         }
@@ -211,7 +220,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          border-bottom: 1px solid var(--border-color);
+          border-bottom: 1px solid color-mix(in srgb, var(--sidebar-primary) 20%, var(--border-color));
           height: 70px;
         }
 
@@ -232,7 +241,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         }
 
         .logo-text span {
-          color: ${primaryColor};
+          color: var(--sidebar-primary);
         }
 
         .toggle-btn {
@@ -243,8 +252,8 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         }
 
         .toggle-btn:hover {
-          background: ${primaryColor}15;
-          color: ${primaryColor};
+          background: color-mix(in srgb, var(--sidebar-primary) 14%, transparent);
+          color: var(--sidebar-primary);
         }
 
         .toggle-btn .rotate {
@@ -281,8 +290,8 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         }
 
         .nav-link:hover {
-          background: ${primaryColor}10;
-          color: ${primaryColor};
+          background: color-mix(in srgb, var(--sidebar-primary) 10%, transparent);
+          color: var(--sidebar-primary);
           transform: translateX(2px);
         }
 
@@ -291,15 +300,15 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         }
 
         .nav-link.active {
-          background: linear-gradient(90deg, ${primaryColor}15, transparent);
-          color: ${primaryColor};
-          border-left-color: ${primaryColor};
+          background: linear-gradient(90deg, color-mix(in srgb, var(--sidebar-primary) 16%, transparent), transparent);
+          color: var(--sidebar-primary);
+          border-left-color: var(--sidebar-primary);
           font-weight: 600;
         }
 
         [dir='rtl'] .nav-link.active {
           border-left-color: transparent;
-          border-right-color: ${primaryColor};
+          border-right-color: var(--sidebar-primary);
         }
 
         .nav-link.active::before {
@@ -309,8 +318,8 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           top: 0;
           bottom: 0;
           width: 3px;
-          background: ${primaryColor};
-          box-shadow: 0 0 8px ${primaryColor}40;
+          background: var(--sidebar-primary);
+          box-shadow: 0 0 8px color-mix(in srgb, var(--sidebar-primary) 35%, transparent);
         }
 
         [dir='rtl'] .nav-link.active::before {
@@ -327,13 +336,13 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         }
 
         .nav-link.active svg {
-          color: ${primaryColor};
-          filter: drop-shadow(0 0 4px ${primaryColor}40);
+          color: var(--sidebar-accent);
+          filter: drop-shadow(0 0 4px color-mix(in srgb, var(--sidebar-accent) 35%, transparent));
         }
 
         .sidebar-footer {
           padding: 1.5rem 0;
-          border-top: 1px solid var(--border-color);
+          border-top: 1px solid color-mix(in srgb, var(--sidebar-primary) 20%, var(--border-color));
         }
 
         .logout-btn {
@@ -354,11 +363,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         .logout-btn:hover svg {
           color: var(--danger);
           transform: scale(1.1);
-        }
-
-        /* Theme-specific sidebar background */
-        .sidebar {
-          background: linear-gradient(180deg, var(--bg-sidebar) 0%, var(--bg-base) 100%);
         }
 
         /* Active state animation */

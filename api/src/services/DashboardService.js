@@ -7,18 +7,25 @@ function num(value) {
   return value == null ? 0 : Number(value);
 }
 
+function parseRangeDate(value, end = false) {
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return new Date(`${value}T${end ? "23:59:59.999" : "00:00:00"}`);
+  }
+  return new Date(value);
+}
+
 function createdRange(from, to) {
   if (!from && !to) return undefined;
   const createdAt = {};
-  if (from) createdAt.gte = new Date(from);
-  if (to) createdAt.lte = new Date(to);
+  if (from) createdAt.gte = parseRangeDate(from, false);
+  if (to) createdAt.lte = parseRangeDate(to, true);
   return createdAt;
 }
 
 function dateClause(from, to, column = '"createdAt"') {
   const parts = [];
-  if (from) parts.push(Prisma.sql`${Prisma.raw(column)} >= ${new Date(from)}`);
-  if (to) parts.push(Prisma.sql`${Prisma.raw(column)} <= ${new Date(to)}`);
+  if (from) parts.push(Prisma.sql`${Prisma.raw(column)} >= ${parseRangeDate(from, false)}`);
+  if (to) parts.push(Prisma.sql`${Prisma.raw(column)} <= ${parseRangeDate(to, true)}`);
   if (!parts.length) return Prisma.empty;
   return Prisma.sql`AND ${Prisma.join(parts, " AND ")}`;
 }
@@ -121,8 +128,21 @@ class DashboardService {
         if (row.day != null) _id.day = num(row.day);
         if (row.week != null) _id.week = num(row.week);
         if (row.hour != null) _id.hour = num(row.hour);
+        const label = [
+          _id.year,
+          _id.month != null ? String(_id.month).padStart(2, "0") : null,
+          _id.day != null ? String(_id.day).padStart(2, "0") : null,
+          _id.week != null ? `W${_id.week}` : null,
+          _id.hour != null ? `${_id.hour}:00` : null,
+        ]
+          .filter((part) => part != null && part !== "")
+          .join("-")
+          .replace(/-W/, " W")
+          .replace(/-(\d{1,2}:00)$/, " $1");
         return {
           _id,
+          label,
+          value: num(row.revenue),
           revenue: num(row.revenue),
           orders: num(row.orders),
           averageOrderValue: num(row.averageOrderValue),
@@ -130,11 +150,15 @@ class DashboardService {
       }),
       paymentMethods: paymentMethods.map((row) => ({
         _id: row.method,
+        label: row.method || "Unspecified",
+        value: num(row.revenue),
         revenue: num(row.revenue),
         count: num(row.count),
       })),
       orderTypes: orderTypes.map((row) => ({
         _id: row.type,
+        label: row.type || "Unknown",
+        value: num(row.revenue),
         revenue: num(row.revenue),
         count: num(row.count),
       })),
@@ -174,14 +198,15 @@ class DashboardService {
     const id = requireUuid(restaurantId);
     const range = dateClause(from, to, 'o."createdAt"');
     const rows = await prisma.$queryRaw`
-      SELECT s.id, s.name, s.email, s."roleId" AS role,
+      SELECT s.id, s.name, s.email, r.name AS role,
              COUNT(*)::int AS "totalOrders",
              COALESCE(SUM(o.total), 0)::float8 AS "totalRevenue",
              COALESCE(AVG(o.total), 0)::float8 AS "averageOrderValue"
       FROM orders o
       JOIN staff s ON s.id = o."createdById"
+      JOIN roles r ON r.id = s."roleId"
       WHERE o."restaurantId" = ${id} ${range}
-      GROUP BY s.id
+      GROUP BY s.id, r.name
       ORDER BY "totalRevenue" DESC
     `;
     return rows.map((row) => ({
@@ -318,12 +343,20 @@ class DashboardService {
 
     return {
       lowStockItems: toDocs(
-        lowStockItems.map((row) => ({
-          ...row,
-          stock: num(row.stock),
-          minStockAlert: num(row.minStockAlert),
-          costPrice: num(row.costPrice),
-        })),
+        lowStockItems.map((row) => {
+          const stock = num(row.stock);
+          const minStock = num(row.minStockAlert);
+          const costPrice = num(row.costPrice);
+          return {
+            ...row,
+            stock,
+            currentStock: stock,
+            minStockAlert: minStock,
+            minStock,
+            costPrice,
+            value: stock * costPrice,
+          };
+        }),
       ),
       lowStockCount: lowStockItems.length,
       totalInventoryValue: num(valueRows[0]?.totalValue),

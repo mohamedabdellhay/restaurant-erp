@@ -37,9 +37,32 @@ app.use(
     crossOriginResourcePolicy: { policy: "cross-origin" },
   }),
 );
+const configuredOrigins = (process.env.CORS_ORIGIN || "*")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+const allowedOrigins = new Set(configuredOrigins);
+for (const origin of configuredOrigins) {
+  if (origin.includes("://localhost")) {
+    allowedOrigins.add(origin.replace("://localhost", "://127.0.0.1"));
+  } else if (origin.includes("://127.0.0.1")) {
+    allowedOrigins.add(origin.replace("://127.0.0.1", "://localhost"));
+  }
+}
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "*",
+    origin(origin, callback) {
+      if (
+        !origin ||
+        allowedOrigins.has("*") ||
+        allowedOrigins.has(origin)
+      ) {
+        callback(null, true);
+        return;
+      }
+      callback(null, false);
+    },
     credentials: true,
   }),
 );
@@ -48,7 +71,7 @@ app.use(cookieParser());
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: 1000000000000, // limit each IP to 100 requests per windowMs
   handler: (req, res) => {
     const lang = req.headers["accept-language"]?.startsWith("ar") ? "ar" : "en";
     const message = getTranslation(

@@ -1,9 +1,4 @@
 /* Departments Page Styles */
-.departments-container {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
 
 .departments-header {
   display: flex;
@@ -441,10 +436,6 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .departments-container {
-    padding: 16px;
-  }
-
   .departments-header {
     flex-direction: column;
     gap: 16px;

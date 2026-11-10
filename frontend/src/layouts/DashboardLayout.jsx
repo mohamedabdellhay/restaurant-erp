@@ -14,42 +14,36 @@ const DashboardLayout = () => {
         <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
         <main className="content-area">
-          <div className="content-wrapper">
-            <Outlet />
-          </div>
+          <Outlet />
         </main>
       </div>
 
       <style>{`
         .layout-wrapper {
-          display: flex;
           min-height: 100vh;
+          width: 100%;
+          max-width: 100%;
           background-color: var(--bg-base);
         }
 
         .main-container {
-          flex: 1;
           display: flex;
           flex-direction: column;
-          min-width: 0; /* Prevents flex items from overflowing */
-          transition: margin-left var(--transition-normal);
+          min-width: 0;
+          min-height: 100vh;
+          margin-inline-start: 260px;
+          transition: margin-inline-start var(--transition-normal);
+        }
+
+        .main-container.full-width {
+          margin-inline-start: 80px;
         }
 
         .content-area {
           flex: 1;
+          min-width: 0;
           padding: 2rem;
-          overflow-y: auto;
-        }
-
-        .content-wrapper {
-          max-width: 1400px;
-          margin: 0 auto;
-          animation: fadeIn 0.4s ease-out;
-        }
-
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
+          overflow: auto;
         }
 
         @media (max-width: 768px) {

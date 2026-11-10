@@ -15,25 +15,13 @@ import {
   ArrowDownRight,
 } from "lucide-react";
 import "./Reports.css";
+import api from "../../services/api";
+import { useRestaurant } from "../../hooks/useRestaurant";
+import { formatMoney } from "../../utils/money";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-function fmt(amount) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 2,
-  }).format(amount || 0);
-}
-
-function buildHeaders(lang) {
-  return {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-    "Accept-Language": lang,
-  };
-}
 
 // ─── sub-components ─────────────────────────────────────────────────────────
 
@@ -74,6 +62,8 @@ const TABS = [
 
 const Reports = () => {
   const { t, i18n } = useTranslation();
+  const { getCurrency } = useRestaurant();
+  const money = (amount) => formatMoney(amount, getCurrency());
 
   const initialRange = useMemo(() => {
     const now = new Date();
@@ -87,78 +77,69 @@ const Reports = () => {
   const [dateRange, setDateRange] = useState(initialRange);
   const [activeTab, setActiveTab] = useState("sales");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [data, setData] = useState({});           // keyed by tab
   const [revenueGroupBy, setRevenueGroupBy] = useState("day");
 
   // ── fetchers ─────────────────────────────────────────────────────────────
 
   const fetchSales = useCallback(async () => {
-    const r = await fetch(
-      `/api/reports/sales?from=${dateRange.from}&to=${dateRange.to}`,
-      { headers: buildHeaders(i18n.language) }
-    );
-    const j = await r.json();
-    if (j.success) setData((p) => ({ ...p, sales: j.data }));
-  }, [dateRange, i18n.language]);
+    const r = await api.get("/reports/sales", {
+      params: { from: dateRange.from, to: dateRange.to },
+    });
+    if (r.data.success) setData((p) => ({ ...p, sales: r.data.data }));
+  }, [dateRange]);
 
   const fetchRevenue = useCallback(async () => {
-    const r = await fetch(
-      `/api/reports/revenue?from=${dateRange.from}&to=${dateRange.to}&groupBy=${revenueGroupBy}`,
-      { headers: buildHeaders(i18n.language) }
-    );
-    const j = await r.json();
-    if (j.success) setData((p) => ({ ...p, revenue: j.data }));
-  }, [dateRange, revenueGroupBy, i18n.language]);
+    const r = await api.get("/reports/revenue", {
+      params: {
+        from: dateRange.from,
+        to: dateRange.to,
+        groupBy: revenueGroupBy,
+      },
+    });
+    if (r.data.success) setData((p) => ({ ...p, revenue: r.data.data }));
+  }, [dateRange, revenueGroupBy]);
 
   const fetchTopItems = useCallback(async () => {
-    const r = await fetch(
-      `/api/reports/top-items?from=${dateRange.from}&to=${dateRange.to}&limit=10`,
-      { headers: buildHeaders(i18n.language) }
-    );
-    const j = await r.json();
-    if (j.success) setData((p) => ({ ...p, topItems: j.data }));
-  }, [dateRange, i18n.language]);
+    const r = await api.get("/reports/top-items", {
+      params: { from: dateRange.from, to: dateRange.to, limit: 10 },
+    });
+    if (r.data.success) setData((p) => ({ ...p, topItems: r.data.data }));
+  }, [dateRange]);
 
   const fetchOrders = useCallback(async () => {
-    const r = await fetch(
-      `/api/reports/orders?from=${dateRange.from}&to=${dateRange.to}`,
-      { headers: buildHeaders(i18n.language) }
-    );
-    const j = await r.json();
-    if (j.success) setData((p) => ({ ...p, orders: j.data }));
-  }, [dateRange, i18n.language]);
+    const r = await api.get("/reports/orders", {
+      params: { from: dateRange.from, to: dateRange.to },
+    });
+    if (r.data.success) setData((p) => ({ ...p, orders: r.data.data }));
+  }, [dateRange]);
 
   const fetchInventory = useCallback(async () => {
-    const r = await fetch(`/api/reports/inventory`, {
-      headers: buildHeaders(i18n.language),
-    });
-    const j = await r.json();
-    if (j.success) setData((p) => ({ ...p, inventory: j.data }));
-  }, [i18n.language]);
+    const r = await api.get("/reports/inventory");
+    if (r.data.success) setData((p) => ({ ...p, inventory: r.data.data }));
+  }, []);
 
   const fetchReservations = useCallback(async () => {
-    const r = await fetch(
-      `/api/reports/reservations?from=${dateRange.from}&to=${dateRange.to}`,
-      { headers: buildHeaders(i18n.language) }
-    );
-    const j = await r.json();
-    if (j.success) setData((p) => ({ ...p, reservations: j.data }));
-  }, [dateRange, i18n.language]);
+    const r = await api.get("/reports/reservations", {
+      params: { from: dateRange.from, to: dateRange.to },
+    });
+    if (r.data.success) setData((p) => ({ ...p, reservations: r.data.data }));
+  }, [dateRange]);
 
   const fetchStaff = useCallback(async () => {
-    const r = await fetch(
-      `/api/reports/staff-performance?from=${dateRange.from}&to=${dateRange.to}`,
-      { headers: buildHeaders(i18n.language) }
-    );
-    const j = await r.json();
-    if (j.success) setData((p) => ({ ...p, staff: j.data }));
-  }, [dateRange, i18n.language]);
+    const r = await api.get("/reports/staff-performance", {
+      params: { from: dateRange.from, to: dateRange.to },
+    });
+    if (r.data.success) setData((p) => ({ ...p, staff: r.data.data }));
+  }, [dateRange]);
 
   // ── load on tab / date change ─────────────────────────────────────────────
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
+      setError("");
       try {
         const map = {
           sales: fetchSales,
@@ -171,7 +152,11 @@ const Reports = () => {
         };
         await map[activeTab]?.();
       } catch (err) {
-        console.error("Report fetch error:", err);
+        setError(
+          err.response?.data?.message ||
+            err.message ||
+            "Could not load this report.",
+        );
       } finally {
         setLoading(false);
       }
@@ -206,7 +191,7 @@ const Reports = () => {
   // ── render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="reports-page" data-direction={i18n.dir()}>
+    <div data-direction={i18n.dir()}>
       {/* Header */}
       <div className="page-header">
         <div className="header-content">
@@ -282,8 +267,10 @@ const Reports = () => {
         </div>
       )}
 
+      {!loading && error && <EmptyState text={error} />}
+
       {/* ── SALES ── */}
-      {!loading && activeTab === "sales" && (
+      {!loading && !error && activeTab === "sales" && (
         <div className="tab-content">
           <SectionTitle>Sales Performance</SectionTitle>
           {data.sales ? (
@@ -292,7 +279,7 @@ const Reports = () => {
                 <StatCard
                   icon={DollarSign}
                   label="Total Revenue"
-                  value={fmt(data.sales.totalRevenue)}
+                  value={money(data.sales.totalRevenue)}
                 />
                 <StatCard
                   icon={ShoppingCart}
@@ -302,17 +289,17 @@ const Reports = () => {
                 <StatCard
                   icon={TrendingUp}
                   label="Avg Order Value"
-                  value={fmt(data.sales.averageOrderValue)}
+                  value={money(data.sales.averageOrderValue)}
                 />
                 <StatCard
                   icon={ArrowUpRight}
                   label="Total Tax"
-                  value={fmt(data.sales.totalTax)}
+                  value={money(data.sales.totalTax)}
                 />
                 <StatCard
                   icon={ArrowDownRight}
                   label="Service Charge"
-                  value={fmt(data.sales.totalServiceCharge)}
+                  value={money(data.sales.totalServiceCharge)}
                 />
               </div>
 
@@ -338,7 +325,7 @@ const Reports = () => {
                               </span>
                             </td>
                             <td data-direction={i18n.dir()}>
-                              {fmt(row.revenue)}
+                              {money(row.revenue)}
                             </td>
                             <td data-direction={i18n.dir()}>{row.count}</td>
                           </tr>
@@ -367,7 +354,7 @@ const Reports = () => {
                           <tr key={i}>
                             <td data-direction={i18n.dir()}>{row.date}</td>
                             <td data-direction={i18n.dir()}>
-                              {fmt(row.revenue)}
+                              {money(row.revenue)}
                             </td>
                             <td data-direction={i18n.dir()}>{row.orders}</td>
                           </tr>
@@ -385,7 +372,7 @@ const Reports = () => {
       )}
 
       {/* ── REVENUE ── */}
-      {!loading && activeTab === "revenue" && (
+      {!loading && !error && activeTab === "revenue" && (
         <div className="tab-content">
           <div className="section-header-row">
             <SectionTitle>Revenue Breakdown</SectionTitle>
@@ -408,7 +395,7 @@ const Reports = () => {
                 <StatCard
                   icon={DollarSign}
                   label="Total Revenue"
-                  value={fmt(data.revenue.totalRevenue)}
+                  value={money(data.revenue.totalRevenue)}
                 />
                 <StatCard
                   icon={ShoppingCart}
@@ -434,7 +421,7 @@ const Reports = () => {
                           <tr key={i}>
                             <td data-direction={i18n.dir()}>{row.period}</td>
                             <td data-direction={i18n.dir()}>
-                              {fmt(row.revenue)}
+                              {money(row.revenue)}
                             </td>
                             <td data-direction={i18n.dir()}>{row.orders}</td>
                           </tr>
@@ -466,7 +453,7 @@ const Reports = () => {
                               </span>
                             </td>
                             <td data-direction={i18n.dir()}>
-                              {fmt(row.revenue)}
+                              {money(row.revenue)}
                             </td>
                             <td data-direction={i18n.dir()}>{row.count}</td>
                           </tr>
@@ -484,7 +471,7 @@ const Reports = () => {
       )}
 
       {/* ── TOP ITEMS ── */}
-      {!loading && activeTab === "topItems" && (
+      {!loading && !error && activeTab === "topItems" && (
         <div className="tab-content">
           <SectionTitle>Top Selling Items</SectionTitle>
           {data.topItems?.length > 0 ? (
@@ -512,7 +499,7 @@ const Reports = () => {
                           {item.totalQty?.toLocaleString()}
                         </td>
                         <td data-direction={i18n.dir()}>
-                          {fmt(item.revenue)}
+                          {money(item.revenue)}
                         </td>
                       </tr>
                     ))}
@@ -527,7 +514,7 @@ const Reports = () => {
       )}
 
       {/* ── ORDER ANALYTICS ── */}
-      {!loading && activeTab === "orders" && (
+      {!loading && !error && activeTab === "orders" && (
         <div className="tab-content">
           <SectionTitle>Order Analytics</SectionTitle>
           {data.orders ? (
@@ -605,7 +592,7 @@ const Reports = () => {
                               {item.totalQty}
                             </td>
                             <td data-direction={i18n.dir()}>
-                              {fmt(item.revenue)}
+                              {money(item.revenue)}
                             </td>
                           </tr>
                         ))}
@@ -649,7 +636,7 @@ const Reports = () => {
       )}
 
       {/* ── INVENTORY ── */}
-      {!loading && activeTab === "inventory" && (
+      {!loading && !error && activeTab === "inventory" && (
         <div className="tab-content">
           <SectionTitle>Inventory Summary</SectionTitle>
           {data.inventory ? (
@@ -663,7 +650,7 @@ const Reports = () => {
                 <StatCard
                   icon={DollarSign}
                   label="Total Stock Value"
-                  value={fmt(data.inventory.totalStockValue)}
+                  value={money(data.inventory.totalStockValue)}
                 />
                 <StatCard
                   icon={AlertTriangle}
@@ -709,7 +696,7 @@ const Reports = () => {
                             </td>
                             <td data-direction={i18n.dir()}>{item.unit}</td>
                             <td data-direction={i18n.dir()}>
-                              {fmt(item.costPrice)}
+                              {money(item.costPrice)}
                             </td>
                             <td data-direction={i18n.dir()}>
                               {item.supplier?.name || "-"}
@@ -729,7 +716,7 @@ const Reports = () => {
       )}
 
       {/* ── RESERVATIONS ── */}
-      {!loading && activeTab === "reservations" && (
+      {!loading && !error && activeTab === "reservations" && (
         <div className="tab-content">
           <SectionTitle>Reservations Report</SectionTitle>
           {data.reservations ? (
@@ -826,7 +813,7 @@ const Reports = () => {
       )}
 
       {/* ── STAFF PERFORMANCE ── */}
-      {!loading && activeTab === "staff" && (
+      {!loading && !error && activeTab === "staff" && (
         <div className="tab-content">
           <SectionTitle>Staff Performance</SectionTitle>
           {data.staff?.length > 0 ? (
@@ -860,10 +847,10 @@ const Reports = () => {
                           {member.ordersHandled?.toLocaleString()}
                         </td>
                         <td data-direction={i18n.dir()}>
-                          {fmt(member.totalRevenue)}
+                          {money(member.totalRevenue)}
                         </td>
                         <td data-direction={i18n.dir()}>
-                          {fmt(member.avgOrderValue)}
+                          {money(member.avgOrderValue)}
                         </td>
                       </tr>
                     ))}

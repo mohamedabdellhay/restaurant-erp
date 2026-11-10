@@ -1,9 +1,3 @@
-.orders-page {
-  
-  max-width: 1600px;
-  margin: 0 auto;
-}
-
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -667,10 +661,6 @@ tr:hover {
 }
 
 @media (max-width: 768px) {
-  .orders-page {
-    padding: 1rem;
-  }
-
   .page-header {
     flex-direction: column;
     align-items: stretch;

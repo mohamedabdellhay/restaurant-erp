@@ -12,9 +12,13 @@ import {
   CreditCard,
 } from "lucide-react";
 import dashboardService from "../../services/dashboardService";
+import { useRestaurant } from "../../hooks/useRestaurant";
+import { formatMoney } from "../../utils/money";
 
 const StaffPerformance = ({ dateRange = {} }) => {
   const { t } = useTranslation();
+  const { getCurrency } = useRestaurant();
+  const currency = getCurrency();
   const [loading, setLoading] = useState(true);
   const [staff, setStaff] = useState([]);
   const [error, setError] = useState(null);
@@ -44,12 +48,7 @@ const StaffPerformance = ({ dateRange = {} }) => {
     }
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
-  };
+  const formatCurrency = (amount) => formatMoney(amount, currency);
 
   const formatNumber = (num) => {
     return new Intl.NumberFormat().format(num);

@@ -1,12 +1,7 @@
 /* Roles Page Styles */
-.roles-page {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
 
 /* Header Styles */
-.roles-page .page-header {
+.page-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -14,7 +9,7 @@
   gap: 1rem;
 }
 
-.roles-page .header-content h1 {
+.header-content h1 {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -24,19 +19,19 @@
   margin: 0 0 0.5rem 0;
 }
 
-.roles-page .header-content p {
+.header-content p {
   color: var(--text-secondary);
   font-size: 1rem;
   margin: 0;
 }
 
-.roles-page .header-actions {
+.header-actions {
   display: flex;
   gap: 1rem;
 }
 
 /* Search and Filter */
-.roles-page .search-filter-container {
+.search-filter-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -44,7 +39,7 @@
   gap: 1rem;
 }
 
-.roles-page .search-bar {
+.search-bar {
   display: flex;
   align-items: center;
   background: var(--bg-card);
@@ -56,7 +51,7 @@
   max-width: 400px;
 }
 
-.roles-page .search-bar input {
+.search-bar input {
   border: none;
   background: transparent;
   outline: none;
@@ -65,18 +60,18 @@
   font-size: 0.9rem;
 }
 
-.roles-page .search-bar input::placeholder {
+.search-bar input::placeholder {
   color: var(--text-secondary);
 }
 
 /* Roles Grid */
-.roles-page .roles-grid {
+.roles-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 1.5rem;
 }
 
-.roles-page .role-card {
+.role-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
@@ -85,34 +80,34 @@
   position: relative;
 }
 
-.roles-page .role-card:hover {
+.role-card:hover {
   border-color: var(--primary);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* Role Header */
-.roles-page .role-header {
+.role-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 1rem;
 }
 
-.roles-page .role-info h3 {
+.role-info h3 {
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--text-primary);
   margin: 0 0 0.5rem 0;
 }
 
-.roles-page .role-info p {
+.role-info p {
   color: var(--text-secondary);
   font-size: 0.9rem;
   margin: 0;
   line-height: 1.4;
 }
 
-.roles-page .role-badge {
+.role-badge {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -125,24 +120,24 @@
 }
 
 /* Role Permissions */
-.roles-page .role-permissions {
+.role-permissions {
   margin-bottom: 1rem;
 }
 
-.roles-page .role-permissions h4 {
+.role-permissions h4 {
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--text-primary);
   margin: 0 0 0.75rem 0;
 }
 
-.roles-page .permission-tags {
+.permission-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
 }
 
-.roles-page .permission-tag {
+.permission-tag {
   background: var(--bg-secondary);
   color: var(--text-secondary);
   padding: 0.25rem 0.5rem;
@@ -152,7 +147,7 @@
   text-transform: capitalize;
 }
 
-.roles-page .permission-more {
+.permission-more {
   background: var(--border-color);
   color: var(--text-secondary);
   padding: 0.25rem 0.5rem;
@@ -162,38 +157,38 @@
 }
 
 /* Role Actions */
-.roles-page .role-actions {
+.role-actions {
   display: flex;
   gap: 0.5rem;
   justify-content: flex-end;
 }
 
 /* Modal Styles */
-.roles-page .role-modal {
+.role-modal {
   max-width: 800px;
   width: 90%;
 }
 
-.roles-page .role-form .modal-body {
+.role-form .modal-body {
   max-height: 60vh;
   overflow-y: auto;
 }
 
 /* Permissions Grid */
-.roles-page .permissions-grid {
+.permissions-grid {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-.roles-page .permission-category {
+.permission-category {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: 1rem;
 }
 
-.roles-page .permission-category h4 {
+.permission-category h4 {
   font-size: 1rem;
   font-weight: 600;
   color: var(--text-primary);
@@ -201,13 +196,13 @@
   text-transform: capitalize;
 }
 
-.roles-page .permission-list {
+.permission-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 0.5rem;
 }
 
-.roles-page .permission-checkbox {
+.permission-checkbox {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -217,41 +212,41 @@
   transition: background-color 0.2s ease;
 }
 
-.roles-page .permission-checkbox:hover {
+.permission-checkbox:hover {
   background: var(--bg-card);
 }
 
-.roles-page .permission-checkbox input[type="checkbox"] {
+.permission-checkbox input[type="checkbox"] {
   accent-color: var(--primary);
 }
 
-.roles-page .permission-checkbox span {
+.permission-checkbox span {
   font-size: 0.85rem;
   color: var(--text-primary);
   text-transform: capitalize;
 }
 
 /* No Data State */
-.roles-page .no-data {
+.no-data {
   text-align: center;
   padding: 4rem 2rem;
   color: var(--text-secondary);
 }
 
-.roles-page .no-data h3 {
+.no-data h3 {
   font-size: 1.5rem;
   font-weight: 600;
   margin: 1rem 0 0.5rem 0;
   color: var(--text-primary);
 }
 
-.roles-page .no-data p {
+.no-data p {
   font-size: 1rem;
   margin: 0;
 }
 
 /* Loading State */
-.roles-page .loading-spinner {
+.loading-spinner {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -260,7 +255,7 @@
   color: var(--text-secondary);
 }
 
-.roles-page .loading-spinner .spinner {
+.loading-spinner .spinner {
   width: 40px;
   height: 40px;
   border: 3px solid var(--border-color);
@@ -276,7 +271,7 @@
 }
 
 /* Message Styles */
-.roles-page .message {
+.message {
   position: fixed;
   top: 2rem;
   right: 2rem;
@@ -287,12 +282,12 @@
   animation: slideIn 0.3s ease;
 }
 
-.roles-page .message.success {
+.message.success {
   background: var(--success);
   color: white;
 }
 
-.roles-page .message.error {
+.message.error {
   background: var(--error);
   color: white;
 }
@@ -310,63 +305,59 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .roles-page {
-    padding: 1rem;
-  }
-
-  .roles-page .page-header {
+.page-header {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .roles-page .header-actions {
+.header-actions {
     justify-content: stretch;
   }
 
-  .roles-page .header-actions button {
+.header-actions button {
     flex: 1;
   }
 
-  .roles-page .search-filter-container {
+.search-filter-container {
     flex-direction: column;
   }
 
-  .roles-page .search-bar {
+.search-bar {
     max-width: none;
   }
 
-  .roles-page .roles-grid {
+.roles-grid {
     grid-template-columns: 1fr;
   }
 
-  .roles-page .permission-list {
+.permission-list {
     grid-template-columns: 1fr;
   }
 
-  .roles-page .role-modal {
+.role-modal {
     width: 95%;
     margin: 1rem;
   }
 
-  .roles-page .message {
+.message {
     right: 1rem;
     left: 1rem;
   }
 }
 
 /* RTL Support */
-[data-direction="rtl"] .roles-page .role-header {
+[data-direction="rtl"] .role-header {
   flex-direction: row-reverse;
 }
 
-[data-direction="rtl"] .roles-page .role-actions {
+[data-direction="rtl"] .role-actions {
   justify-content: flex-start;
 }
 
-[data-direction="rtl"] .roles-page .permission-checkbox {
+[data-direction="rtl"] .permission-checkbox {
   flex-direction: row-reverse;
 }
 
-[data-direction="rtl"] .roles-page .search-bar {
+[data-direction="rtl"] .search-bar {
   flex-direction: row-reverse;
 }

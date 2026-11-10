@@ -198,7 +198,7 @@ const Roles = () => {
   const permissionGroups = permissions;
 
   return (
-    <div className="roles-page">
+    <div>
       {/* Header */}
       <div className="page-header">
         <div className="header-content">

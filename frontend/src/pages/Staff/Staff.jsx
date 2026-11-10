@@ -212,7 +212,7 @@ const Staff = () => {
   const inactiveStaffCount = staff.filter((member) => !member.isActive).length;
 
   return (
-    <div className="staff-page">
+    <div>
       <div className="page-header">
         <div className="header-content">
           <h1>

@@ -464,7 +464,7 @@ const Settings = () => {
   ];
 
   return (
-    <div className="settings-page">
+    <div>
       <div className="settings-header">
         <h1>{t("settings.title")}</h1>
         <p>{t("settings.subtitle")}</p>

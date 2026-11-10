@@ -3,10 +3,8 @@ import { useTranslation } from "react-i18next";
 import {
   BarChart3,
   Users,
-  Calendar,
   Package,
   ChefHat,
-  Settings,
   TrendingUp,
   Activity,
 } from "lucide-react";
@@ -26,7 +24,7 @@ import "./Dashboard.css";
 const Dashboard = () => {
   const { t } = useTranslation();
   const { user, hasPermission } = useAuth();
-  const { getThemeColors } = useRestaurant();
+  const { getThemeColors, getRestaurantName } = useRestaurant();
   const [activeTab, setActiveTab] = useState("overview");
   const [dateRange, setDateRange] = useState({});
   const [paymentStatus, setPaymentStatus] = useState(null);
@@ -124,6 +122,53 @@ const Dashboard = () => {
     setDateRange(range);
   };
 
+  const localISO = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const today = new Date();
+  const todayISO = localISO(today);
+  const monthStart = localISO(new Date(today.getFullYear(), today.getMonth(), 1));
+  const presets = [
+    { id: "all", label: t("dashboard.all_time"), range: {} },
+    {
+      id: "7",
+      label: t("dashboard.last_7_days"),
+      range: {
+        from: localISO(new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)),
+        to: todayISO,
+      },
+    },
+    {
+      id: "30",
+      label: t("dashboard.last_30_days"),
+      range: {
+        from: localISO(new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000)),
+        to: todayISO,
+      },
+    },
+    {
+      id: "month",
+      label: t("dashboard.this_month"),
+      range: { from: monthStart, to: todayISO },
+    },
+  ];
+  const activePreset =
+    presets.find(
+      (preset) =>
+        (preset.range.from || "") === (dateRange.from || "") &&
+        (preset.range.to || "") === (dateRange.to || ""),
+    )?.id || "";
+  const showDateFilter = activeTab !== "realtime" && activeTab !== "inventory";
+  const todayLabel = today.toLocaleDateString(undefined, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+
   const renderTabContent = () => {
     switch (activeTab) {
       case "overview":
@@ -147,51 +192,83 @@ const Dashboard = () => {
 
   return (
     <div
-      className="dashboard-page"
       style={{
         "--primary": themeColors.primary,
         "--primary-focus": themeColors.primaryFocus,
         "--primary-content": themeColors.primaryContent,
       }}
     >
-      {/* Header */}
-      <div className="dashboard-header">
-        <h1 className="page-title">{t("dashboard.title")}</h1>
-        <p className="page-subtitle">{t("dashboard.subtitle")}</p>
-      </div>
+      <header className="dashboard-hero">
+        <div>
+          <p className="dashboard-kicker">{getRestaurantName()}</p>
+          <h1 className="page-title">{t("dashboard.title")}</h1>
+          <p className="page-subtitle">{t("dashboard.subtitle")}</p>
+        </div>
+        <time className="today-chip" dateTime={todayISO}>
+          {todayLabel}
+        </time>
+      </header>
 
-      {/* Payment Status Notification Banner */}
       {paymentStatus && (
-        <div className={`mb-6 p-4 rounded-xl border flex items-start justify-between shadow-sm animate-in fade-in slide-in-from-top-4 duration-300 ${paymentStatus.type === "success"
-            ? "bg-green-50 border-green-200 text-green-800"
-            : "bg-red-50 border-red-200 text-red-800"
-          }`}>
-          <div className="flex gap-3 items-center">
+        <div className={`payment-banner ${paymentStatus.type}`}>
+          <div className="payment-banner-copy">
             {paymentStatus.type === "success" ? (
-              <CheckCircle2 className="text-green-500 flex-shrink-0" size={24} />
+              <CheckCircle2 size={22} />
             ) : (
-              <XCircle className="text-red-500 flex-shrink-0" size={24} />
+              <XCircle size={22} />
             )}
             <div>
-              <h3 className="font-bold">{paymentStatus.title}</h3>
-              <p className="text-sm opacity-90">{paymentStatus.message}</p>
+              <h3>{paymentStatus.title}</h3>
+              <p>{paymentStatus.message}</p>
             </div>
           </div>
           <button
+            type="button"
             onClick={() => setPaymentStatus(null)}
-            className="p-1 rounded-full hover:bg-black/5 transition-colors"
+            aria-label={t("common.close") || "Close"}
           >
             <X size={18} />
           </button>
         </div>
       )}
 
-      {/* Date Range Filter */}
-      <div className="dashboard-filter">
-        <div className="filter-content">
+      <div className="dashboard-tabs">
+        <nav className="tabs-nav" aria-label={t("dashboard.title")}>
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`tab-btn ${activeTab === tab.id ? "active" : ""}`}
+              aria-current={activeTab === tab.id ? "page" : undefined}
+            >
+              <span className="tab-icon">{tab.icon}</span>
+              <span className="tab-label">{tab.label}</span>
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      {showDateFilter && (
+        <div className="dashboard-toolbar">
+          <div className="preset-group" role="group" aria-label={t("dashboard.date_range")}>
+            {presets.map((preset) => (
+              <button
+                key={preset.id}
+                type="button"
+                className={`preset-btn ${activePreset === preset.id ? "active" : ""}`}
+                onClick={() => handleDateRangeChange(preset.range)}
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
           <div className="filter-group">
-            <label className="filter-label">{t("dashboard.date_range")}:</label>
+            <label className="filter-label" htmlFor="dashboard-from">
+              {t("dashboard.date_range")}
+            </label>
             <input
+              id="dashboard-from"
               type="date"
               value={dateRange.from || ""}
               onChange={(e) =>
@@ -202,6 +279,7 @@ const Dashboard = () => {
             <span className="filter-separator">{t("dashboard.to")}</span>
             <input
               type="date"
+              aria-label={t("dashboard.to")}
               value={dateRange.to || ""}
               onChange={(e) =>
                 handleDateRangeChange({ ...dateRange, to: e.target.value })
@@ -209,77 +287,9 @@ const Dashboard = () => {
               className="date-input"
             />
           </div>
-          <div className="filter-actions">
-            <button
-              onClick={() => handleDateRangeChange({})}
-              className="btn btn-secondary"
-            >
-              {t("dashboard.clear_dates")}
-            </button>
-            <button
-              onClick={() =>
-                handleDateRangeChange({
-                  from: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-                    .toISOString()
-                    .split("T")[0],
-                  to: new Date().toISOString().split("T")[0],
-                })
-              }
-              className="btn btn-outline"
-            >
-              {t("dashboard.last_7_days")}
-            </button>
-            <button
-              onClick={() =>
-                handleDateRangeChange({
-                  from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-                    .toISOString()
-                    .split("T")[0],
-                  to: new Date().toISOString().split("T")[0],
-                })
-              }
-              className="btn btn-outline"
-            >
-              {t("dashboard.last_30_days")}
-            </button>
-            <button
-              onClick={() =>
-                handleDateRangeChange({
-                  from: new Date(
-                    new Date().getFullYear(),
-                    new Date().getMonth(),
-                    1,
-                  )
-                    .toISOString()
-                    .split("T")[0],
-                  to: new Date().toISOString().split("T")[0],
-                })
-              }
-              className="btn btn-outline"
-            >
-              {t("dashboard.this_month")}
-            </button>
-          </div>
         </div>
-      </div>
+      )}
 
-      {/* Navigation Tabs */}
-      <div className="dashboard-tabs">
-        <nav className="tabs-nav">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`tab-btn ${activeTab === tab.id ? "active" : ""}`}
-            >
-              <span className="tab-icon">{tab.icon}</span>
-              <span className="tab-label">{tab.label}</span>
-            </button>
-          ))}
-        </nav>
-      </div>
-
-      {/* Tab Content */}
       <div className="dashboard-content">{renderTabContent()}</div>
     </div>
   );

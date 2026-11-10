@@ -77,7 +77,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="profile-container">
+    <div>
       <div className="profile-header">
         <h1>{t("profile.title")}</h1>
       </div>

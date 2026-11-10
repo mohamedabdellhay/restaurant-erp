@@ -3,6 +3,7 @@ import { subscriptionService } from "../../services/subscriptionService";
 import { useTranslation } from "react-i18next";
 import { X, Loader2, CheckCircle2, ShieldCheck } from "lucide-react";
 import paymentService from "../../services/paymentService";
+import { formatMoney } from "../../utils/money";
 
 const RegistrationForm = ({ selectedPlan, onClose }) => {
   const { t } = useTranslation();
@@ -108,7 +109,7 @@ const RegistrationForm = ({ selectedPlan, onClose }) => {
             </div>
             <div className="text-right">
               <p className="font-extrabold text-2xl text-[var(--primary)]">
-                ${selectedPlan.price}
+                {formatMoney(selectedPlan.price, "EGP")}
               </p>
               <span className="text-sm text-[var(--text-secondary)]">/mo</span>
             </div>

@@ -429,7 +429,7 @@ const Reservations = () => {
   };
 
   return (
-    <div className="reservations-page" data-direction={i18n.dir()}>
+    <div data-direction={i18n.dir()}>
       <div className="page-header">
         <div className="header-content">
           <h1>

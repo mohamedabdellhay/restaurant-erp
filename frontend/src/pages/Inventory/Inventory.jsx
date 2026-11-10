@@ -21,9 +21,13 @@ import {
 } from "lucide-react";
 import inventoryService from "@services/inventoryService";
 import supplierService from "@services/supplierService";
+import { useRestaurant } from "@hooks/useRestaurant";
+import { formatMoney } from "../../utils/money";
 
 const Inventory = () => {
   const { t, i18n } = useTranslation();
+  const { getCurrency } = useRestaurant();
+  const currency = getCurrency();
 
   // Get theme colors for dynamic styling
 
@@ -289,7 +293,7 @@ const Inventory = () => {
   };
 
   return (
-    <div className="inventory-page" data-direction={i18n.dir()}>
+    <div data-direction={i18n.dir()}>
       {/* Page Header */}
       <div className="page-header">
         <h1 className="page-title">
@@ -393,13 +397,13 @@ const Inventory = () => {
           </div>
           <div className="stat-content">
             <h3>
-              $
-              {items
-                .reduce(
+              {formatMoney(
+                items.reduce(
                   (sum, item) => sum + (item.stock * item.costPrice || 0),
                   0,
-                )
-                .toFixed(2)}
+                ),
+                currency,
+              )}
             </h3>
             <p>{t("inventory.total_value") || "Total Value"}</p>
           </div>
@@ -447,7 +451,7 @@ const Inventory = () => {
                     <td>{item.name}</td>
                     <td>{item.sku || "-"}</td>
                     <td>{item.unit || "-"}</td>
-                    <td>${item.costPrice || 0}</td>
+                    <td>{formatMoney(item.costPrice, currency)}</td>
                     <td>{item.stock || 0}</td>
                     <td>{item.minStockAlert || 10}</td>
                     <td>

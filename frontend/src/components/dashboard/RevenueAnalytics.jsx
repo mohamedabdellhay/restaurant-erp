@@ -2,9 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { TrendingUp, DollarSign, CreditCard, ShoppingCart } from "lucide-react";
 import dashboardService from "../../services/dashboardService";
+import { useRestaurant } from "../../hooks/useRestaurant";
+import { formatMoney } from "../../utils/money";
 
 const RevenueAnalytics = ({ dateRange = {} }) => {
   const { t } = useTranslation();
+  const { getCurrency } = useRestaurant();
+  const currency = getCurrency();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
@@ -34,12 +38,7 @@ const RevenueAnalytics = ({ dateRange = {} }) => {
     }
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
-  };
+  const formatCurrency = (amount) => formatMoney(amount, currency);
 
   const SimpleBarChart = ({ data }) => {
     if (!data || data.length === 0) {

@@ -192,7 +192,7 @@ const Tables = () => {
   // };
 
   return (
-    <div className="tables-page" data-direction={i18n.dir()}>
+    <div data-direction={i18n.dir()}>
       <div className="page-header">
         <div className="header-content">
           <h1>

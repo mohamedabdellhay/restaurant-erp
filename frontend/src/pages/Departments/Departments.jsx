@@ -243,7 +243,7 @@ const Departments = () => {
   }
 
   return (
-    <div className="departments-container">
+    <div>
       <div className="departments-header">
         <div className="header-content">
           <div className="page-title">

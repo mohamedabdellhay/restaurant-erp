@@ -23,9 +23,13 @@ import {
   Filter,
 } from "lucide-react";
 import supplierService from "@services/supplierService";
+import { useRestaurant } from "@hooks/useRestaurant";
+import { formatMoney } from "../../utils/money";
 
 const Suppliers = () => {
   const { t, i18n } = useTranslation();
+  const { getCurrency } = useRestaurant();
+  const currency = getCurrency();
 
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -228,7 +232,7 @@ const Suppliers = () => {
   };
 
   return (
-    <div className="suppliers-page" data-direction={i18n.dir()}>
+    <div data-direction={i18n.dir()}>
       {/* Page Header */}
       <div className="page-header">
         <div className="header-content">
@@ -414,7 +418,7 @@ const Suppliers = () => {
                           : "balance-negative"
                       }
                     >
-                      ${Math.abs(supplier.balance || 0).toFixed(2)}
+                      {formatMoney(Math.abs(supplier.balance || 0), currency)}
                     </td>
                     <td data-direction={i18n.dir()}>
                       <div className="action-buttons">
@@ -626,7 +630,7 @@ const Suppliers = () => {
                               : "balance-negative"
                           }
                         >
-                          ${transaction.amount.toFixed(2)}
+                          {formatMoney(transaction.amount, currency)}
                         </td>
                         <td
                           className={
@@ -635,7 +639,7 @@ const Suppliers = () => {
                               : "balance-negative"
                           }
                         >
-                          ${transaction.amount.toFixed(2)}
+                          {formatMoney(transaction.amount, currency)}
                         </td>
                       </tr>
                     ))}

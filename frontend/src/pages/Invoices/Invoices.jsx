@@ -25,12 +25,14 @@ import {
   CreditCard,
   Printer,
 } from "lucide-react";
+import { formatMoney } from "../../utils/money";
 import invoiceService from "@services/invoiceService";
 import orderService from "@services/orderService";
 
 const Invoices = () => {
   const { t, i18n } = useTranslation();
-  const { getThemeColors } = useRestaurant();
+  const { getThemeColors, getCurrency } = useRestaurant();
+  const currency = getCurrency();
   const { user } = useAuth();
 
   // Get theme colors for dynamic styling
@@ -304,7 +306,7 @@ const Invoices = () => {
   };
 
   return (
-    <div className="invoices-page">
+    <div>
       <div className="page-header">
         <div className="header-content">
           <h1>
@@ -369,11 +371,11 @@ const Invoices = () => {
             </div>
             <div className="stat-content">
               <h3>
-                $
-                {(
+                {formatMoney(
                   statistics.totalRevenue ||
-                  invoices.reduce((sum, i) => sum + calculateInvoiceTotal(i), 0)
-                ).toFixed(2)}
+                    invoices.reduce((sum, i) => sum + calculateInvoiceTotal(i), 0),
+                  currency,
+                )}
               </h3>
               <p>{t("invoices.total_revenue")}</p>
             </div>
@@ -482,9 +484,10 @@ const Invoices = () => {
                     </td>
                     <td>
                       <span className="amount">
-                        $
-                        {invoice.grandTotal?.toFixed(2) ||
-                          calculateInvoiceTotal(invoice).toFixed(2)}
+                        {formatMoney(
+                          invoice.grandTotal ?? calculateInvoiceTotal(invoice),
+                          currency,
+                        )}
                       </span>
                     </td>
                     <td>
@@ -669,7 +672,7 @@ const Invoices = () => {
                               {order.items?.length || 0} {t("invoices.items")}
                             </span>
                             <span className="order-total">
-                              ${order.total?.toFixed(2) || "0.00"}
+                              {formatMoney(order.total, currency)}
                             </span>
                           </div>
                         </div>
@@ -834,7 +837,8 @@ const Invoices = () => {
                 </div>
               </div>
 
-              {selectedInvoice.order?.items && (
+              {(selectedInvoice.items?.length > 0 ||
+                selectedInvoice.order?.items?.length > 0) && (
                 <div className="invoice-items">
                   <h4>{t("invoices.order_items")}</h4>
                   <table className="items-table">
@@ -847,19 +851,30 @@ const Invoices = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {selectedInvoice.order.items.map((item, index) => (
-                        <tr key={index}>
-                          <td>{item.product?.name || item.name || "N/A"}</td>
-                          <td>{item.quantity}</td>
-                          <td>${item.price?.toFixed(2) || "0.00"}</td>
-                          <td>
-                            $
-                            {((item.quantity || 1) * (item.price || 0)).toFixed(
-                              2,
-                            )}
-                          </td>
-                        </tr>
-                      ))}
+                      {(selectedInvoice.items?.length
+                        ? selectedInvoice.items
+                        : selectedInvoice.order.items
+                      ).map((item, index) => {
+                        const quantity = item.quantity ?? item.qty ?? 1;
+                        return (
+                          <tr key={item._id || index}>
+                            <td>
+                              {item.product?.name ||
+                                item.menuItem?.name ||
+                                item.name ||
+                                "N/A"}
+                            </td>
+                            <td>{quantity}</td>
+                            <td>{formatMoney(item.price, currency)}</td>
+                            <td>
+                              {formatMoney(
+                                item.total ?? quantity * (item.price || 0),
+                                currency,
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -868,26 +883,28 @@ const Invoices = () => {
               <div className="invoice-summary">
                 <div className="summary-row">
                   <span>{t("invoices.subtotal")}:</span>
-                  <span>${selectedInvoice.subTotal?.toFixed(2) || "0.00"}</span>
+                  <span>{formatMoney(selectedInvoice.subTotal, currency)}</span>
                 </div>
                 <div className="summary-row">
                   <span>
                     {t("invoices.tax")} ({selectedInvoice.taxPercent || 0}%):
                   </span>
                   <span>
-                    $
-                    {(
+                    {formatMoney(
                       (selectedInvoice.subTotal || 0) *
-                      ((selectedInvoice.taxPercent || 0) / 100)
-                    ).toFixed(2)}
+                        ((selectedInvoice.taxPercent || 0) / 100),
+                      currency,
+                    )}
                   </span>
                 </div>
                 <div className="summary-row total">
                   <span>{t("invoices.total_amount")}:</span>
                   <span>
-                    $
-                    {selectedInvoice.grandTotal?.toFixed(2) ||
-                      calculateInvoiceTotal(selectedInvoice).toFixed(2)}
+                    {formatMoney(
+                      selectedInvoice.grandTotal ??
+                        calculateInvoiceTotal(selectedInvoice),
+                      currency,
+                    )}
                   </span>
                 </div>
               </div>

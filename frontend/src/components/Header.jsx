@@ -92,10 +92,12 @@ const Header = ({ toggleSidebar }) => {
       <style>{`
         .header {
           height: 70px;
-          padding: 0 2rem;
+          padding: 0 1.25rem;
           display: flex;
           align-items: center;
           justify-content: space-between;
+          gap: 1rem;
+          min-width: 0;
           border-bottom: 1px solid var(--border-color);
           position: sticky;
           top: 0;
@@ -105,7 +107,16 @@ const Header = ({ toggleSidebar }) => {
         .header-left, .header-right {
           display: flex;
           align-items: center;
-          gap: 1.5rem;
+          gap: 0.75rem;
+          min-width: 0;
+        }
+
+        .header-left {
+          flex: 1;
+        }
+
+        .header-right {
+          flex-shrink: 0;
         }
 
         .menu-toggle {
@@ -134,6 +145,9 @@ const Header = ({ toggleSidebar }) => {
           font-weight: 700;
           color: var(--primary);
           letter-spacing: -0.025em;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .restaurant-logo {
@@ -145,7 +159,10 @@ const Header = ({ toggleSidebar }) => {
 
         .search-bar {
           position: relative;
-          width: 300px;
+          flex: 1 1 10rem;
+          width: auto;
+          min-width: 0;
+          max-width: 300px;
         }
 
         .search-icon {
@@ -259,6 +276,16 @@ const Header = ({ toggleSidebar }) => {
         .user-role {
           font-size: 0.75rem;
           color: var(--text-muted);
+        }
+
+        @media (max-width: 1100px) {
+          .user-info {
+            display: none;
+          }
+
+          .search-bar {
+            max-width: 180px;
+          }
         }
 
         .avatar {

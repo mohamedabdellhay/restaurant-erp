@@ -8,9 +8,13 @@ import {
   Activity,
 } from "lucide-react";
 import dashboardService from "../../services/dashboardService";
+import { useRestaurant } from "../../hooks/useRestaurant";
+import { formatMoney } from "../../utils/money";
 
 const RealTimeMetrics = () => {
   const { t } = useTranslation();
+  const { getCurrency } = useRestaurant();
+  const currency = getCurrency();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
@@ -38,12 +42,7 @@ const RealTimeMetrics = () => {
     }
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
-  };
+  const formatCurrency = (amount) => formatMoney(amount, currency);
 
   const formatNumber = (num) => {
     return new Intl.NumberFormat().format(num);
@@ -92,15 +91,9 @@ const RealTimeMetrics = () => {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="metrics-grid">
         {[...Array(4)].map((_, i) => (
-          <div
-            key={i}
-            className="bg-white rounded-lg shadow-sm p-6 animate-pulse"
-          >
-            <div className="h-4  rounded mb-2"></div>
-            <div className="h-8  rounded"></div>
-          </div>
+          <div key={i} className="metric-card metric-card-skeleton" />
         ))}
       </div>
     );
@@ -167,16 +160,18 @@ const RealTimeMetrics = () => {
       </div>
 
       <div className="metrics-grid">
-        {metrics.map((metric, index) => (
-          <div key={index} className="metric-card">
-            <div className="metric-content">
-              <div className="metric-info">
-                <p className="metric-title">{metric.title}</p>
-                <p className="metric-value">{metric.value}</p>
-              </div>
-              <div className="metric-icon">{metric.icon}</div>
+        {metrics.map((metric) => (
+          <article
+            key={metric.title}
+            className="metric-card"
+            style={{ "--tone": metric.color }}
+          >
+            <div className="metric-icon">{metric.icon}</div>
+            <div className="metric-info">
+              <p className="metric-title">{metric.title}</p>
+              <p className="metric-value">{metric.value}</p>
             </div>
-          </div>
+          </article>
         ))}
       </div>
 
@@ -304,51 +299,64 @@ const RealTimeMetrics = () => {
 
         .metrics-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-          gap: 1.5rem;
-          margin-bottom: 2rem;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 0.85rem;
+          margin-bottom: 1rem;
         }
 
         .metric-card {
-          background: var(--bg-card);
-          border: 1px solid var(--border-color);
-          border-radius: var(--radius-lg);
-          padding: 1.5rem;
-          transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .metric-card:hover {
-          transform: translateY(-2px);
-          box-shadow: var(--shadow-md);
-        }
-
-        .metric-content {
           display: flex;
           align-items: center;
-          justify-content: space-between;
+          gap: 0.9rem;
+          min-width: 0;
+          padding: 1.1rem 1.15rem;
+          border: 1px solid var(--border-color);
+          border-radius: 16px;
+          background:
+            linear-gradient(180deg, color-mix(in srgb, var(--tone, var(--primary)) 8%, transparent), transparent 55%),
+            var(--bg-card);
+        }
+
+        .metric-card-skeleton {
+          min-height: 92px;
+          background: linear-gradient(90deg, var(--bg-card), var(--bg-secondary), var(--bg-card));
+          background-size: 200% 100%;
+          animation: metric-shimmer 1.2s ease-in-out infinite;
+        }
+
+        .metric-icon {
+          display: grid;
+          place-items: center;
+          width: 2.75rem;
+          height: 2.75rem;
+          flex-shrink: 0;
+          border-radius: 12px;
+          background: color-mix(in srgb, var(--tone, var(--primary)) 16%, transparent);
+          color: var(--tone, var(--primary));
         }
 
         .metric-info {
-          flex: 1;
+          min-width: 0;
         }
 
         .metric-title {
-          font-size: 0.875rem;
-          font-weight: 500;
+          font-size: 0.8125rem;
+          font-weight: 600;
           color: var(--text-secondary);
-          margin: 0 0 0.5rem 0;
+          margin: 0 0 0.25rem 0;
         }
 
         .metric-value {
-          font-size: 1.5rem;
+          font-size: 1.35rem;
           font-weight: 700;
+          letter-spacing: -0.03em;
           color: var(--text-primary);
           margin: 0;
         }
 
-        .metric-icon {
-          color: var(--text-secondary);
-          opacity: 0.8;
+        @keyframes metric-shimmer {
+          from { background-position: 100% 0; }
+          to { background-position: -100% 0; }
         }
 
         .details-grid {
@@ -418,10 +426,15 @@ const RealTimeMetrics = () => {
           color: var(--text-primary);
         }
 
+        @media (max-width: 1100px) {
+          .metrics-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+
         @media (max-width: 768px) {
           .metrics-grid {
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
+            grid-template-columns: 1fr;
           }
 
           .details-grid {

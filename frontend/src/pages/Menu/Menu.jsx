@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import "./Menu.css";
 import { useTranslation } from "react-i18next";
 import { useRestaurant } from "@hooks/useRestaurant";
+import { formatMoney } from "../../utils/money";
 import { useAuth } from "@hooks/useAuth";
 import { RoleBasedUI } from "@utils/roleUtils";
 import {
@@ -13,7 +14,6 @@ import {
   X,
   Save,
   Filter,
-  DollarSign,
   Image,
   CheckCircle,
   XCircle,
@@ -29,7 +29,8 @@ import categoryService from "@services/categoryService";
 
 const Menu = () => {
   const { t, i18n } = useTranslation();
-  const { getThemeColors } = useRestaurant();
+  const { getThemeColors, getCurrency } = useRestaurant();
+  const currency = getCurrency();
   const { user } = useAuth();
   const currentLang = i18n.language;
   console.log("current", currentLang);
@@ -438,7 +439,7 @@ const Menu = () => {
   const inactiveItemsCount = menuItems.filter((item) => !item.isActive).length;
 
   return (
-    <div className="menu-page">
+    <div>
       {/* Header */}
       <div className="page-header">
         <div className="header-content">
@@ -569,8 +570,7 @@ const Menu = () => {
                 <div className="menu-card-header">
                   <h3>{item.name}</h3>
                   <span className="price">
-                    <DollarSign size={14} />
-                    {item.price?.toFixed(2)}
+                    {formatMoney(item.price, currency)}
                   </span>
                 </div>
                 <p className="description">{item.description}</p>
