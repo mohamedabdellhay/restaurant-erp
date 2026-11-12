@@ -111,9 +111,12 @@ class AuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    let formattedRestaurant = this._formatRestaurant(staff.restaurant);
-    if (!formattedRestaurant) {
-      formattedRestaurant = this._formatRestaurant(await RestaurantService.getCurrent());
+    let formattedRestaurant = null;
+    if (!staff.isPlatformOwner) {
+      formattedRestaurant = this._formatRestaurant(staff.restaurant);
+      if (!formattedRestaurant) {
+        formattedRestaurant = this._formatRestaurant(await RestaurantService.getCurrent());
+      }
     }
 
     ResponseHandler.success(
@@ -141,9 +144,12 @@ class AuthController {
     });
     if (!staff) throw new AppError("Staff not found", 404);
 
-    let formattedRestaurant = this._formatRestaurant(staff.restaurant);
-    if (!formattedRestaurant) {
-      formattedRestaurant = this._formatRestaurant(await RestaurantService.getCurrent());
+    let formattedRestaurant = null;
+    if (!staff.isPlatformOwner) {
+      formattedRestaurant = this._formatRestaurant(staff.restaurant);
+      if (!formattedRestaurant) {
+        formattedRestaurant = this._formatRestaurant(await RestaurantService.getCurrent());
+      }
     }
 
     const staffObj = toDoc(staff);

@@ -1,46 +1,38 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { Eye, EyeOff, Lock, Mail, Save, User } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import PageHeader from "@components/PageHeader";
 import Alert from "@components/Alert";
-import "./Profile.css";
 import { useAuth } from "@hooks/useAuth";
-import { useTranslation } from "react-i18next";
-import {
-  User,
-  Mail,
-  Lock,
-  Save,
-  Store,
-  Briefcase,
-} from "lucide-react";
+import "./Profile.css";
 
 const Profile = () => {
   const { user, updateProfile, changePassword } = useAuth();
   const { t } = useTranslation();
-
-  const [activeTab, setActiveTab] = useState("personal");
+  const [section, setSection] = useState("personal");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
-
-  // Personal Info State
+  const [visible, setVisible] = useState({});
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
   });
-
-  // Password State
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
 
-  const handleInfoSubmit = async (e) => {
-    e.preventDefault();
+  const roleLabel = user?.isPlatformOwner
+    ? t("platform.owner")
+    : (typeof user?.role === "object" ? user?.role?.name : user?.role) || "";
+  const restaurantName = user?.isPlatformOwner ? "" : user?.restaurant?.name || "";
+
+  const handleInfoSubmit = async (event) => {
+    event.preventDefault();
     setLoading(true);
     setMessage({ type: "", text: "" });
-
     const result = await updateProfile(formData);
-
     setMessage({
       type: result.success ? "success" : "error",
       text: result.success ? t("profile.update_success") : result.message,
@@ -48,27 +40,20 @@ const Profile = () => {
     setLoading(false);
   };
 
-  const handlePasswordSubmit = async (e) => {
-    e.preventDefault();
+  const handlePasswordSubmit = async (event) => {
+    event.preventDefault();
     setMessage({ type: "", text: "" });
-
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       setMessage({ type: "error", text: t("profile.password_mismatch") });
       return;
     }
-
     setLoading(true);
     const result = await changePassword({
       currentPassword: passwordData.currentPassword,
       newPassword: passwordData.newPassword,
     });
-
     if (result.success) {
-      setPasswordData({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
+      setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
       setMessage({ type: "success", text: t("profile.password_success") });
     } else {
       setMessage({ type: "error", text: result.message });
@@ -76,166 +61,136 @@ const Profile = () => {
     setLoading(false);
   };
 
+  const passwordField = (name, label) => (
+    <label className="profile-field">
+      <span>{label}</span>
+      <span className="profile-control">
+        <Lock size={16} aria-hidden="true" />
+        <input
+          type={visible[name] ? "text" : "password"}
+          value={passwordData[name]}
+          onChange={(event) =>
+            setPasswordData({ ...passwordData, [name]: event.target.value })
+          }
+          required
+          autoComplete={name === "currentPassword" ? "current-password" : "new-password"}
+        />
+        <button
+          type="button"
+          className="profile-reveal"
+          aria-label={visible[name] ? t("auth.hide_password") : t("auth.show_password")}
+          onClick={() => setVisible((current) => ({ ...current, [name]: !current[name] }))}
+        >
+          {visible[name] ? <EyeOff size={16} /> : <Eye size={16} />}
+        </button>
+      </span>
+    </label>
+  );
+
   return (
-    <div>
-      <PageHeader icon={User} title={t("profile.title")} />
+    <div className="profile-page">
+      <PageHeader
+        icon={User}
+        title={t("profile.title")}
+        subtitle={t("profile.subtitle")}
+      />
 
-      <div className="profile-content">
-        <div className="profile-sidebar card">
-          <div className="user-avatar-large">
-            <User size={48} />
-          </div>
-          <h3>{user?.name}</h3>
-          <p className="role-badge">{typeof user?.role === 'object' ? user.role.name : user?.role}</p>
-
-          <div className="sidebar-menu">
-            <button
-              className={`menu-item ${activeTab === "personal" ? "active" : ""}`}
-              onClick={() => setActiveTab("personal")}
-            >
-              <User size={18} />
-              {t("profile.personal_info")}
-            </button>
-            <button
-              className={`menu-item ${activeTab === "security" ? "active" : ""}`}
-              onClick={() => setActiveTab("security")}
-            >
-              <Lock size={18} />
-              {t("profile.security")}
-            </button>
-          </div>
+      <section className="profile-identity">
+        <div className="profile-avatar" aria-hidden="true">
+          <User size={28} />
         </div>
-
-        <div className="profile-main card">
-          <Alert type={message.type} message={message.text} />
-
-          {activeTab === "personal" ? (
-            <form onSubmit={handleInfoSubmit} className="profile-form">
-              <h2>{t("profile.personal_info")}</h2>
-
-              <div className="form-group">
-                <label>{t("profile.name_label")}</label>
-                <div className="input-wrapper">
-                  <User size={18} />
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>{t("profile.email_label")}</label>
-                <div className="input-wrapper">
-                  <Mail size={18} />
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>{t("profile.role_label")}</label>
-                  <div className="input-wrapper disabled">
-                    <Briefcase size={18} />
-                    <input type="text" value={(typeof user?.role === 'object' ? user.role.name : user?.role) || ""} disabled />
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label>{t("profile.restaurant_label")}</label>
-                  <div className="input-wrapper disabled">
-                    <Store size={18} />
-                    <input
-                      type="text"
-                      value={user?.restaurant?.name || ""}
-                      disabled
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <button type="submit" className="btn-primary" disabled={loading}>
-                <Save size={18} />
-                {loading ? t("auth.logging_in") : t("profile.update_profile")}
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handlePasswordSubmit} className="profile-form">
-              <h2>{t("profile.security")}</h2>
-
-              <div className="form-group">
-                <label>{t("profile.current_password")}</label>
-                <div className="input-wrapper">
-                  <Lock size={18} />
-                  <input
-                    type="password"
-                    value={passwordData.currentPassword}
-                    onChange={(e) =>
-                      setPasswordData({
-                        ...passwordData,
-                        currentPassword: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>{t("profile.new_password")}</label>
-                <div className="input-wrapper">
-                  <Lock size={18} />
-                  <input
-                    type="password"
-                    value={passwordData.newPassword}
-                    onChange={(e) =>
-                      setPasswordData({
-                        ...passwordData,
-                        newPassword: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>{t("profile.confirm_password")}</label>
-                <div className="input-wrapper">
-                  <Lock size={18} />
-                  <input
-                    type="password"
-                    value={passwordData.confirmPassword}
-                    onChange={(e) =>
-                      setPasswordData({
-                        ...passwordData,
-                        confirmPassword: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-              </div>
-
-              <button type="submit" className="btn-primary" disabled={loading}>
-                <Save size={18} />
-                {loading ? t("auth.logging_in") : t("profile.change_password")}
-              </button>
-            </form>
-          )}
+        <div>
+          <h2>{user?.name}</h2>
+          <p>{user?.email}</p>
         </div>
-      </div>
+        {roleLabel ? <span className="profile-role">{roleLabel}</span> : null}
+      </section>
+
+      <nav className="profile-nav" aria-label={t("profile.title")}>
+        <button
+          type="button"
+          className={section === "personal" ? "active" : ""}
+          onClick={() => setSection("personal")}
+        >
+          <User size={16} />
+          {t("profile.personal_info")}
+        </button>
+        <button
+          type="button"
+          className={section === "security" ? "active" : ""}
+          onClick={() => setSection("security")}
+        >
+          <Lock size={16} />
+          {t("profile.security")}
+        </button>
+      </nav>
+
+      <Alert type={message.type} message={message.text} />
+
+      {section === "personal" ? (
+        <form className="profile-card" onSubmit={handleInfoSubmit}>
+          <h2>{t("profile.personal_info")}</h2>
+          <div className="profile-grid">
+            <label className="profile-field">
+              <span>{t("profile.name_label")}</span>
+              <span className="profile-control">
+                <User size={16} aria-hidden="true" />
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(event) => setFormData({ ...formData, name: event.target.value })}
+                  required
+                  autoComplete="name"
+                />
+              </span>
+            </label>
+            <label className="profile-field">
+              <span>{t("profile.email_label")}</span>
+              <span className="profile-control">
+                <Mail size={16} aria-hidden="true" />
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(event) => setFormData({ ...formData, email: event.target.value })}
+                  required
+                  autoComplete="email"
+                />
+              </span>
+            </label>
+            <label className="profile-field">
+              <span>{t("profile.role_label")}</span>
+              <input value={roleLabel} disabled />
+            </label>
+            {restaurantName ? (
+              <label className="profile-field">
+                <span>{t("profile.restaurant_label")}</span>
+                <input value={restaurantName} disabled />
+              </label>
+            ) : null}
+          </div>
+          <div className="profile-actions">
+            <button type="submit" disabled={loading}>
+              <Save size={16} />
+              {loading ? t("common.processing") : t("profile.update_profile")}
+            </button>
+          </div>
+        </form>
+      ) : (
+        <form className="profile-card" onSubmit={handlePasswordSubmit}>
+          <h2>{t("profile.security")}</h2>
+          <div className="profile-grid">
+            {passwordField("currentPassword", t("profile.current_password"))}
+            {passwordField("newPassword", t("profile.new_password"))}
+            {passwordField("confirmPassword", t("profile.confirm_password"))}
+          </div>
+          <div className="profile-actions">
+            <button type="submit" disabled={loading}>
+              <Save size={16} />
+              {loading ? t("common.processing") : t("profile.change_password")}
+            </button>
+          </div>
+        </form>
+      )}
     </div>
   );
 };

@@ -17,6 +17,11 @@ class SubscriptionController {
   });
 
   register = asyncHandler(async (req, res) => {
+    const settings = await prisma.platformSetting.findUnique({ where: { id: "default" } });
+    if (settings?.allowRegistration === false) {
+      throw new AppError("New restaurant registration is closed", 403);
+    }
+
     const {
       restaurantName,
       restaurantAddress,

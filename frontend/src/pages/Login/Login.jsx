@@ -17,7 +17,10 @@ const Login = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const success = await login(email, password);
-    if (success) navigate("/dashboard");
+    if (success) {
+      const stored = JSON.parse(localStorage.getItem("user") || "{}");
+      navigate(stored.isPlatformOwner ? "/platform/overview" : "/dashboard");
+    }
   };
 
   const toggleLanguage = () => {

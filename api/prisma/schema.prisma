@@ -7,6 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model PlatformSetting {
+  id                String   @id @default("default")
+  name              String   @default("Restaurant ERP")
+  supportEmail      String   @default("")
+  supportPhone      String   @default("")
+  defaultCurrency   String   @default("EGP")
+  allowRegistration Boolean  @default(true)
+  maintenanceMode   Boolean  @default(false)
+  updatedAt         DateTime @updatedAt
+
+  @@map("platform_settings")
+}
+
 model Plan {
   id           String         @id @default(uuid())
   name         String         @unique
@@ -97,14 +110,15 @@ model Staff {
   email        String   @unique
   passwordHash String
   phone        String?
-  isActive     Boolean  @default(true)
-  roleId       String
-  departmentId String?
-  restaurantId String?
+  isActive        Boolean  @default(true)
+  isPlatformOwner Boolean  @default(false)
+  roleId          String?
+  departmentId    String?
+  restaurantId    String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  role       Role        @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  role       Role?       @relation(fields: [roleId], references: [id], onDelete: Restrict)
   department Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
   restaurant Restaurant? @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
 

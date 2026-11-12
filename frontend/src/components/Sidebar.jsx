@@ -16,12 +16,22 @@ import {
   Settings,
   LogOut,
   Shield,
+  Building2,
+  CreditCard,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { useRestaurant } from "../hooks/useRestaurant";
 import { useTheme } from "../hooks/useTheme";
 import { useTranslation } from "react-i18next";
 import "./Sidebar.css";
+
+const PLATFORM_ITEMS = [
+  { label: "platform.overview", icon: LayoutDashboard, path: "/platform/overview" },
+  { label: "platform.restaurants", icon: Building2, path: "/platform/restaurants" },
+  { label: "platform.plans", icon: CreditCard, path: "/platform/plans" },
+  { label: "platform.subscriptions", icon: Receipt, path: "/platform/subscriptions" },
+  { label: "platform.settings", icon: Settings, path: "/platform/settings", footer: true },
+];
 
 const NAV_ITEMS = [
   { label: "nav.dashboard", icon: LayoutDashboard, path: "/dashboard", permission: "view_dashboard" },
@@ -99,6 +109,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
   const menuItems = useMemo(() => {
     if (!user) return [];
+    if (user.isPlatformOwner) return PLATFORM_ITEMS;
     return NAV_ITEMS.filter(
       (item) => !item.permission || hasPermission(item.permission),
     );

@@ -121,7 +121,7 @@ export const AuthProvider = ({ children }) => {
         // Trigger theme update
         console.log("Triggering theme update with:", finalRestaurantSettings);
         updateRestaurantSettings(finalRestaurantSettings);
-      } else {
+      } else if (!staff.isPlatformOwner) {
         console.log(
           "No restaurant settings in login response, fetching separately...",
         );

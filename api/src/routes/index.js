@@ -25,6 +25,7 @@ import uploadRoutes from "./uploadRoutes.js";
 import departmentRoutes from "./departmentRoutes.js";
 import permissionRoutes from "./permissionRoutes.js";
 import paymentRoutes from "./paymentRoutes.js";
+import platformRoutes from "./platformRoutes.js";
 
 
 // mount all routes
@@ -53,6 +54,7 @@ router.use("/upload", uploadRoutes);
 router.use("/departments", departmentRoutes);
 router.use("/permissions", permissionRoutes);
 router.use("/payments", paymentRoutes);
+router.use("/platform", platformRoutes);
 
 
 export default router;

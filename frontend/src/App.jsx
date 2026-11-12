@@ -23,6 +23,7 @@ import Dashboard from "@pages/Dashboard/Dashboard";
 import Menu from "@pages/Menu/Menu";
 import Reports from "@pages/Reports/Reports";
 import Roles from "@pages/Roles/Roles";
+import Platform from "@pages/Platform/Platform";
 function App() {
   return (
     <ThemeProvider>
@@ -54,6 +55,8 @@ function App() {
 
                 {/* Profile - Any logged-in staff */}
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/platform" element={<Navigate to="/platform/overview" replace />} />
+                <Route path="/platform/:section" element={<Platform />} />
 
                 {/* Orders - view_orders permission */}
                 <Route

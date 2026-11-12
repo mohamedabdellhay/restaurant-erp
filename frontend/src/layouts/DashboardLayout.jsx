@@ -1,10 +1,22 @@
 import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
+import { useAuth } from '../hooks/useAuth';
 
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { user } = useAuth();
+  const location = useLocation();
+  const onPlatform = location.pathname.startsWith("/platform");
+
+  if (user?.isPlatformOwner && !onPlatform && location.pathname !== "/profile") {
+    return <Navigate to="/platform/overview" replace />;
+  }
+
+  if (user && !user.isPlatformOwner && onPlatform) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return (
     <div className="layout-wrapper">

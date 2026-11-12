@@ -12,8 +12,11 @@ const Header = () => {
   const navigate = useNavigate();
   const roleName =
     typeof user?.role === "object" ? user.role?.name : user?.role;
-  const roleLabel =
-    roleName === "Admin" ? t("header.administrator") : roleName || t("header.administrator");
+  const roleLabel = user?.isPlatformOwner
+    ? t("platform.owner")
+    : roleName === "Admin"
+      ? t("header.administrator")
+      : roleName || t("header.administrator");
 
   const toggleLanguage = () => {
     i18n.changeLanguage(i18n.language === "en" ? "ar" : "en");
