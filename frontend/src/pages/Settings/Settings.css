@@ -21,6 +21,32 @@
           border: 1px solid color-mix(in srgb, #ef4444 30%, transparent);
         }
 
+        .settings-nav {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          margin-bottom: 1.25rem;
+        }
+
+        .settings-nav a {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.4rem;
+          padding: 0.5rem 0.85rem;
+          border: 1px solid var(--border-color);
+          border-radius: 999px;
+          background: var(--bg-card);
+          color: var(--text-secondary);
+          font-size: 0.85rem;
+          font-weight: 600;
+        }
+
+        .settings-nav a.active {
+          border-color: color-mix(in srgb, var(--primary) 45%, var(--border-color));
+          background: color-mix(in srgb, var(--primary) 16%, var(--bg-card));
+          color: var(--text-primary);
+        }
+
         .settings-form {
           display: flex;
           flex-direction: column;

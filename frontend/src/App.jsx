@@ -153,6 +153,10 @@ function App() {
 
                 <Route
                   path="/settings"
+                  element={<Navigate to="/settings/general" replace />}
+                />
+                <Route
+                  path="/settings/:section"
                   element={
                     <ProtectedRoute permission="manage_settings">
                       <Settings />

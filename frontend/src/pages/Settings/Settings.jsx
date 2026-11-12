@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { NavLink, Navigate, useParams } from "react-router-dom";
 import "./Settings.css";
 import { useRestaurant } from "@hooks/useRestaurant";
 import { useTheme } from "@hooks/useTheme";
@@ -33,7 +34,18 @@ import { presetThemes } from "@utils/demoTheme";
 import PageHeader from "@components/PageHeader";
 import Alert from "@components/Alert";
 
+const SETTINGS_SECTIONS = [
+  { id: "general", label: "settings.basic_info", icon: Building },
+  { id: "business", label: "settings.business_details", icon: Hash },
+  { id: "financial", label: "settings.financial_settings", icon: DollarSign },
+  { id: "theme", label: "settings.theme_settings", icon: Palette },
+  { id: "hours", label: "settings.opening_hours", icon: Clock },
+  { id: "social", label: "settings.social_media", icon: Share2 },
+  { id: "payments", label: "settings.payment_gateways", icon: CreditCard },
+];
+
 const Settings = () => {
+  const { section } = useParams();
   const { getRestaurantData, getRestaurantId } = useRestaurant();
   const { theme, toggleTheme, updateRestaurantSettings } = useTheme();
   const { t } = useTranslation();
@@ -496,6 +508,10 @@ const Settings = () => {
     "sunday",
   ];
 
+  if (!SETTINGS_SECTIONS.some((item) => item.id === section)) {
+    return <Navigate to="/settings/general" replace />;
+  }
+
   return (
     <div>
       <PageHeader
@@ -504,10 +520,23 @@ const Settings = () => {
         subtitle={t("settings.subtitle")}
       />
 
+      <nav className="settings-nav" aria-label={t("settings.title")}>
+        {SETTINGS_SECTIONS.map((item) => {
+          const Icon = item.icon;
+          return (
+            <NavLink key={item.id} to={`/settings/${item.id}`}>
+              <Icon size={16} />
+              {t(item.label)}
+            </NavLink>
+          );
+        })}
+      </nav>
+
       <Alert type={message.type} message={message.text} />
 
+      {section !== "payments" && (
       <form onSubmit={handleSubmit} className="settings-form">
-        {/* Basic Information */}
+        {section === "general" && (
         <div className="settings-section">
           <h2>
             <Building size={20} /> {t("settings.basic_info")}
@@ -592,8 +621,9 @@ const Settings = () => {
             </div>
           </div>
         </div>
+        )}
 
-        {/* Business Details */}
+        {section === "business" && (
         <div className="settings-section">
           <h2>
             <Hash size={20} /> {t("settings.business_details")}
@@ -621,8 +651,9 @@ const Settings = () => {
             </div>
           </div>
         </div>
+        )}
 
-        {/* Financial Settings */}
+        {section === "financial" && (
         <div className="settings-section">
           <h2>
             <DollarSign size={20} /> {t("settings.financial_settings")}
@@ -664,8 +695,9 @@ const Settings = () => {
             </div>
           </div>
         </div>
+        )}
 
-        {/* Theme Settings */}
+        {section === "theme" && (
         <div className="settings-section">
           <h2>
             <Palette size={20} /> {t("settings.theme_settings")}
@@ -924,8 +956,9 @@ const Settings = () => {
             </div>
           </div>
         </div>
+        )}
 
-        {/* Opening Hours */}
+        {section === "hours" && (
         <div className="settings-section">
           <h2>
             <Clock size={20} /> {t("settings.opening_hours")}
@@ -946,8 +979,9 @@ const Settings = () => {
             ))}
           </div>
         </div>
+        )}
 
-        {/* Social Media */}
+        {section === "social" && (
         <div className="settings-section">
           <h2>
             <Share2 size={20} /> {t("settings.social_media")}
@@ -988,11 +1022,13 @@ const Settings = () => {
             </div>
           </div>
         </div>
+        )}
 
       </form>
+      )}
 
-      {/* Payment Gateways Section */}
-      <div className="settings-section mt-8">
+      {section === "payments" && (
+      <div className="settings-section">
         <h2 className="flex items-center gap-2">
           <CreditCard size={22} className="text-[var(--primary)]" />
           {t("settings.payment_gateways")}
@@ -1161,6 +1197,7 @@ const Settings = () => {
           </div>
         )}
       </div>
+      )}
     </div>
   );
 };
