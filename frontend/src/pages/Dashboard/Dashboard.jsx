@@ -17,16 +17,16 @@ import StaffPerformance from "@components/dashboard/StaffPerformance";
 import CustomerAnalytics from "@components/dashboard/CustomerAnalytics";
 import RealTimeMetrics from "@components/dashboard/RealTimeMetrics";
 import InventoryAlerts from "@components/dashboard/InventoryAlerts";
-import { useLocation, useNavigate } from "react-router-dom";
+import { NavLink, Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 import { CheckCircle2, XCircle, X } from "lucide-react";
 import PageHeader from "@components/PageHeader";
 import "./Dashboard.css";
 
 const Dashboard = () => {
   const { t } = useTranslation();
+  const { section } = useParams();
   const { user, hasPermission } = useAuth();
   const { getRestaurantName } = useRestaurant();
-  const [activeTab, setActiveTab] = useState("overview");
   const [dateRange, setDateRange] = useState({});
   const [paymentStatus, setPaymentStatus] = useState(null);
   const location = useLocation();
@@ -115,6 +115,7 @@ const Dashboard = () => {
     if (!user) return false;
     return hasPermission(tab.requiredPermission);
   });
+  const activeTab = tabs.some((tab) => tab.id === section) ? section : "";
 
   const handleDateRangeChange = (range) => {
     setDateRange(range);
@@ -166,6 +167,10 @@ const Dashboard = () => {
     month: "long",
     day: "numeric",
   });
+
+  if (!activeTab) {
+    return <Navigate to={`/dashboard/${tabs[0]?.id || "overview"}`} replace />;
+  }
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -227,16 +232,10 @@ const Dashboard = () => {
       <div className="dashboard-tabs">
         <nav className="tabs-nav" aria-label={t("dashboard.title")}>
           {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={`tab-btn ${activeTab === tab.id ? "active" : ""}`}
-              aria-current={activeTab === tab.id ? "page" : undefined}
-            >
+            <NavLink key={tab.id} to={`/dashboard/${tab.id}`} className="tab-btn">
               <span className="tab-icon">{tab.icon}</span>
               <span className="tab-label">{tab.label}</span>
-            </button>
+            </NavLink>
           ))}
         </nav>
       </div>

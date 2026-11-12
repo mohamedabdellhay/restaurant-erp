@@ -41,6 +41,10 @@ function App() {
                 {/* Dashboard - view_dashboard permission */}
                 <Route
                   path="/dashboard"
+                  element={<Navigate to="/dashboard/overview" replace />}
+                />
+                <Route
+                  path="/dashboard/:section"
                   element={
                     <ProtectedRoute permission="view_dashboard">
                       <Dashboard />

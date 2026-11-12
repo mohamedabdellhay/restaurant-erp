@@ -87,6 +87,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
+  text-decoration: none;
   padding: 0.55rem 0.85rem;
   border: 1px solid var(--border-color);
   border-radius: 999px;
