@@ -21,6 +21,7 @@ import { NavLink, Navigate, useLocation, useNavigate, useParams } from "react-ro
 import { CheckCircle2, XCircle, X } from "lucide-react";
 import PageHeader from "@components/PageHeader";
 import "./Dashboard.css";
+import "@components/dashboard/sections.css";
 
 const Dashboard = () => {
   const { t } = useTranslation();

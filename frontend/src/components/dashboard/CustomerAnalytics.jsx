@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Users, TrendingUp, UserCheck, UserPlus, Star } from "lucide-react";
+import { Users, TrendingUp, Star } from "lucide-react";
 import dashboardService from "../../services/dashboardService";
 import { useRestaurant } from "../../hooks/useRestaurant";
 import { formatMoney } from "../../utils/money";
@@ -63,42 +63,38 @@ const CustomerAnalytics = ({ dateRange = {} }) => {
     return (
       <div className="segment-chart">
         <div className="segment-container">
-          <div
-            className="segment new-segment"
-            style={{ width: `${newPercentage}%` }}
-          >
-            <div className="segment-label">
-              <UserPlus size={16} className="segment-icon" />
-              <span>{t("dashboard.new_customers")}</span>
-            </div>
-            <div className="segment-value">
-              {formatNumber(data.newCustomers)}
-            </div>
-          </div>
-          <div
-            className="segment returning-segment"
-            style={{ width: `${returningPercentage}%` }}
-          >
-            <div className="segment-label">
-              <UserCheck size={16} className="segment-icon" />
-              <span>{t("dashboard.returning_customers")}</span>
-            </div>
-            <div className="segment-value">
-              {formatNumber(data.returningCustomers)}
-            </div>
-          </div>
+          {total > 0 ? (
+            <>
+              {data.newCustomers > 0 && (
+                <div
+                  className="segment new-segment"
+                  style={{ flexGrow: data.newCustomers }}
+                />
+              )}
+              {data.returningCustomers > 0 && (
+                <div
+                  className="segment returning-segment"
+                  style={{ flexGrow: data.returningCustomers }}
+                />
+              )}
+            </>
+          ) : (
+            <div className="segment segment-empty" />
+          )}
         </div>
         <div className="segment-legend">
           <div className="legend-item">
             <div className="legend-color new-legend"></div>
             <span>{t("dashboard.new_customers")}</span>
-            <span className="legend-value">{newPercentage.toFixed(1)}%</span>
+            <span className="legend-value">
+              {formatNumber(data.newCustomers)} · {newPercentage.toFixed(1)}%
+            </span>
           </div>
           <div className="legend-item">
             <div className="legend-color returning-legend"></div>
             <span>{t("dashboard.returning_customers")}</span>
             <span className="legend-value">
-              {returningPercentage.toFixed(1)}%
+              {formatNumber(data.returningCustomers)} · {returningPercentage.toFixed(1)}%
             </span>
           </div>
         </div>
@@ -164,14 +160,6 @@ const CustomerAnalytics = ({ dateRange = {} }) => {
           </p>
         </div>
 
-        <div className="chart-card">
-          <div className="chart-header">
-            <TrendingUp size={18} className="chart-icon" />
-            <h3 className="chart-title">{t("dashboard.new_vs_returning")}</h3>
-          </div>
-          <CustomerSegmentChart data={data} />
-        </div>
-
         <div className="metric-card">
           <div className="metric-header">
             <TrendingUp size={24} className="metric-icon" />
@@ -185,6 +173,14 @@ const CustomerAnalytics = ({ dateRange = {} }) => {
           <p className="metric-description">
             {t("dashboard.avg_orders_description")}
           </p>
+        </div>
+
+        <div className="chart-card">
+          <div className="chart-header">
+            <TrendingUp size={18} className="chart-icon" />
+            <h3 className="chart-title">{t("dashboard.new_vs_returning")}</h3>
+          </div>
+          <CustomerSegmentChart data={data} />
         </div>
       </div>
 
@@ -336,69 +332,52 @@ const CustomerAnalytics = ({ dateRange = {} }) => {
         }
 
         .segment-chart {
-          margin-bottom: 1rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.9rem;
         }
 
         .segment-container {
           display: flex;
-          gap: 10px;
-          height: 60px;
+          gap: 4px;
+          height: 12px;
           background: var(--bg-secondary);
-          border-radius: var(--radius-md);
+          border-radius: 999px;
           overflow: hidden;
         }
 
         .segment {
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          justify-content: center;
-          padding: 1rem;
-          position: relative;
+          min-width: 0;
+          height: 100%;
+        }
+
+        .segment-empty {
+          flex: 1;
+          background: color-mix(in srgb, var(--text-muted) 25%, transparent);
         }
 
         .new-segment {
           background: var(--primary);
-          color: var(--primary-content);
-         
-          border-radius: var(--radius-md) 0 0 var(--radius-md);
         }
 
         .returning-segment {
           background: var(--success);
-          color: var(--success-content);
-          border-radius: 0 var(--radius-md) 0 var(--radius-md);
-        }
-
-        .segment-label {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          font-size: 0.875rem;
-          font-weight: 500;
-        }
-
-        .segment-icon {
-          flex-shrink: 0;
-        }
-
-        .segment-value {
-          font-size: 1.5rem;
-          font-weight: 700;
         }
 
         .segment-legend {
           display: flex;
-          justify-content: center;
-          gap: 2rem;
-          margin-top: 1rem;
+          flex-wrap: wrap;
+          gap: 0.75rem 1.25rem;
         }
 
         .legend-item {
           display: flex;
           align-items: center;
-          gap: 0.5rem;
-          font-size: 0.875rem;
+          gap: 0.45rem;
+          min-width: 0;
+          color: var(--text-secondary);
+          font-size: 0.8125rem;
+          font-weight: 600;
         }
 
         .legend-color {
