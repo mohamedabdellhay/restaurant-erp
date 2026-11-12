@@ -6,6 +6,7 @@ import { PERMISSIONS } from "../utils/constants/permissions.js";
 import {
   createRestaurantValidator,
   updateRestaurantValidator,
+  updateThemeValidator,
   restaurantIdValidator,
 } from "../validators/restaurantValidator.js";
 import { handleValidationErrors } from "../middleware/validationMiddleware.js";
@@ -144,6 +145,15 @@ router.post(
  *       404:
  *         $ref: '#/components/responses/NotFoundError'
  */
+router.put(
+  "/:id/theme",
+  protect,
+  hasPermission(PERMISSIONS.MANAGE_SETTINGS),
+  updateThemeValidator,
+  handleValidationErrors,
+  RestaurantController.updateTheme,
+);
+
 router.put(
   "/:id",
   protect,

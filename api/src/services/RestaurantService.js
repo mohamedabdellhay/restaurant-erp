@@ -101,6 +101,28 @@ class RestaurantService {
     });
     return toDoc(row);
   }
+
+  async updateTheme(id, theme) {
+    const restaurantId = requireUuid(id);
+    if (!restaurantId || !theme || typeof theme !== "object") return null;
+    const existing = await prisma.restaurant.findUnique({ where: { id: restaurantId } });
+    if (!existing) return null;
+
+    const current =
+      existing.settings && typeof existing.settings === "object" ? existing.settings : {};
+    const nextTheme = { ...(current.theme || {}) };
+    for (const key of ["primaryColor", "secondaryColor", "accentColor", "mode", "logo"]) {
+      if (theme[key] !== undefined && theme[key] !== null) {
+        nextTheme[key] = key === "logo" ? this.stripBaseUrl(theme[key]) : theme[key];
+      }
+    }
+
+    const row = await prisma.restaurant.update({
+      where: { id: restaurantId },
+      data: { settings: { ...current, theme: nextTheme } },
+    });
+    return toDoc(row);
+  }
 }
 
 export default new RestaurantService();

@@ -74,6 +74,26 @@ export const updateRestaurantValidator = [
     .withMessage("Mode must be either 'light' or 'dark'"),
 ];
 
+export const updateThemeValidator = [
+  param("id").isUUID().withMessage("Invalid restaurant ID"),
+  body("primaryColor")
+    .optional()
+    .isHexColor()
+    .withMessage("Primary color must be a valid hex color"),
+  body("secondaryColor")
+    .optional()
+    .isHexColor()
+    .withMessage("Secondary color must be a valid hex color"),
+  body("accentColor")
+    .optional()
+    .isHexColor()
+    .withMessage("Accent color must be a valid hex color"),
+  body("mode")
+    .optional()
+    .isIn(["light", "dark"])
+    .withMessage("Mode must be either 'light' or 'dark'"),
+];
+
 export const restaurantIdValidator = [
   param("id").isUUID().withMessage("Invalid restaurant ID"),
 ];

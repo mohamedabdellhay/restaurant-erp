@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./Settings.css";
 import { useRestaurant } from "@hooks/useRestaurant";
 import { useTheme } from "@hooks/useTheme";
@@ -55,6 +55,7 @@ const Settings = () => {
   const [uploadingGatewayLogo, setUploadingGatewayLogo] = useState(false);
   const [showApiKey, setShowApiKey] = useState(false);
   const [showSecret, setShowSecret] = useState(false);
+  const themeSaveTimer = useRef(null);
 
   // Initialize form with restaurant data
   const restaurantData = getRestaurantData();
@@ -217,65 +218,94 @@ const Settings = () => {
     }
   };
 
+  const applyTheme = (newSettings, saveNow = false) => {
+    setFormData((prev) => ({
+      ...prev,
+      settings: newSettings,
+    }));
+    updateRestaurantSettings(newSettings);
+
+    const restaurantId = getRestaurantId();
+    const nextTheme = newSettings?.theme;
+    if (!restaurantId || !nextTheme) return;
+
+    const payload = {
+      primaryColor: nextTheme.primaryColor,
+      secondaryColor: nextTheme.secondaryColor,
+      accentColor: nextTheme.accentColor,
+      mode: nextTheme.mode || theme,
+    };
+    if (nextTheme.logo) payload.logo = nextTheme.logo;
+
+    const send = () => {
+      restaurantService.updateTheme(restaurantId, payload).catch((error) => {
+        setMessage({
+          type: "error",
+          text: error.response?.data?.message || t("settings.update_failed"),
+        });
+      });
+    };
+
+    clearTimeout(themeSaveTimer.current);
+    if (saveNow) {
+      send();
+      return;
+    }
+    themeSaveTimer.current = setTimeout(send, 400);
+  };
+
   const handleThemeColorChange = (colorType, value) => {
-    const newSettings = {
+    applyTheme({
       ...formData.settings,
       theme: {
         ...formData.settings.theme,
         [colorType]: value,
       },
-    };
-
-    setFormData((prev) => ({
-      ...prev,
-      settings: newSettings,
-    }));
-
-    // Live update the theme context
-    updateRestaurantSettings(newSettings);
+    });
   };
 
   const handlePresetThemeSelect = (presetTheme) => {
-    const newSettings = {
-      ...formData.settings,
-      theme: {
-        ...formData.settings.theme,
-        ...presetTheme.theme,
+    applyTheme(
+      {
+        ...formData.settings,
+        theme: {
+          ...formData.settings.theme,
+          ...presetTheme.theme,
+        },
       },
-    };
-
-    setFormData((prev) => ({
-      ...prev,
-      settings: newSettings,
-    }));
-
-    // Live update the theme context
-    updateRestaurantSettings(newSettings);
+      true,
+    );
   };
 
   const handleResetToDefault = () => {
-    const defaultTheme = {
-      primaryColor: "#f59e0b",
-      secondaryColor: "#6366f1",
-      accentColor: "#10b981",
-      mode: "light",
-    };
-
-    const newSettings = {
-      ...formData.settings,
-      theme: {
-        ...formData.settings.theme,
-        ...defaultTheme,
+    applyTheme(
+      {
+        ...formData.settings,
+        theme: {
+          ...formData.settings.theme,
+          primaryColor: "#f59e0b",
+          secondaryColor: "#6366f1",
+          accentColor: "#10b981",
+          mode: "light",
+        },
       },
-    };
+      true,
+    );
+    if (theme !== "light") toggleTheme();
+  };
 
-    setFormData((prev) => ({
-      ...prev,
-      settings: newSettings,
-    }));
-
-    // Live update the theme context
-    updateRestaurantSettings(newSettings);
+  const handleAppearanceMode = (mode) => {
+    if (theme !== mode) toggleTheme();
+    applyTheme(
+      {
+        ...formData.settings,
+        theme: {
+          ...formData.settings.theme,
+          mode,
+        },
+      },
+      true,
+    );
   };
 
   const handleLogoUpload = async (e) => {
@@ -836,7 +866,7 @@ const Settings = () => {
                     <button
                       type="button"
                       className={`mode-btn ${theme === "light" ? "active" : ""}`}
-                      onClick={() => theme !== "light" && toggleTheme()}
+                      onClick={() => handleAppearanceMode("light")}
                     >
                       <Sun size={18} />
                       {t("settings.light_mode")}
@@ -844,7 +874,7 @@ const Settings = () => {
                     <button
                       type="button"
                       className={`mode-btn ${theme === "dark" ? "active" : ""}`}
-                      onClick={() => theme !== "dark" && toggleTheme()}
+                      onClick={() => handleAppearanceMode("dark")}
                     >
                       <Moon size={18} />
                       {t("settings.dark_mode")}

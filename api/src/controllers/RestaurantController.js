@@ -4,22 +4,34 @@ import RestaurantService from "../services/RestaurantService.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import ResponseHandler from "../utils/responseHandler.js";
 
+function withLogoUrls(restaurant) {
+  if (!restaurant) return restaurant;
+  const restaurantObj = { ...restaurant };
+  const withBase = (url) => {
+    if (!url) return url;
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    return `${process.env.BASE_URL}${url}`;
+  };
+  if (restaurantObj.logo) restaurantObj.logo = withBase(restaurantObj.logo);
+  if (restaurantObj.settings?.theme?.logo) {
+    restaurantObj.settings = {
+      ...restaurantObj.settings,
+      theme: {
+        ...restaurantObj.settings.theme,
+        logo: withBase(restaurantObj.settings.theme.logo),
+      },
+    };
+  }
+  return restaurantObj;
+}
+
 class RestaurantController {
   // get all restaurants
   index = asyncHandler(async (req, res) => {
     const allRestaurants = await RestaurantService.getAll();
 
     // Append BASE_URL to logo URLs
-    const restaurantsWithFullUrl = allRestaurants.map((restaurant) => {
-      const restaurantObj = restaurant.toObject();
-      if (restaurantObj.logo) {
-        restaurantObj.logo = `${process.env.BASE_URL}${restaurantObj.logo}`;
-      }
-      if (restaurantObj.settings?.theme?.logo) {
-        restaurantObj.settings.theme.logo = `${process.env.BASE_URL}${restaurantObj.settings.theme.logo}`;
-      }
-      return restaurantObj;
-    });
+    const restaurantsWithFullUrl = allRestaurants.map((restaurant) => withLogoUrls(restaurant));
 
     ResponseHandler.success(
       res,
@@ -41,24 +53,7 @@ class RestaurantController {
       );
     }
 
-    // Convert to plain object and append BASE_URL to logo
-    const restaurantObj = restaurant.toObject();
-
-    // Helper to safely append BASE_URL
-    const safeAppendBaseUrl = (url) => {
-      if (!url) return url;
-      if (url.startsWith("http://") || url.startsWith("https://")) return url;
-      return `${process.env.BASE_URL}${url}`;
-    };
-
-    if (restaurantObj.logo) {
-      restaurantObj.logo = safeAppendBaseUrl(restaurantObj.logo);
-    }
-    if (restaurantObj.settings?.theme?.logo) {
-      restaurantObj.settings.theme.logo = safeAppendBaseUrl(
-        restaurantObj.settings.theme.logo,
-      );
-    }
+    const restaurantObj = withLogoUrls(restaurant);
 
     ResponseHandler.success(
       res,
@@ -89,19 +84,28 @@ class RestaurantController {
       return ResponseHandler.error(res, "Restaurant not found", 404);
     }
 
-    // Convert to plain object and append BASE_URL to logo
-    const restaurantObj = restaurant.toObject();
-    if (restaurantObj.logo) {
-      restaurantObj.logo = `${process.env.BASE_URL}${restaurantObj.logo}`;
+    ResponseHandler.success(
+      res,
+      withLogoUrls(restaurant),
+      "Restaurant updated successfully",
+    );
+  });
+
+  updateTheme = asyncHandler(async (req, res) => {
+    const id = req.params.id;
+    if (req.user?.restaurant && req.user.restaurant !== id) {
+      return ResponseHandler.error(res, "You can only update your restaurant theme", 403);
     }
-    if (restaurantObj.settings?.theme?.logo) {
-      restaurantObj.settings.theme.logo = `${process.env.BASE_URL}${restaurantObj.settings.theme.logo}`;
+
+    const restaurant = await RestaurantService.updateTheme(id, req.body);
+    if (!restaurant) {
+      return ResponseHandler.error(res, "Restaurant not found", 404);
     }
 
     ResponseHandler.success(
       res,
-      restaurantObj,
-      "Restaurant updated successfully",
+      withLogoUrls(restaurant).settings.theme,
+      "Theme saved successfully",
     );
   });
 
@@ -129,14 +133,7 @@ class RestaurantController {
       return ResponseHandler.error(res, "Restaurant not found", 404);
     }
 
-    // Convert to plain object and append BASE_URL to logo
-    const restaurantObj = restaurant.toObject();
-    if (restaurantObj.logo) {
-      restaurantObj.logo = `${process.env.BASE_URL}${restaurantObj.logo}`;
-    }
-    if (restaurantObj.settings?.theme?.logo) {
-      restaurantObj.settings.theme.logo = `${process.env.BASE_URL}${restaurantObj.settings.theme.logo}`;
-    }
+    const restaurantObj = withLogoUrls(restaurant);
 
     ResponseHandler.success(
       res,
