@@ -20,6 +20,7 @@ import {
   Filter,
 } from "lucide-react";
 import tableService from "@services/tableService";
+import { getErrorMessage } from "@utils/errorMessage";
 
 const Tables = () => {
   const { t, i18n } = useTranslation();
@@ -70,7 +71,7 @@ const Tables = () => {
     } catch (error) {
       setMessage({
         type: "error",
-        text: error.response?.data?.message || "Failed to fetch tables",
+        text: getErrorMessage(error, t("table.tables_fetch_failed")),
       });
     } finally {
       setLoading(false);
@@ -83,11 +84,10 @@ const Tables = () => {
       if (selectedTable) {
         // Update table
         await tableService.update(selectedTable._id, formData);
-        setMessage({ type: "success", text: "Table updated successfully!" });
+        setMessage({ type: "success", text: t("table.tables_updated") });
       } else {
-        // Create new table
         await tableService.create(formData);
-        setMessage({ type: "success", text: "Table created successfully!" });
+        setMessage({ type: "success", text: t("table.tables_created") });
       }
 
       setShowAddModal(false);
@@ -97,21 +97,21 @@ const Tables = () => {
     } catch (error) {
       setMessage({
         type: "error",
-        text: error.response?.data?.message || "Operation failed",
+        text: getErrorMessage(error, t("table.tables_save_failed")),
       });
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this table?")) {
+    if (window.confirm(t("table.tables_delete_confirm"))) {
       try {
         await tableService.delete(id);
-        setMessage({ type: "success", text: "Table deleted successfully!" });
+        setMessage({ type: "success", text: t("table.tables_deleted") });
         fetchTables();
       } catch (error) {
         setMessage({
           type: "error",
-          text: error.response?.data?.message || "Delete failed",
+          text: getErrorMessage(error, t("table.tables_delete_failed")),
         });
       }
     }
@@ -399,7 +399,7 @@ const Tables = () => {
                       setFormData({ ...formData, number: e.target.value })
                     }
                     required
-                    placeholder="T1"
+                    placeholder={t("table.tables_number_placeholder")}
                   />
                 </div>
 
