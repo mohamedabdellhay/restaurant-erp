@@ -7,7 +7,9 @@
     "sign_in": "Sign In",
     "logging_in": "Logging in...",
     "forgot_password": "Forgot your password?",
-    "contact_support": "Contact Support"
+    "contact_support": "Contact Support",
+    "show_password": "Show password",
+    "hide_password": "Hide password"
   },
   "nav": {
     "dashboard": "Dashboard",

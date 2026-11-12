@@ -7,7 +7,9 @@
     "sign_in": "تسجيل الدخول",
     "logging_in": "جاري الدخول...",
     "forgot_password": "نسيت كلمة المرور؟",
-    "contact_support": "اتصل بالدعم"
+    "contact_support": "اتصل بالدعم",
+    "show_password": "إظهار كلمة المرور",
+    "hide_password": "إخفاء كلمة المرور"
   },
   "nav": {
     "dashboard": "لوحة التحكم",
