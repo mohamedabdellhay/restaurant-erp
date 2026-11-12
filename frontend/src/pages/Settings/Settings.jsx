@@ -33,6 +33,22 @@ import {
 import { presetThemes } from "@utils/demoTheme";
 import PageHeader from "@components/PageHeader";
 import Alert from "@components/Alert";
+import { businessRule, validateBusiness } from "@utils/businessValidation";
+
+const BUSINESS_FIELDS = [
+  ["name", "settings.restaurant_name"],
+  ["address", "settings.address"],
+  ["phone", "settings.phone"],
+  ["email", "settings.email"],
+  ["vatNumber", "settings.vat_number"],
+  ["crNumber", "settings.cr_number"],
+];
+
+const FieldError = ({ issue }) => {
+  const { t } = useTranslation();
+  if (!issue) return null;
+  return <p className="field-error">{t(`settings.business_errors.${issue.code}`)}</p>;
+};
 
 const SETTINGS_SECTIONS = [
   { id: "general", label: "settings.basic_info", icon: Building },
@@ -72,6 +88,9 @@ const Settings = () => {
   // Initialize form with restaurant data
   const restaurantData = getRestaurantData();
   const [formData, setFormData] = useState(restaurantData);
+  const businessCheck = validateBusiness(formData || {});
+  const taxRule = businessRule(formData?.currency);
+  const issueFor = (field) => businessCheck.issues.find((item) => item.field === field);
 
   // Check if current theme matches any preset
   const getCurrentPresetTheme = () => {
@@ -457,6 +476,16 @@ const Settings = () => {
       return;
     }
 
+    if (!businessCheck.valid) {
+      setMessage({
+        type: "error",
+        text: businessCheck.issues
+          .map((issue) => t(`settings.business_errors.${issue.code}`))
+          .join(" "),
+      });
+      return;
+    }
+
     setSaving(true);
     setMessage({ type: "", text: "" });
 
@@ -535,7 +564,7 @@ const Settings = () => {
       <Alert type={message.type} message={message.text} />
 
       {section !== "payments" && (
-      <form onSubmit={handleSubmit} className="settings-form">
+      <form onSubmit={handleSubmit} className="settings-form" noValidate>
         {section === "general" && (
         <div className="settings-section">
           <h2>
@@ -551,7 +580,9 @@ const Settings = () => {
                   handleInputChange(null, "name", e.target.value)
                 }
                 required
+                aria-invalid={Boolean(issueFor("name"))}
               />
+              <FieldError issue={issueFor("name")} />
             </div>
             <div className="form-group">
               <label>{t("settings.address")}</label>
@@ -562,7 +593,9 @@ const Settings = () => {
                   handleInputChange(null, "address", e.target.value)
                 }
                 required
+                aria-invalid={Boolean(issueFor("address"))}
               />
+              <FieldError issue={issueFor("address")} />
             </div>
             <div className="form-group">
               <label>
@@ -575,7 +608,9 @@ const Settings = () => {
                   handleInputChange(null, "phone", e.target.value)
                 }
                 required
+                aria-invalid={Boolean(issueFor("phone"))}
               />
+              <FieldError issue={issueFor("phone")} />
             </div>
             <div className="form-group">
               <label>
@@ -588,7 +623,9 @@ const Settings = () => {
                   handleInputChange(null, "email", e.target.value)
                 }
                 required
+                aria-invalid={Boolean(issueFor("email"))}
               />
+              <FieldError issue={issueFor("email")} />
             </div>
             <div className="form-group">
               <label>
@@ -628,26 +665,54 @@ const Settings = () => {
           <h2>
             <Hash size={20} /> {t("settings.business_details")}
           </h2>
+          <div className={`business-status ${businessCheck.valid ? "is-valid" : "is-invalid"}`}>
+            <strong>
+              {businessCheck.valid
+                ? t("settings.business_ready")
+                : t("settings.business_incomplete")}
+            </strong>
+            <ul className="business-checks">
+              {BUSINESS_FIELDS.map(([field, label]) => {
+                const issue = issueFor(field);
+                return (
+                  <li key={field} className={issue ? "bad" : "ok"}>
+                    {issue ? <X size={14} /> : <Check size={14} />}
+                    <span>{t(label)}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
           <div className="form-grid">
             <div className="form-group">
               <label>{t("settings.vat_number")}</label>
               <input
                 type="text"
+                inputMode={taxRule.digits ? "numeric" : "text"}
                 value={formData.vatNumber}
+                placeholder={t(`settings.business_hints.${taxRule.vatCode}`)}
+                aria-invalid={Boolean(issueFor("vatNumber"))}
                 onChange={(e) =>
                   handleInputChange(null, "vatNumber", e.target.value)
                 }
               />
+              <p className="field-hint">{t(`settings.business_hints.${taxRule.vatCode}`)}</p>
+              <FieldError issue={issueFor("vatNumber")} />
             </div>
             <div className="form-group">
               <label>{t("settings.cr_number")}</label>
               <input
                 type="text"
+                inputMode={taxRule.digits ? "numeric" : "text"}
                 value={formData.crNumber}
+                placeholder={t(`settings.business_hints.${taxRule.crCode}`)}
+                aria-invalid={Boolean(issueFor("crNumber"))}
                 onChange={(e) =>
                   handleInputChange(null, "crNumber", e.target.value)
                 }
               />
+              <p className="field-hint">{t(`settings.business_hints.${taxRule.crCode}`)}</p>
+              <FieldError issue={issueFor("crNumber")} />
             </div>
           </div>
         </div>
@@ -1023,6 +1088,13 @@ const Settings = () => {
           </div>
         </div>
         )}
+
+        <div className="settings-actions">
+          <button type="submit" className="btn-primary" disabled={saving}>
+            <Save size={18} />
+            {saving ? t("settings.saving") : t("settings.save_settings")}
+          </button>
+        </div>
 
       </form>
       )}

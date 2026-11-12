@@ -642,6 +642,70 @@
           font-size: 0.875rem;
         }
 
+        .business-status {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+          margin-bottom: 1.25rem;
+          padding: 1rem 1.1rem;
+          border: 1px solid var(--border-color);
+          border-radius: 14px;
+          background: var(--bg-base);
+          color: var(--text-primary);
+        }
+
+        .business-status.is-valid {
+          border-color: color-mix(in srgb, var(--success) 45%, var(--border-color));
+        }
+
+        .business-status.is-invalid {
+          border-color: color-mix(in srgb, #ef4444 45%, var(--border-color));
+        }
+
+        .business-checks {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 0.45rem 1rem;
+          margin: 0;
+          padding: 0;
+          list-style: none;
+        }
+
+        .business-checks li {
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+          font-size: 0.8125rem;
+          font-weight: 600;
+        }
+
+        .business-checks .ok {
+          color: var(--success);
+        }
+
+        .business-checks .bad {
+          color: #ef4444;
+        }
+
+        .field-hint,
+        .field-error {
+          margin: 0;
+          font-size: 0.75rem;
+          font-weight: 600;
+        }
+
+        .field-hint {
+          color: var(--text-muted);
+        }
+
+        .field-error {
+          color: #ef4444;
+        }
+
+        .form-group input[aria-invalid="true"] {
+          border-color: #ef4444;
+        }
+
         .settings-actions {
           display: flex;
           justify-content: flex-end;

@@ -3,6 +3,7 @@ import { toDoc, toDocs } from "../db/present.js";
 import { requireUuid } from "../db/ids.js";
 import RoleService from "./RoleService.js";
 import DepartmentService from "./DepartmentService.js";
+import { normalizeBusinessFields } from "../utils/businessValidation.js";
 
 const RESTAURANT_FIELDS = [
   "name",
@@ -59,7 +60,7 @@ class RestaurantService {
   }
 
   pick(data) {
-    const cleaned = this.cleanLogoUrls(data);
+    const cleaned = this.cleanLogoUrls(normalizeBusinessFields(data));
     const payload = {};
     for (const field of RESTAURANT_FIELDS) {
       if (cleaned[field] !== undefined) payload[field] = cleaned[field];
