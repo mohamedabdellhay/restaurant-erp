@@ -16,7 +16,8 @@ const Login = ({ portal = "restaurant" }) => {
   const { t, i18n } = useTranslation();
   const isAdmin = portal === "admin";
 
-  if (user) {
+  const hasSession = Boolean(user && localStorage.getItem("token"));
+  if (hasSession) {
     return <Navigate to={user.isPlatformOwner ? "/admin/overview" : "/dashboard"} replace />;
   }
 

@@ -49,13 +49,13 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/admin/login" element={<Login portal="admin" />} />
             <Route path="/payment/*" element={<PaymentResult />} />
-            <Route path="/platform/*" element={<Navigate to="/admin/overview" replace />} />
 
             <Route element={<ProtectedRoute portal="admin" />}>
               <Route element={<DashboardLayout />}>
                 <Route path="/admin" element={<Navigate to="/admin/overview" replace />} />
                 <Route path="/admin/profile" element={<Profile />} />
                 <Route path="/admin/:section" element={<Platform />} />
+                <Route path="/platform/*" element={<Navigate to="/admin/overview" replace />} />
               </Route>
             </Route>
 
