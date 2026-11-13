@@ -13,7 +13,6 @@ import Suppliers from "@pages/Suppliers/Suppliers";
 import Inventory from "@pages/Inventory/Inventory";
 import PaymentResult from "@pages/PaymentResult/PaymentResult";
 import DashboardLayout from "@layouts/DashboardLayout";
-import LandingPage from "@pages/LandingPage/LandingPage";
 import Tables from "@pages/Tables/Tables";
 import Reservations from "@pages/Reservations/Reservations";
 import Orders from "@pages/Orders/Orders";
@@ -24,6 +23,20 @@ import Menu from "@pages/Menu/Menu";
 import Reports from "@pages/Reports/Reports";
 import Roles from "@pages/Roles/Roles";
 import Platform from "@pages/Platform/Platform";
+import { useAuth } from "@hooks/useAuth";
+
+function HomeRedirect() {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" replace />;
+  return (
+    <Navigate
+      to={user.isPlatformOwner ? "/admin/overview" : "/dashboard"}
+      replace
+    />
+  );
+}
+
 function App() {
   return (
     <ThemeProvider>
@@ -32,7 +45,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<LandingPage />} />
+            <Route path="/" element={<HomeRedirect />} />
             <Route path="/login" element={<Login />} />
             <Route path="/payment/*" element={<PaymentResult />} />
 
@@ -55,8 +68,9 @@ function App() {
 
                 {/* Profile - Any logged-in staff */}
                 <Route path="/profile" element={<Profile />} />
-                <Route path="/platform" element={<Navigate to="/platform/overview" replace />} />
-                <Route path="/platform/:section" element={<Platform />} />
+                <Route path="/admin" element={<Navigate to="/admin/overview" replace />} />
+                <Route path="/admin/:section" element={<Platform />} />
+                <Route path="/platform/*" element={<Navigate to="/admin/overview" replace />} />
 
                 {/* Orders - view_orders permission */}
                 <Route

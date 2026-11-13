@@ -1,7 +1,7 @@
 import cron from "node-cron";
 import prisma from "../db/client.js";
-import PaymentFactory from "../services/payment/PaymentFactory.js";
-import TransactionService from "../services/payment/TransactionService.js";
+import PaymentFactory from "../modules/payment/payment.factory.js";
+import TransactionService from "../modules/payment/transaction.service.js";
 
 /**
  * Background job to sync pending transactions with payment providers.

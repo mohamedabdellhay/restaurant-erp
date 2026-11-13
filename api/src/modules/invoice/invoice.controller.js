@@ -1,0 +1,75 @@
+import InvoiceService from "./invoice.service.js";
+import asyncHandler from "../../utils/asyncHandler.js";
+import ResponseHandler from "../../utils/responseHandler.js";
+
+class InvoiceController {
+  index = asyncHandler(async (req, res) => {
+    const invoices = await InvoiceService.getAllInvoices(req.user.restaurant);
+    ResponseHandler.success(res, invoices, "Invoices retrieved successfully");
+  });
+
+  getStatistics = asyncHandler(async (req, res) => {
+    const stats = await InvoiceService.getInvoiceStatistics(
+      req.user.restaurant,
+    );
+    ResponseHandler.success(res, stats, "Invoice statistics retrieved successfully");
+  });
+
+  getInvoiceById = asyncHandler(async (req, res) => {
+    const invoice = await InvoiceService.getInvoiceById(req.params.id, req.user.restaurant);
+    if (!invoice) {
+      return ResponseHandler.error(res, "Invoice not found", 404);
+    }
+    ResponseHandler.success(res, invoice, "Invoice retrieved successfully");
+  });
+
+  // Create invoice from an order
+  createFromOrder = asyncHandler(async (req, res) => {
+    const invoice = await InvoiceService.generateFromOrder(
+      req.body.orderId,
+      req.user.restaurant,
+      req.user._id,
+    );
+    ResponseHandler.created(res, invoice, "Invoice generated successfully");
+  });
+
+  updateStatus = asyncHandler(async (req, res) => {
+    const { status, method } = req.body;
+    const invoice = await InvoiceService.updatePaymentStatus(
+      req.params.id,
+      req.user.restaurant,
+      status,
+      method,
+    );
+    if (!invoice) {
+      return ResponseHandler.error(res, "Invoice not found", 404);
+    }
+    ResponseHandler.success(
+      res,
+      invoice,
+      "Invoice status updated successfully",
+    );
+  });
+
+  delete = asyncHandler(async (req, res) => {
+    const invoice = await InvoiceService.deleteInvoice(req.params.id, req.user.restaurant);
+    if (!invoice) {
+      return ResponseHandler.error(res, "Invoice not found", 404);
+    }
+    ResponseHandler.success(res, null, "Invoice deleted successfully");
+  });
+
+  downloadPDF = asyncHandler(async (req, res) => {
+    const doc = await InvoiceService.generateInvoicePDF(req.params.id, req.user.restaurant);
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=invoice-${req.params.id}.pdf`,
+    );
+
+    doc.pipe(res);
+  });
+}
+
+export default new InvoiceController();

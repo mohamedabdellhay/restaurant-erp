@@ -8,13 +8,13 @@ const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { user } = useAuth();
   const location = useLocation();
-  const onPlatform = location.pathname.startsWith("/platform");
+  const onAdmin = location.pathname.startsWith("/admin");
 
-  if (user?.isPlatformOwner && !onPlatform && location.pathname !== "/profile") {
-    return <Navigate to="/platform/overview" replace />;
+  if (user?.isPlatformOwner && !onAdmin && location.pathname !== "/profile") {
+    return <Navigate to="/admin/overview" replace />;
   }
 
-  if (user && !user.isPlatformOwner && onPlatform) {
+  if (user && !user.isPlatformOwner && onAdmin) {
     return <Navigate to="/dashboard" replace />;
   }
 

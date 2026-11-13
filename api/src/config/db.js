@@ -1,5 +1,5 @@
 import prisma from "../db/client.js";
-import { ensurePlatformOwner } from "../utils/ensurePlatformOwner.js";
+import { ensurePlatformOwner } from "../modules/admin/ensureOwner.js";
 
 const connectDB = async () => {
   try {

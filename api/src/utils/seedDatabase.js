@@ -1,8 +1,8 @@
 import "dotenv/config";
 import prisma from "../db/client.js";
 import { hashPassword } from "../db/password.js";
-import RoleService from "../services/RoleService.js";
-import DepartmentService from "../services/DepartmentService.js";
+import RoleService from "../modules/role/role.service.js";
+import DepartmentService from "../modules/department/department.service.js";
 
 // Plans data
 const plans = [

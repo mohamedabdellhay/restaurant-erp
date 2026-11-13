@@ -26,11 +26,11 @@ import { useTranslation } from "react-i18next";
 import "./Sidebar.css";
 
 const PLATFORM_ITEMS = [
-  { label: "platform.overview", icon: LayoutDashboard, path: "/platform/overview" },
-  { label: "platform.restaurants", icon: Building2, path: "/platform/restaurants" },
-  { label: "platform.plans", icon: CreditCard, path: "/platform/plans" },
-  { label: "platform.subscriptions", icon: Receipt, path: "/platform/subscriptions" },
-  { label: "platform.settings", icon: Settings, path: "/platform/settings", footer: true },
+  { label: "platform.overview", icon: LayoutDashboard, path: "/admin/overview" },
+  { label: "platform.restaurants", icon: Building2, path: "/admin/restaurants" },
+  { label: "platform.plans", icon: CreditCard, path: "/admin/plans" },
+  { label: "platform.subscriptions", icon: Receipt, path: "/admin/subscriptions" },
+  { label: "platform.settings", icon: Settings, path: "/admin/settings", footer: true },
 ];
 
 const NAV_ITEMS = [

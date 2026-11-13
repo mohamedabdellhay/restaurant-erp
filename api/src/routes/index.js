@@ -5,27 +5,26 @@ const router = express.Router();
 // import swagger docs
 import swaggerRoute from "./swaggerRoutes.js";
 // import all routes modules
-import authRoutes from "./authRoutes.js";
-import reportRoutes from "./reportRoutes.js";
-import categoryRoutes from "./categoryRoutes.js";
-import inventoryRoutes from "./inventoryRoutes.js";
-import invoiceRoutes from "./invoiceRoutes.js";
-import orderRoutes from "./orderRoutes.js";
-import menuRoutes from "./menuRoutes.js";
-import reservationRoutes from "./reservationRoutes.js";
-import tableRoutes from "./tableRoutes.js";
-import roleRoutes from "./roleRoutes.js";
-import staffRoutes from "./staffRoutes.js";
-import restaurantRoutes from "./restaurantRoutes.js";
-
-import subscriptionRoutes from "./subscriptionRoutes.js";
-import customerRoutes from "./customerRoutes.js";
-import dashboardRoutes from "./dashboardRoutes.js";
-import uploadRoutes from "./uploadRoutes.js";
-import departmentRoutes from "./departmentRoutes.js";
-import permissionRoutes from "./permissionRoutes.js";
-import paymentRoutes from "./paymentRoutes.js";
-import platformRoutes from "./platformRoutes.js";
+import authRoutes from "../modules/auth/index.js";
+import reportRoutes from "../modules/report/index.js";
+import categoryRoutes from "../modules/category/index.js";
+import inventoryRoutes from "../modules/inventory/index.js";
+import invoiceRoutes from "../modules/invoice/index.js";
+import orderRoutes from "../modules/order/index.js";
+import menuRoutes from "../modules/menu/index.js";
+import reservationRoutes from "../modules/reservation/index.js";
+import tableRoutes from "../modules/table/index.js";
+import roleRoutes from "../modules/role/index.js";
+import staffRoutes from "../modules/staff/index.js";
+import restaurantRoutes from "../modules/restaurant/index.js";
+import subscriptionRoutes from "../modules/subscription/index.js";
+import customerRoutes from "../modules/customer/index.js";
+import dashboardRoutes from "../modules/dashboard/index.js";
+import uploadRoutes from "../modules/upload/index.js";
+import departmentRoutes from "../modules/department/index.js";
+import permissionRoutes from "../modules/permission/index.js";
+import paymentRoutes from "../modules/payment/index.js";
+import adminRoutes from "../modules/admin/index.js";
 
 
 // mount all routes
@@ -54,7 +53,7 @@ router.use("/upload", uploadRoutes);
 router.use("/departments", departmentRoutes);
 router.use("/permissions", permissionRoutes);
 router.use("/payments", paymentRoutes);
-router.use("/platform", platformRoutes);
+router.use("/admin", adminRoutes);
 
 
 export default router;

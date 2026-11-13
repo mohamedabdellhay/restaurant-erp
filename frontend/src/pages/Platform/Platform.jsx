@@ -86,7 +86,7 @@ const Platform = () => {
   }, [section]);
 
   if (!SECTIONS.some((item) => item.id === section)) {
-    return <Navigate to="/platform/overview" replace />;
+    return <Navigate to="/admin/overview" replace />;
   }
 
   const saveSettings = async (event) => {
@@ -201,7 +201,7 @@ const Platform = () => {
         {SECTIONS.map((item) => {
           const Icon = item.icon;
           return (
-            <NavLink key={item.id} to={`/platform/${item.id}`}>
+            <NavLink key={item.id} to={`/admin/${item.id}`}>
               <Icon size={16} />
               {t(item.label)}
             </NavLink>

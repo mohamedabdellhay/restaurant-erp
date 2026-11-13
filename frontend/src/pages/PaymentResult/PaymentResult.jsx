@@ -88,14 +88,14 @@ const PaymentResult = () => {
             </p>
             <div className="flex justify-center gap-4">
               <Link
-                to="/"
+                to="/login"
                 className="btn-secondary px-6 py-2 rounded-lg border border-[var(--border-color)]"
               >
                 {t("common.home") || "Back to Home"}
               </Link>
-              <a href="/#pricing" className="btn-primary no-underline">
+              <Link to="/login" className="btn-primary no-underline">
                 {t("payment.retry") || "Try Again"}
-              </a>
+              </Link>
             </div>
           </div>
         )}

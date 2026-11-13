@@ -654,7 +654,7 @@ Authorization: Bearer YOUR_JWT_TOKEN
       },
     ],
   },
-  apis: ["./src/routes/*.js"],
+  apis: ["./src/routes/*.js", "./src/modules/**/*.routes.js"],
 };
 
 const specs = swaggerJsdoc(options);

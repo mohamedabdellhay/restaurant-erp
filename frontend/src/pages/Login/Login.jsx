@@ -19,7 +19,7 @@ const Login = () => {
     const success = await login(email, password);
     if (success) {
       const stored = JSON.parse(localStorage.getItem("user") || "{}");
-      navigate(stored.isPlatformOwner ? "/platform/overview" : "/dashboard");
+      navigate(stored.isPlatformOwner ? "/admin/overview" : "/dashboard");
     }
   };
 
