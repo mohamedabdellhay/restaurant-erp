@@ -119,21 +119,42 @@ class AdminService {
     return toDocs(rows);
   }
 
-  planPayload(input) {
-    return {
-      name: String(input.name || "").trim(),
-      price: Number(input.price),
-      currency: String(input.currency || "EGP").toUpperCase(),
-      description: String(input.description || "").trim() || null,
-      features: Array.isArray(input.features)
+  planPayload(input = {}, { partial = false } = {}) {
+    const data = {};
+    const include = (value) => !partial || value !== undefined;
+
+    if (include(input.name)) data.name = String(input.name ?? "").trim();
+    if (include(input.price)) {
+      const price = Number(input.price);
+      if (Number.isFinite(price)) data.price = price;
+    }
+    if (include(input.currency)) {
+      data.currency = String(input.currency || "EGP").toUpperCase();
+    }
+    if (include(input.description)) {
+      data.description = String(input.description ?? "").trim() || null;
+    }
+    if (include(input.features)) {
+      data.features = Array.isArray(input.features)
         ? input.features.map((item) => String(item).trim()).filter(Boolean)
-        : [],
-      isActive: Boolean(input.isActive),
-      limits: {
-        users: Number(input.limits?.users ?? 5),
-        branches: Number(input.limits?.branches ?? 1),
-      },
-    };
+        : [];
+    }
+    if (include(input.isActive)) data.isActive = Boolean(input.isActive);
+
+    if (include(input.limits)) {
+      const limits = {};
+      if (!partial || input.limits?.users !== undefined) {
+        const users = Number(input.limits?.users ?? 5);
+        if (Number.isFinite(users)) limits.users = users;
+      }
+      if (!partial || input.limits?.branches !== undefined) {
+        const branches = Number(input.limits?.branches ?? 1);
+        if (Number.isFinite(branches)) limits.branches = branches;
+      }
+      if (Object.keys(limits).length) data.limits = limits;
+    }
+
+    return data;
   }
 
   async createPlan(input) {
@@ -146,9 +167,15 @@ class AdminService {
     if (!planId) return null;
     const existing = await prisma.plan.findUnique({ where: { id: planId } });
     if (!existing) return null;
+    const data = this.planPayload(input, { partial: true });
+    if (data.limits) {
+      const current =
+        existing.limits && typeof existing.limits === "object" ? existing.limits : {};
+      data.limits = { ...current, ...data.limits };
+    }
     const plan = await prisma.plan.update({
       where: { id: planId },
-      data: this.planPayload(input),
+      data,
     });
     return toDocs([plan])[0];
   }

@@ -53,6 +53,26 @@ export const planValidator = [
 
 export const planIdValidator = [param("id").isUUID().withMessage("Invalid plan ID")];
 
+export const updatePlanValidator = [
+  ...planIdValidator,
+  body("name")
+    .optional()
+    .trim()
+    .notEmpty()
+    .isLength({ min: 2, max: 60 })
+    .withMessage("Plan name is required"),
+  body("price").optional().isFloat({ min: 0 }).withMessage("Plan price must be zero or more"),
+  body("currency").optional().isIn(currencies).withMessage("Choose a supported currency"),
+  body("description").optional({ values: "falsy" }).isLength({ max: 300 }),
+  body("features").optional().isArray().withMessage("Features must be a list"),
+  body("isActive").optional().isBoolean().withMessage("Active setting must be true or false"),
+  body("limits.users").optional().isInt({ min: 1 }).withMessage("User limit must be at least 1"),
+  body("limits.branches")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("Branch limit must be at least 1"),
+];
+
 export const updateSubscriptionValidator = [
   param("id").isUUID().withMessage("Invalid subscription ID"),
   body("status")

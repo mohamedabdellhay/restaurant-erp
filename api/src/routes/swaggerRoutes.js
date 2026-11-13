@@ -100,6 +100,10 @@ Authorization: Bearer YOUR_JWT_TOKEN
         name: "Reports",
         description: "Analytics and reporting",
       },
+      {
+        name: "Admin",
+        description: "Platform owner settings, restaurants, plans, and subscriptions",
+      },
     ],
     components: {
       securitySchemes: {
@@ -177,6 +181,10 @@ Authorization: Bearer YOUR_JWT_TOKEN
             website: {
               type: "string",
               example: "https://gourmetgarden.com",
+            },
+            logo: {
+              type: "string",
+              example: "http://localhost:3000/uploads/logos/logo.webp",
             },
             currency: {
               type: "string",
