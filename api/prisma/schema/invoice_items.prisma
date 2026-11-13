@@ -1,0 +1,15 @@
+model InvoiceItem {
+  id         String @id @default(uuid())
+  invoiceId  String
+  productId  String
+  quantity   Int
+  price      Float
+  total      Float
+  modifiers  Json   @default("[]")
+
+  invoice Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  product MenuItem @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([invoiceId])
+  @@map("invoice_items")
+}

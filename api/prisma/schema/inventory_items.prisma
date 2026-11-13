@@ -1,0 +1,23 @@
+model InventoryItem {
+  id            String  @id @default(uuid())
+  name          String
+  sku           String?
+  unit          String?
+  costPrice     Float?
+  stock         Float   @default(0)
+  minStockAlert Float    @default(0)
+  isActive      Boolean  @default(true)
+  supplierId    String
+  restaurantId  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
+
+  supplier     Supplier         @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  restaurant   Restaurant?      @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  movements    StockMovement[]
+  recipeItems  MenuRecipeItem[]
+
+  @@unique([name, restaurantId])
+  @@index([restaurantId])
+  @@map("inventory_items")
+}

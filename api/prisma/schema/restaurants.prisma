@@ -1,0 +1,35 @@
+model Restaurant {
+  id            String   @id @default(uuid())
+  name          String
+  address       String
+  phone         String
+  email         String?
+  website       String?
+  logo          String?
+  currency      String   @default("EGP")
+  settings      Json     @default("{\"taxPercent\":0,\"serviceChargePercent\":0,\"theme\":{\"primaryColor\":\"#000000\",\"secondaryColor\":\"#ffffff\",\"accentColor\":\"#ff0000\",\"mode\":\"light\"},\"paymentGateways\":{\"kashier\":{\"testMode\":true}}}")
+  openingHours  Json?
+  socialMedia   Json?
+  vatNumber     String?
+  crNumber      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  staff                Staff[]
+  roles                Role[]
+  departments          Department[]
+  categories           Category[]
+  menuItems            MenuItem[]
+  tables               Table[]
+  customers            Customer[]
+  reservations         Reservation[]
+  orders               Order[]
+  invoices             Invoice[]
+  inventoryItems       InventoryItem[]
+  suppliers            Supplier[]
+  supplierTransactions SupplierTransaction[]
+  subscriptions        Subscription[]
+  transactions         Transaction[]
+
+  @@map("restaurants")
+}

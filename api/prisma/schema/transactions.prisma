@@ -1,0 +1,19 @@
+model Transaction {
+  id            String   @id @default(uuid())
+  transactionId String   @unique
+  provider      String
+  amount        Float
+  currency      String   @default("EGP")
+  status        String   @default("pending")
+  referenceType String
+  referenceId   String
+  metadata      Json     @default("{}")
+  restaurantId  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  restaurant Restaurant? @relation(fields: [restaurantId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@map("transactions")
+}

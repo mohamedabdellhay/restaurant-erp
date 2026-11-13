@@ -1,0 +1,12 @@
+model PlatformSetting {
+  id                String   @id @default("default")
+  name              String   @default("Restaurant ERP")
+  supportEmail      String   @default("")
+  supportPhone      String   @default("")
+  defaultCurrency   String   @default("EGP")
+  allowRegistration Boolean  @default(true)
+  maintenanceMode   Boolean  @default(false)
+  updatedAt         DateTime @updatedAt
+
+  @@map("platform_settings")
+}

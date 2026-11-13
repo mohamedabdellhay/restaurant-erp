@@ -1,0 +1,18 @@
+model Subscription {
+  id             String    @id @default(uuid())
+  startDate      DateTime  @default(now())
+  endDate        DateTime
+  status         String    @default("pending")
+  paymentDetails Json?
+  autoRenew      Boolean   @default(false)
+  restaurantId   String
+  planId         String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  plan       Plan       @relation(fields: [planId], references: [id], onDelete: Restrict)
+
+  @@index([restaurantId, status])
+  @@map("subscriptions")
+}

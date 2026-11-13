@@ -1,0 +1,17 @@
+model Table {
+  id           String   @id @default(uuid())
+  number       String
+  seats        Int      @default(2)
+  status       String   @default("available")
+  restaurantId String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  restaurant   Restaurant?   @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  orders       Order[]
+  reservations Reservation[]
+  invoices     Invoice[]
+
+  @@unique([number, restaurantId])
+  @@map("tables")
+}

@@ -1,0 +1,13 @@
+model MenuRecipeItem {
+  id              String   @id @default(uuid())
+  menuItemId      String
+  inventoryItemId String
+  qty             Float    @default(0)
+  createdAt       DateTime @default(now())
+
+  menuItem      MenuItem      @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  inventoryItem InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Restrict)
+
+  @@index([menuItemId])
+  @@map("menu_recipe_items")
+}

@@ -1,0 +1,22 @@
+model MenuItem {
+  id           String   @id @default(uuid())
+  name         String
+  description  String?
+  image        String?
+  price        Float
+  isActive     Boolean  @default(true)
+  modifiers    Json     @default("[]")
+  categoryId   String
+  restaurantId String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  category     Category         @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  restaurant   Restaurant?      @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  recipeItems  MenuRecipeItem[]
+  orderItems   OrderItem[]
+  invoiceItems InvoiceItem[]
+
+  @@index([restaurantId])
+  @@map("menu_items")
+}

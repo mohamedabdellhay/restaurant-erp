@@ -1,0 +1,21 @@
+model Customer {
+  id           String   @id @default(uuid())
+  name         String
+  phone        String
+  email        String?
+  address      String?
+  notes        String?
+  isActive     Boolean  @default(true)
+  restaurantId String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
+
+  restaurant   Restaurant    @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  orders       Order[]
+  reservations Reservation[]
+  invoices     Invoice[]
+
+  @@unique([phone, restaurantId])
+  @@index([restaurantId])
+  @@map("customers")
+}

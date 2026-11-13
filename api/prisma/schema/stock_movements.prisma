@@ -1,0 +1,15 @@
+model StockMovement {
+  id              String   @id @default(uuid())
+  qty             Float
+  type            String
+  refId           String?
+  inventoryItemId String?
+  createdById     String?
+  createdAt       DateTime @default(now())
+
+  inventoryItem InventoryItem? @relation(fields: [inventoryItemId], references: [id], onDelete: SetNull)
+  createdBy     Staff?         @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([inventoryItemId])
+  @@map("stock_movements")
+}

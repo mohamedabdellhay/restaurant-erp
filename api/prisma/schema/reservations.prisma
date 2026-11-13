@@ -1,0 +1,20 @@
+model Reservation {
+  id              String   @id @default(uuid())
+  reservedAt      DateTime
+  numberOfGuests  Int
+  durationMinutes Int      @default(60)
+  status          String   @default("pending")
+  notes           String?
+  tableId         String?
+  customerId      String
+  restaurantId    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  table      Table?      @relation(fields: [tableId], references: [id], onDelete: SetNull)
+  customer   Customer    @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  restaurant Restaurant? @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@index([restaurantId, reservedAt])
+  @@map("reservations")
+}

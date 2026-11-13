@@ -1,0 +1,15 @@
+model Department {
+  id                 String   @id @default(uuid())
+  name               String
+  description        String?
+  isSystemDepartment Boolean  @default(false)
+  restaurantId       String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  staff      Staff[]
+
+  @@unique([name, restaurantId])
+  @@map("departments")
+}
