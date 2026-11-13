@@ -9,7 +9,11 @@
     "forgot_password": "Forgot your password?",
     "contact_support": "Contact Support",
     "show_password": "Show password",
-    "hide_password": "Hide password"
+    "hide_password": "Hide password",
+    "admin_login_title": "Platform admin",
+    "admin_login_subtitle": "Sign in to manage restaurants, plans, and subscriptions",
+    "admin_only": "This sign-in is for the platform owner.",
+    "restaurant_only": "This sign-in is for restaurant staff."
   },
   "nav": {
     "dashboard": "Dashboard",

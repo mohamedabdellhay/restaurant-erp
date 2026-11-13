@@ -1,5 +1,5 @@
 import { memo, useCallback, useMemo } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   BarChart3,
   Users,
@@ -81,6 +81,7 @@ function showDefaultLogo(event) {
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const { user, logout, hasPermission } = useAuth();
+  const navigate = useNavigate();
   const { getBusinessLogo, getThemeColors } = useRestaurant();
   const { restaurantSettings } = useTheme();
   const { t, i18n } = useTranslation();
@@ -163,7 +164,15 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             label={t(item.label)}
           />
         ))}
-        <button type="button" onClick={logout} className="nav-link logout-btn">
+        <button
+          type="button"
+          onClick={async () => {
+            const next = user?.isPlatformOwner ? "/admin/login" : "/login";
+            await logout();
+            navigate(next);
+          }}
+          className="nav-link logout-btn"
+        >
           <LogOut size={22} />
           <span>{t("nav.logout")}</span>
         </button>

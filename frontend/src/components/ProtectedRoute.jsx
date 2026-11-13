@@ -3,7 +3,13 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { usePermissions } from "../hooks/usePermissions";
 
-const ProtectedRoute = ({ permission, require = "any", fallback = null, children }) => {
+const ProtectedRoute = ({
+  permission,
+  require = "any",
+  fallback = null,
+  children,
+  portal = "restaurant",
+}) => {
   const { user, loading } = useAuth();
   const { hasPermission, hasAnyPermission, hasAllPermissions } =
     usePermissions();
@@ -24,7 +30,15 @@ const ProtectedRoute = ({ permission, require = "any", fallback = null, children
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to={portal === "admin" ? "/admin/login" : "/login"} replace />;
+  }
+
+  if (portal === "admin" && !user.isPlatformOwner) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  if (portal !== "admin" && user.isPlatformOwner) {
+    return <Navigate to="/admin/overview" replace />;
   }
 
   // Check permissions if specified

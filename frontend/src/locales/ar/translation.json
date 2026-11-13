@@ -9,7 +9,11 @@
     "forgot_password": "نسيت كلمة المرور؟",
     "contact_support": "اتصل بالدعم",
     "show_password": "إظهار كلمة المرور",
-    "hide_password": "إخفاء كلمة المرور"
+    "hide_password": "إخفاء كلمة المرور",
+    "admin_login_title": "إدارة المنصة",
+    "admin_login_subtitle": "سجّل الدخول لإدارة المطاعم والخطط والاشتراكات",
+    "admin_only": "تسجيل الدخول هذا لمالك المنصة.",
+    "restaurant_only": "تسجيل الدخول هذا لموظفي المطعم."
   },
   "nav": {
     "dashboard": "لوحة التحكم",

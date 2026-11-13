@@ -47,7 +47,17 @@ function App() {
             {/* Public Routes */}
             <Route path="/" element={<HomeRedirect />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/admin/login" element={<Login portal="admin" />} />
             <Route path="/payment/*" element={<PaymentResult />} />
+            <Route path="/platform/*" element={<Navigate to="/admin/overview" replace />} />
+
+            <Route element={<ProtectedRoute portal="admin" />}>
+              <Route element={<DashboardLayout />}>
+                <Route path="/admin" element={<Navigate to="/admin/overview" replace />} />
+                <Route path="/admin/profile" element={<Profile />} />
+                <Route path="/admin/:section" element={<Platform />} />
+              </Route>
+            </Route>
 
             {/* Protected Routes */}
             <Route element={<ProtectedRoute />}>
@@ -66,11 +76,7 @@ function App() {
                   }
                 />
 
-                {/* Profile - Any logged-in staff */}
                 <Route path="/profile" element={<Profile />} />
-                <Route path="/admin" element={<Navigate to="/admin/overview" replace />} />
-                <Route path="/admin/:section" element={<Platform />} />
-                <Route path="/platform/*" element={<Navigate to="/admin/overview" replace />} />
 
                 {/* Orders - view_orders permission */}
                 <Route

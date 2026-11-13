@@ -10,7 +10,7 @@ const DashboardLayout = () => {
   const location = useLocation();
   const onAdmin = location.pathname.startsWith("/admin");
 
-  if (user?.isPlatformOwner && !onAdmin && location.pathname !== "/profile") {
+  if (user?.isPlatformOwner && !onAdmin) {
     return <Navigate to="/admin/overview" replace />;
   }
 

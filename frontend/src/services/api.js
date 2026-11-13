@@ -43,7 +43,9 @@ api.interceptors.response.use(
       localStorage.removeItem("refresh_token");
       localStorage.removeItem("user");
       localStorage.removeItem("restaurantSettings");
-      window.location.href = "/login";
+      window.location.href = window.location.pathname.startsWith("/admin")
+        ? "/admin/login"
+        : "/login";
       return Promise.reject(error);
     }
 
@@ -73,7 +75,9 @@ api.interceptors.response.use(
       localStorage.removeItem("refresh_token");
       localStorage.removeItem("user");
       localStorage.removeItem("restaurantSettings");
-      window.location.href = "/login";
+      window.location.href = window.location.pathname.startsWith("/admin")
+        ? "/admin/login"
+        : "/login";
       return Promise.reject(refreshError);
     }
   },

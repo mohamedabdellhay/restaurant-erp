@@ -56,7 +56,7 @@ const Header = () => {
         <button
           type="button"
           className="app-header-user"
-          onClick={() => navigate("/profile")}
+          onClick={() => navigate(user?.isPlatformOwner ? "/admin/profile" : "/profile")}
         >
           <span className="app-header-user-copy">
             <strong>{user?.name || "Admin User"}</strong>

@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, [fetchProfile]);
 
-  const login = async (email, password) => {
+  const login = async (email, password, portal = "restaurant") => {
     setLoading(true);
     setError(null);
     try {
@@ -84,6 +84,10 @@ export const AuthProvider = ({ children }) => {
       console.log("Full API response:", response.data);
 
       const { staff, accessToken, refreshToken } = response.data.data;
+      const owner = Boolean(staff.isPlatformOwner);
+      if ((portal === "admin") !== owner) {
+        return portal === "admin" ? "admin_only" : "restaurant_only";
+      }
 
       console.log("Destructured values:", {
         staff,
