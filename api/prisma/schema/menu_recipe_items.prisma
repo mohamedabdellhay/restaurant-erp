@@ -4,6 +4,7 @@ model MenuRecipeItem {
   inventoryItemId String
   qty             Float    @default(0)
   createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
 
   menuItem      MenuItem      @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
   inventoryItem InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Restrict)

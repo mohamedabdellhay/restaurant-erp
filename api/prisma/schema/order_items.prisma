@@ -5,7 +5,9 @@ model OrderItem {
   qty        Int    @default(1)
   price      Float
   modifiers  Json   @default("[]")
-  notes      String @default("")
+  notes      String   @default("")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
 
   order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Restrict)

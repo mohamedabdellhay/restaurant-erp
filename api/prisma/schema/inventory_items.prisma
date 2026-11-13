@@ -11,7 +11,6 @@ model InventoryItem {
   restaurantId  String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @default(now()) @updatedAt
-
   supplier     Supplier         @relation(fields: [supplierId], references: [id], onDelete: Restrict)
   restaurant   Restaurant?      @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   movements    StockMovement[]

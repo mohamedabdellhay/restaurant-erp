@@ -5,8 +5,7 @@ model Table {
   status       String   @default("available")
   restaurantId String?
   createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
+  updatedAt    DateTime @default(now()) @updatedAt
   restaurant   Restaurant?   @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   orders       Order[]
   reservations Reservation[]

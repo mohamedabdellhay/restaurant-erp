@@ -10,8 +10,7 @@ model Staff {
   departmentId    String?
   restaurantId    String?
   createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
+  updatedAt    DateTime @default(now()) @updatedAt
   role       Role?       @relation(fields: [roleId], references: [id], onDelete: Restrict)
   department Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
   restaurant Restaurant? @relation(fields: [restaurantId], references: [id], onDelete: Cascade)

@@ -9,8 +9,7 @@ model MenuItem {
   categoryId   String
   restaurantId String?
   createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
+  updatedAt    DateTime @default(now()) @updatedAt
   category     Category         @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   restaurant   Restaurant?      @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   recipeItems  MenuRecipeItem[]

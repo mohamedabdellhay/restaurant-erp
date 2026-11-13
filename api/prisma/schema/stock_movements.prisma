@@ -6,6 +6,7 @@ model StockMovement {
   inventoryItemId String?
   createdById     String?
   createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
 
   inventoryItem InventoryItem? @relation(fields: [inventoryItemId], references: [id], onDelete: SetNull)
   createdBy     Staff?         @relation(fields: [createdById], references: [id], onDelete: SetNull)

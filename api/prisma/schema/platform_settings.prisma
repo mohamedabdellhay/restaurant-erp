@@ -6,7 +6,7 @@ model PlatformSetting {
   defaultCurrency   String   @default("EGP")
   allowRegistration Boolean  @default(true)
   maintenanceMode   Boolean  @default(false)
-  updatedAt         DateTime @updatedAt
-
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now()) @updatedAt
   @@map("platform_settings")
 }
