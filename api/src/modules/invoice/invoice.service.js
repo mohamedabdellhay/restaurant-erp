@@ -124,10 +124,11 @@ class InvoiceService {
       },
     });
     if (!invoice) throw new Error("Invoice not found");
-    const restaurant = await prisma.restaurant.findUnique({
-      where: { id: requireUuid(restaurantId) },
-    });
-    return generateInvoicePDF(toDoc(invoice), toDoc(restaurant));
+    const [restaurant, platform] = await Promise.all([
+      prisma.restaurant.findUnique({ where: { id: requireUuid(restaurantId) } }),
+      prisma.platformSetting.findUnique({ where: { id: "default" } }),
+    ]);
+    return generateInvoicePDF(toDoc(invoice), toDoc(restaurant), toDoc(platform));
   }
 }
 

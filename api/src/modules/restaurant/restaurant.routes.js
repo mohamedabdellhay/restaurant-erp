@@ -74,6 +74,30 @@ const router = express.Router();
  *             serviceChargePercent:
  *               type: number
  *               minimum: 0
+ *             invoiceLanguage:
+ *               type: string
+ *               enum: [en, ar]
+ *             invoice:
+ *               type: object
+ *               properties:
+ *                 slogan:
+ *                   type: string
+ *                   maxLength: 80
+ *                 policy:
+ *                   type: string
+ *                   maxLength: 500
+ *                 note:
+ *                   type: string
+ *                   maxLength: 400
+ *                 accentColor:
+ *                   type: string
+ *                   example: "#111111"
+ *                 showLogo:
+ *                   type: boolean
+ *                 showVat:
+ *                   type: boolean
+ *                 showCr:
+ *                   type: boolean
  *             theme:
  *               $ref: '#/components/schemas/RestaurantTheme'
  *         openingHours:

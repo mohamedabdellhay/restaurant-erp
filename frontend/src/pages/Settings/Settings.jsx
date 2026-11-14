@@ -24,6 +24,7 @@ import {
   Sun,
   RotateCcw,
   CreditCard,
+  FileText,
   Lock,
   Shield,
   Settings as SettingsIcon,
@@ -54,6 +55,7 @@ const SETTINGS_SECTIONS = [
   { id: "general", label: "settings.basic_info", icon: Building },
   { id: "business", label: "settings.business_details", icon: Hash },
   { id: "financial", label: "settings.financial_settings", icon: DollarSign },
+  { id: "invoice", label: "settings.invoice_settings", icon: FileText },
   { id: "theme", label: "settings.theme_settings", icon: Palette },
   { id: "hours", label: "settings.opening_hours", icon: Clock },
   { id: "social", label: "settings.social_media", icon: Share2 },
@@ -230,6 +232,26 @@ const Settings = () => {
     } finally {
       setUploadingGatewayLogo(false);
     }
+  };
+
+  const updateInvoiceSetting = (field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      settings: {
+        ...prev.settings,
+        invoice: {
+          slogan: "",
+          accentColor: "#111111",
+          showLogo: true,
+          showVat: true,
+          showCr: true,
+          policy: "",
+          note: "",
+          ...(prev.settings?.invoice || {}),
+          [field]: value,
+        },
+      },
+    }));
   };
 
   const handleInputChange = (section, field, value) => {
@@ -490,9 +512,26 @@ const Settings = () => {
     setMessage({ type: "", text: "" });
 
     try {
+      const invoice = formData.settings?.invoice;
+      const accent = String(invoice?.accentColor || "");
+      const payload = invoice
+        ? {
+            ...formData,
+            settings: {
+              ...formData.settings,
+              invoice: {
+                ...invoice,
+                slogan: String(invoice.slogan || "").slice(0, 80),
+                policy: String(invoice.policy || "").slice(0, 500),
+                note: String(invoice.note || "").slice(0, 400),
+                accentColor: /^#[0-9a-fA-F]{6}$/.test(accent) ? accent : "#111111",
+              },
+            },
+          }
+        : formData;
       const response = await restaurantService.updateRestaurant(
         restaurantId,
-        formData,
+        payload,
       );
 
       if (response.success) {
@@ -501,7 +540,7 @@ const Settings = () => {
         // Update local storage with new theme settings
         localStorage.setItem(
           "restaurantSettings",
-          JSON.stringify(formData.settings),
+          JSON.stringify(payload.settings),
         );
 
         // Trigger theme update
@@ -758,6 +797,105 @@ const Settings = () => {
                 }
               />
             </div>
+          </div>
+        </div>
+        )}
+
+        {section === "invoice" && (
+        <div className="settings-section">
+          <h2>
+            <FileText size={20} /> {t("settings.invoice_settings")}
+          </h2>
+          <p className="field-hint">{t("settings.invoice_settings_hint")}</p>
+          <div className="form-grid">
+            <div className="form-group">
+              <label htmlFor="invoice-language">{t("settings.invoice_language")}</label>
+              <select
+                id="invoice-language"
+                value={formData.settings?.invoiceLanguage || "en"}
+                onChange={(e) =>
+                  handleInputChange("settings", "invoiceLanguage", e.target.value)
+                }
+              >
+                <option value="en">{t("settings.language_en")}</option>
+                <option value="ar">{t("settings.language_ar")}</option>
+              </select>
+              <p className="field-hint">{t("settings.invoice_language_hint")}</p>
+            </div>
+            <div className="form-group">
+              <label htmlFor="invoice-accent">{t("settings.invoice_color")}</label>
+              <div className="invoice-color">
+                <input
+                  id="invoice-accent"
+                  type="color"
+                  value={
+                    /^#[0-9a-fA-F]{6}$/.test(formData.settings?.invoice?.accentColor || "")
+                      ? formData.settings.invoice.accentColor
+                      : "#111111"
+                  }
+                  onChange={(e) => updateInvoiceSetting("accentColor", e.target.value)}
+                />
+                <input
+                  type="text"
+                  value={formData.settings?.invoice?.accentColor || "#111111"}
+                  maxLength={7}
+                  onChange={(e) => updateInvoiceSetting("accentColor", e.target.value)}
+                  aria-label={t("settings.invoice_color")}
+                />
+              </div>
+              <p className="field-hint">{t("settings.invoice_color_hint")}</p>
+            </div>
+            <div className="form-group">
+              <label htmlFor="invoice-slogan">{t("settings.invoice_slogan")}</label>
+              <input
+                id="invoice-slogan"
+                type="text"
+                maxLength={80}
+                value={formData.settings?.invoice?.slogan || ""}
+                placeholder={t("settings.invoice_slogan_placeholder")}
+                onChange={(e) => updateInvoiceSetting("slogan", e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="invoice-toggles">
+            {[
+              ["showLogo", "settings.invoice_show_logo"],
+              ["showVat", "settings.invoice_show_vat"],
+              ["showCr", "settings.invoice_show_cr"],
+            ].map(([field, label]) => (
+              <label key={field}>
+                <input
+                  type="checkbox"
+                  checked={formData.settings?.invoice?.[field] !== false}
+                  onChange={(e) => updateInvoiceSetting(field, e.target.checked)}
+                />
+                <span>{t(label)}</span>
+              </label>
+            ))}
+          </div>
+          <div className="form-group">
+            <label htmlFor="invoice-policy">{t("settings.invoice_policy")}</label>
+            <textarea
+              id="invoice-policy"
+              maxLength={500}
+              rows={4}
+              value={formData.settings?.invoice?.policy || ""}
+              placeholder={t("settings.invoice_policy_placeholder")}
+              onChange={(e) => updateInvoiceSetting("policy", e.target.value)}
+            />
+            <p className="field-hint">{t("settings.invoice_policy_hint")}</p>
+          </div>
+          <div className="form-group">
+            <label htmlFor="invoice-note">{t("settings.invoice_note")}</label>
+            <textarea
+              id="invoice-note"
+              maxLength={400}
+              rows={3}
+              value={formData.settings?.invoice?.note || ""}
+              placeholder={t("settings.invoice_note_placeholder")}
+              onChange={(e) => updateInvoiceSetting("note", e.target.value)}
+            />
+            <p className="field-hint">{t("settings.invoice_note_hint")}</p>
           </div>
         </div>
         )}

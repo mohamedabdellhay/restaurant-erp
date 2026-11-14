@@ -77,6 +77,35 @@ export const updateRestaurantValidator = [
     .optional()
     .isIn(["light", "dark"])
     .withMessage("Mode must be either 'light' or 'dark'"),
+  body("settings.invoiceLanguage")
+    .optional()
+    .isIn(["en", "ar"])
+    .withMessage("Invoice language must be English or Arabic"),
+  body("settings.invoice.slogan")
+    .optional({ values: "null" })
+    .isString()
+    .isLength({ max: 80 })
+    .withMessage("Invoice slogan must be 80 characters or fewer"),
+  body("settings.invoice.policy")
+    .optional({ values: "null" })
+    .isString()
+    .isLength({ max: 500 })
+    .withMessage("Invoice policy must be 500 characters or fewer"),
+  body("settings.invoice.note")
+    .optional({ values: "null" })
+    .isString()
+    .isLength({ max: 400 })
+    .withMessage("Invoice information must be 400 characters or fewer"),
+  body("settings.invoice.accentColor")
+    .optional({ values: "falsy" })
+    .isHexColor()
+    .withMessage("Invoice color must be a valid hex color"),
+  body("settings.invoice.showLogo").optional().isBoolean().withMessage("Show logo must be true or false"),
+  body("settings.invoice.showVat").optional().isBoolean().withMessage("Show VAT must be true or false"),
+  body("settings.invoice.showCr")
+    .optional()
+    .isBoolean()
+    .withMessage("Show commercial registration must be true or false"),
   rejectInvalidBusiness(true),
 ];
 
