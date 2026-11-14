@@ -90,6 +90,7 @@ class DashboardService {
   async getRevenueAnalytics(restaurantId, from, to, groupBy = "day") {
     const id = requireUuid(restaurantId);
     const range = dateClause(from, to);
+    const orderRange = dateClause(from, to, 'o."createdAt"');
     const bucket = trendSelect(groupBy);
     const groupBySql =
       groupBy === "hour"
@@ -97,7 +98,7 @@ class DashboardService {
         : groupBy === "week" || groupBy === "month"
           ? Prisma.sql`GROUP BY 1, 2 ORDER BY 1, 2`
           : Prisma.sql`GROUP BY 1, 2, 3 ORDER BY 1, 2, 3`;
-    const [trendRows, paymentMethods, orderTypes] = await Promise.all([
+    const [trendRows, paymentMethods, orderTypes, categoryRows] = await Promise.all([
       prisma.$queryRaw`
         SELECT ${bucket},
                COALESCE(SUM(total), 0)::float8 AS revenue,
@@ -122,6 +123,17 @@ class DashboardService {
         FROM orders
         WHERE "restaurantId" = ${id} AND status = 'paid' ${range}
         GROUP BY type
+      `,
+      prisma.$queryRaw`
+        SELECT c.name AS name,
+               COALESCE(SUM(oi.qty * oi.price), 0)::float8 AS revenue
+        FROM order_items oi
+        JOIN orders o ON o.id = oi."orderId"
+        JOIN menu_items mi ON mi.id = oi."menuItemId"
+        JOIN categories c ON c.id = mi."categoryId"
+        WHERE o."restaurantId" = ${id} AND o.status = 'paid' ${orderRange}
+        GROUP BY c.name
+        ORDER BY revenue DESC
       `,
     ]);
 
@@ -165,6 +177,11 @@ class DashboardService {
         value: num(row.revenue),
         revenue: num(row.revenue),
         count: num(row.count),
+      })),
+      categories: categoryRows.map((row) => ({
+        label: row.name || "Uncategorized",
+        value: num(row.revenue),
+        revenue: num(row.revenue),
       })),
       period: { from, to },
     };

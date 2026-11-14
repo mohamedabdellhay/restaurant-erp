@@ -63,7 +63,7 @@ function readableText(color) {
 const NavItem = memo(function NavItem({ to, icon: Icon, label }) {
   return (
     <NavLink to={to} className="nav-link">
-      <Icon size={22} />
+      <Icon size={18} />
       <span>{label}</span>
     </NavLink>
   );
@@ -91,7 +91,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     navigate(next);
   }, [user, navigate]);
 
-  const { getBusinessLogo, getThemeColors } = useRestaurant();
+  const { getBusinessLogo, getRestaurantName, getThemeColors } = useRestaurant();
   const { restaurantSettings } = useTheme();
   const { t, i18n } = useTranslation();
 
@@ -139,7 +139,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       style={sidebarColors}
     >
       <div className="sidebar-header">
-        {isOpen && (
+        <div className="sidebar-brand">
           <img
             key={logo}
             src={logo}
@@ -147,9 +147,10 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             className="sidebar-logo"
             onError={showDefaultLogo}
           />
-        )}
+          {isOpen && <span className="sidebar-brand-name">{getRestaurantName()}</span>}
+        </div>
         <button type="button" onClick={toggle} className="toggle-btn" aria-label="Toggle sidebar">
-          <ChevronLeft size={20} className={!isOpen ? "rotate" : ""} />
+          <ChevronLeft size={18} className={!isOpen ? "rotate" : ""} />
         </button>
       </div>
 
@@ -181,7 +182,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           }}
           className="nav-link logout-btn"
         >
-          <LogOut size={22} />
+          <LogOut size={18} />
           <span>{t("nav.logout")}</span>
         </button>
       </div>

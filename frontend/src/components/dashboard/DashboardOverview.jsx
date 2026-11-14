@@ -1,11 +1,113 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { DollarSign, ShoppingCart, Users, TrendingUp } from "lucide-react";
+import { Calculator, ClipboardList, Coins, TrendingUp, Users } from "lucide-react";
 import dashboardService from "../../services/dashboardService";
 import { useRestaurant } from "../../hooks/useRestaurant";
 import { formatMoney } from "../../utils/money";
 import { getErrorMessage } from "../../utils/errorMessage";
 import Alert from "../Alert";
+
+const CATEGORY_COLORS = ["#f59e0b", "#3b82f6", "#eab308", "#a855f7", "#22c55e", "#ef4444"];
+const CHANNEL_COLORS = ["#f59e0b", "#facc15", "#22c55e", "#3b82f6", "#a855f7"];
+
+function readableLabel(value) {
+  return String(value || "Unknown")
+    .replace(/[_-]+/g, " ")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function shareLabel(part, total, money) {
+  const pct = total > 0 ? (part / total) * 100 : 0;
+  return `${pct.toFixed(1)}%, ${money}`;
+}
+
+function Donut({ slices }) {
+  const total = slices.reduce((sum, slice) => sum + slice.value, 0);
+  const radius = 62;
+  const circumference = 2 * Math.PI * radius;
+  let offset = 0;
+
+  if (total <= 0) return null;
+
+  return (
+    <svg className="fa-donut" viewBox="0 0 180 180" role="img">
+      <g transform="rotate(-90 90 90)">
+        {slices.map((slice) => {
+          const length = (slice.value / total) * circumference;
+          const dash = `${length} ${circumference - length}`;
+          const node = (
+            <circle
+              key={slice.label}
+              cx="90"
+              cy="90"
+              r={radius}
+              fill="none"
+              stroke={slice.color}
+              strokeWidth="28"
+              strokeDasharray={dash}
+              strokeDashoffset={-offset}
+            />
+          );
+          offset += length;
+          return node;
+        })}
+      </g>
+    </svg>
+  );
+}
+
+function Pie({ slices }) {
+  const total = slices.reduce((sum, slice) => sum + slice.value, 0);
+  if (total <= 0) return null;
+  if (slices.length === 1) {
+    return (
+      <svg className="fa-pie" viewBox="0 0 200 200" role="img">
+        <circle cx="100" cy="100" r="78" fill={slices[0].color} />
+      </svg>
+    );
+  }
+
+  let angle = -Math.PI / 2;
+  const paths = slices.map((slice) => {
+    const sweep = (slice.value / total) * Math.PI * 2;
+    const start = angle;
+    const end = angle + sweep;
+    angle = end;
+    const x1 = 100 + Math.cos(start) * 78;
+    const y1 = 100 + Math.sin(start) * 78;
+    const x2 = 100 + Math.cos(end) * 78;
+    const y2 = 100 + Math.sin(end) * 78;
+    const large = sweep > Math.PI ? 1 : 0;
+    return (
+      <path
+        key={slice.label}
+        d={`M 100 100 L ${x1} ${y1} A 78 78 0 ${large} 1 ${x2} ${y2} Z`}
+        fill={slice.color}
+      />
+    );
+  });
+
+  return (
+    <svg className="fa-pie" viewBox="0 0 200 200" role="img">
+      {paths}
+    </svg>
+  );
+}
+
+function ChartLegend({ slices, total, formatCurrency }) {
+  return (
+    <ul className="fa-legend">
+      {slices.map((slice) => (
+        <li key={slice.label}>
+          <i style={{ background: slice.color }} />
+          <span>{slice.label}</span>
+          <strong>{shareLabel(slice.value, total, formatCurrency(slice.value))}</strong>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 const DashboardOverview = ({ dateRange = {} }) => {
   const { t } = useTranslation();
@@ -13,328 +115,210 @@ const DashboardOverview = ({ dateRange = {} }) => {
   const currency = getCurrency();
   const [loading, setLoading] = useState(true);
   const [overview, setOverview] = useState(null);
+  const [items, setItems] = useState([]);
+  const [revenue, setRevenue] = useState(null);
+  const [staff, setStaff] = useState([]);
   const [today, setToday] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchOverview();
-  }, [dateRange]);
-
-  useEffect(() => {
     let active = true;
-    dashboardService
-      .getRealTimeMetrics()
-      .then((response) => {
-        if (active && response.success) setToday(response.data);
-      })
-      .catch(() => {});
+
+    const load = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const params = {};
+        if (dateRange.from) params.from = dateRange.from;
+        if (dateRange.to) params.to = dateRange.to;
+
+        const [overviewRes, itemsRes, revenueRes, staffRes, realtimeRes] = await Promise.all([
+          dashboardService.getOverview(params),
+          dashboardService.getTopItems({ ...params, limit: 10 }),
+          dashboardService.getRevenueAnalytics(params),
+          dashboardService.getStaffPerformance(params),
+          dashboardService.getRealTimeMetrics(),
+        ]);
+
+        if (!active) return;
+        if (!overviewRes.success) {
+          setError(overviewRes.message || "Failed to fetch overview");
+          return;
+        }
+
+        setOverview(overviewRes.data);
+        setItems(itemsRes.success ? itemsRes.data || [] : []);
+        setRevenue(revenueRes.success ? revenueRes.data : null);
+        setStaff(staffRes.success ? staffRes.data || [] : []);
+        setToday(realtimeRes.success ? realtimeRes.data : null);
+      } catch (err) {
+        if (active) setError(getErrorMessage(err));
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+
+    load();
     return () => {
       active = false;
     };
-  }, []);
+  }, [dateRange]);
 
-  const fetchOverview = async () => {
-    try {
-      setLoading(true);
-      const params = {};
-      if (dateRange.from) params.from = dateRange.from;
-      if (dateRange.to) params.to = dateRange.to;
-
-      const response = await dashboardService.getOverview(params);
-      if (response.success) {
-        setOverview(response.data);
-      } else {
-        setError(response.message || "Failed to fetch overview");
-      }
-    } catch (err) {
-      setError(getErrorMessage(err));
-    } finally {
-      setLoading(false);
-    }
-  };
+  const formatCurrency = (amount) => formatMoney(amount, currency);
+  const formatNumber = (num) => new Intl.NumberFormat().format(num || 0);
 
   if (loading) {
     return (
-      <div className="metrics-grid">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="metric-card metric-card-skeleton" />
-        ))}
+      <div className="fa-overview">
+        <div className="fa-kpis">
+          {[...Array(5)].map((_, index) => (
+            <div key={index} className="fa-kpi fa-kpi-skeleton" />
+          ))}
+        </div>
       </div>
     );
   }
 
   if (error) {
-    return (
-      <Alert type="error" message={error} />
-    );
+    return <Alert type="error" message={error} />;
   }
 
-  if (!overview) {
-    return null;
-  }
+  if (!overview) return null;
 
-  const formatCurrency = (amount) => formatMoney(amount, currency);
-
-  const formatNumber = (num) => {
-    return new Intl.NumberFormat().format(num);
-  };
+  const categories = (revenue?.categories || [])
+    .filter((row) => row.value > 0)
+    .map((row, index) => ({
+      label: row.label,
+      value: row.value,
+      color: CATEGORY_COLORS[index % CATEGORY_COLORS.length],
+    }));
+  const channels = (revenue?.orderTypes || [])
+    .filter((row) => row.value > 0)
+    .map((row, index) => ({
+      label: readableLabel(row.label),
+      value: row.value,
+      color: CHANNEL_COLORS[index % CHANNEL_COLORS.length],
+    }));
+  const categoryTotal = categories.reduce((sum, row) => sum + row.value, 0);
+  const channelTotal = channels.reduce((sum, row) => sum + row.value, 0);
+  const maxItem = items.reduce((max, item) => Math.max(max, item.totalRevenue || 0), 0);
 
   const metrics = [
     {
-      title: t("dashboard.total_revenue"),
+      title: t("dashboard.sales"),
       value: formatCurrency(overview.totalRevenue),
-      icon: <DollarSign size={24} />,
-      color: "var(--success)",
-      bgColor: "var(--success-bg)",
+      icon: <Coins size={16} color="#e0a106" />,
     },
     {
-      title: t("dashboard.total_orders"),
+      title: t("dashboard.today_revenue"),
+      value: formatCurrency(today?.today?.revenue || 0),
+      icon: <TrendingUp size={16} color="#22c55e" />,
+    },
+    {
+      title: t("dashboard.order_count"),
       value: formatNumber(overview.totalOrders),
-      icon: <ShoppingCart size={24} />,
-      color: "var(--primary)",
-      bgColor: "var(--primary-bg)",
+      icon: <ClipboardList size={16} color="#f97316" />,
     },
     {
-      title: t("dashboard.total_customers"),
+      title: t("dashboard.customer_count"),
       value: formatNumber(overview.totalCustomers),
-      icon: <Users size={24} />,
-      color: "var(--accent)",
-      bgColor: "var(--accent-bg)",
+      icon: <Users size={16} color="#8b5cf6" />,
     },
     {
-      title: t("dashboard.average_order_value"),
+      title: t("dashboard.sales_per_order"),
       value: formatCurrency(overview.averageOrderValue),
-      icon: <TrendingUp size={24} />,
-      color: "var(--warning)",
-      bgColor: "var(--warning-bg)",
+      icon: <Calculator size={16} color="#6b7280" />,
     },
   ];
 
   return (
-    <div className="dashboard-overview">
-      {dateRange.from && dateRange.to && (
-        <p className="date-range">
-          {new Date(dateRange.from).toLocaleDateString()} –{" "}
-          {new Date(dateRange.to).toLocaleDateString()}
-        </p>
-      )}
-
-      <div className="metrics-grid">
+    <div className="fa-overview">
+      <div className="fa-kpis">
         {metrics.map((metric) => (
-          <article
-            key={metric.title}
-            className="metric-card"
-            style={{ "--tone": metric.color }}
-          >
-            <div className="metric-icon">{metric.icon}</div>
-            <div className="metric-info">
-              <p className="metric-title">{metric.title}</p>
-              <p className="metric-value">{metric.value}</p>
-            </div>
+          <article key={metric.title} className="fa-kpi">
+            <p className="fa-kpi-label">
+              {metric.icon}
+              <span>{metric.title}</span>
+            </p>
+            <p className="fa-kpi-value">{metric.value}</p>
           </article>
         ))}
       </div>
 
-      {today && (
-        <section className="today-panel">
-          <div className="today-copy">
-            <h2>{t("dashboard.today_summary")}</h2>
-            <dl>
-              <div>
-                <dt>{t("dashboard.today_revenue")}</dt>
-                <dd>{formatCurrency(today.today?.revenue || 0)}</dd>
-              </div>
-              <div>
-                <dt>{t("dashboard.today_orders")}</dt>
-                <dd>{formatNumber(today.today?.orders || 0)}</dd>
-              </div>
-              <div>
-                <dt>{t("dashboard.active_orders")}</dt>
-                <dd>{formatNumber(today.activeOrders || 0)}</dd>
-              </div>
-              <div>
-                <dt>{t("dashboard.paid_orders")}</dt>
-                <dd>{formatNumber(today.today?.paidOrders || 0)}</dd>
-              </div>
-            </dl>
-          </div>
-          <div className="today-tables">
-            <h2>{t("dashboard.table_status")}</h2>
-            <div
-              className="occupancy-track"
-              role="meter"
-              aria-valuenow={Math.round(today.tables?.occupancyRate || 0)}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-label={t("dashboard.table_occupancy")}
-            >
-              <span
-                style={{
-                  width: `${Math.min(today.tables?.occupancyRate || 0, 100)}%`,
-                }}
-              />
+      <div className="fa-grid">
+        <section className="fa-card">
+          <h2>{t("dashboard.staff_performance")}</h2>
+          {staff.length === 0 ? (
+            <p className="fa-empty">{t("dashboard.no_staff_data")}</p>
+          ) : (
+            <div className="fa-table-wrap">
+              <table className="fa-table">
+                <thead>
+                  <tr>
+                    <th>{t("dashboard.name")}</th>
+                    <th>{t("dashboard.sales")}</th>
+                    <th>{t("dashboard.orders")}</th>
+                    <th>{t("dashboard.avg_order")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {staff.slice(0, 8).map((member) => (
+                    <tr key={member._id}>
+                      <td>{member.name}</td>
+                      <td>{formatCurrency(member.totalRevenue)}</td>
+                      <td>{formatNumber(member.totalOrders)}</td>
+                      <td>{formatCurrency(member.averageOrderValue)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            <p>
-              {formatNumber(today.tables?.occupied || 0)} {t("dashboard.occupied")}
-              {" · "}
-              {formatNumber(today.tables?.available || 0)} {t("dashboard.available")}
-              {" · "}
-              {formatNumber(today.tables?.total || 0)} {t("dashboard.total")}
-            </p>
-          </div>
+          )}
         </section>
-      )}
 
-      <style>{`
-        .dashboard-overview {
-          display: flex;
-          flex-direction: column;
-          gap: 0.85rem;
-        }
+        <section className="fa-card">
+          <h2>{t("dashboard.category_sales")}</h2>
+          {categories.length === 0 ? (
+            <p className="fa-empty">{t("dashboard.no_data")}</p>
+          ) : (
+            <div className="fa-chart-block">
+              <Donut slices={categories} />
+              <ChartLegend slices={categories} total={categoryTotal} formatCurrency={formatCurrency} />
+            </div>
+          )}
+        </section>
 
-        .date-range {
-          margin: 0;
-          color: var(--text-muted);
-          font-size: 0.8125rem;
-          font-weight: 600;
-        }
+        <section className="fa-card">
+          <h2>{t("dashboard.top_10")}</h2>
+          {items.length === 0 ? (
+            <p className="fa-empty">{t("dashboard.no_items")}</p>
+          ) : (
+            <div className="fa-bars">
+              {items.map((item) => (
+                <div key={item._id} className="fa-bar-row">
+                  <span className="fa-bar-name">{item.name}</span>
+                  <span className="fa-bar-track">
+                    <span style={{ width: `${maxItem ? (item.totalRevenue / maxItem) * 100 : 0}%` }} />
+                  </span>
+                  <span className="fa-bar-value">{formatNumber(Math.round(item.totalRevenue))}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
 
-        .metrics-grid {
-          display: grid;
-          grid-template-columns: repeat(4, minmax(0, 1fr));
-          gap: 0.85rem;
-        }
-
-        .metric-card {
-          display: flex;
-          align-items: center;
-          gap: 0.9rem;
-          min-width: 0;
-          padding: 1.1rem 1.15rem;
-          border: 1px solid var(--border-color);
-          border-radius: 16px;
-          background: var(--bg-card);
-        }
-
-        .metric-card-skeleton {
-          min-height: 92px;
-          background: var(--bg-secondary);
-          background-size: 200% 100%;
-          animation: metric-shimmer 1.2s ease-in-out infinite;
-        }
-
-        @keyframes metric-shimmer {
-          from { background-position: 100% 0; }
-          to { background-position: -100% 0; }
-        }
-
-        .metric-icon {
-          display: grid;
-          place-items: center;
-          width: 2.75rem;
-          height: 2.75rem;
-          flex-shrink: 0;
-          border-radius: 12px;
-          background: color-mix(in srgb, var(--tone, var(--primary)) 16%, transparent);
-          color: var(--tone, var(--primary));
-        }
-
-        .metric-info {
-          min-width: 0;
-        }
-
-        .metric-title {
-          margin: 0 0 0.25rem;
-          color: var(--text-secondary);
-          font-size: 0.8125rem;
-          font-weight: 600;
-        }
-
-        .metric-value {
-          margin: 0;
-          color: var(--text-primary);
-          font-size: 1.35rem;
-          font-weight: 700;
-          letter-spacing: -0.03em;
-          line-height: 1.15;
-        }
-
-        .today-panel {
-          display: grid;
-          grid-template-columns: 1.4fr 1fr;
-          gap: 0.85rem;
-        }
-
-        .today-copy,
-        .today-tables {
-          padding: 1.1rem 1.15rem;
-          border: 1px solid var(--border-color);
-          border-radius: 16px;
-          background: var(--bg-card);
-        }
-
-        .today-copy h2,
-        .today-tables h2 {
-          margin: 0 0 0.9rem;
-          font-size: 0.95rem;
-          font-weight: 700;
-        }
-
-        .today-copy dl {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 0.85rem 1rem;
-          margin: 0;
-        }
-
-        .today-copy dt {
-          color: var(--text-secondary);
-          font-size: 0.75rem;
-          font-weight: 600;
-        }
-
-        .today-copy dd {
-          margin: 0.15rem 0 0;
-          font-size: 1.15rem;
-          font-weight: 700;
-          letter-spacing: -0.02em;
-        }
-
-        .occupancy-track {
-          height: 0.55rem;
-          overflow: hidden;
-          border-radius: 999px;
-          background: var(--bg-secondary);
-        }
-
-        .occupancy-track span {
-          display: block;
-          height: 100%;
-          border-radius: inherit;
-          background: var(--primary);
-        }
-
-        .today-tables p {
-          margin: 0.75rem 0 0;
-          color: var(--text-secondary);
-          font-size: 0.8125rem;
-          font-weight: 600;
-        }
-
-        @media (max-width: 1100px) {
-          .metrics-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-          }
-        }
-
-        @media (max-width: 640px) {
-          .metrics-grid,
-          .today-panel,
-          .today-copy dl {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
+        <section className="fa-card">
+          <h2>{t("dashboard.channel_sales")}</h2>
+          {channels.length === 0 ? (
+            <p className="fa-empty">{t("dashboard.no_data")}</p>
+          ) : (
+            <div className="fa-chart-block">
+              <Pie slices={channels} />
+              <ChartLegend slices={channels} total={channelTotal} formatCurrency={formatCurrency} />
+            </div>
+          )}
+        </section>
+      </div>
     </div>
   );
 };

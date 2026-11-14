@@ -1,0 +1,230 @@
+/* Food Analytica surface shared by every page. Loaded last so it wins over page styles. */
+
+.page-header-eyebrow {
+  display: none;
+}
+
+.card,
+.stat-card,
+.settings-section,
+.platform-metric,
+.platform-card,
+.platform-table-wrap,
+.profile-identity,
+.profile-card,
+.table-container,
+.table-wrapper,
+.table-responsive {
+  border: 1px solid #eceff3;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+}
+
+.stat-card,
+.platform-metric {
+  padding: 0.95rem 1rem;
+}
+
+.stat-card:hover,
+.table-card:hover {
+  transform: none;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+}
+
+.stats-grid,
+.platform-metrics {
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+}
+
+.stat-content h3,
+.platform-metric strong {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #111827;
+}
+
+.stat-content p,
+.platform-metric span {
+  color: #6b7280;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.stat-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  background: #f3f4f6;
+  color: #2fbe4a;
+}
+
+.stat-card .stat-icon,
+.stat-card.active .stat-icon,
+.stat-card.inactive .stat-icon,
+.stat-card.paid .stat-icon,
+.stat-card.pending .stat-icon,
+.stat-card.revenue .stat-icon,
+.stat-card.available .stat-icon,
+.stat-card.occupied .stat-icon,
+.stat-card.reserved .stat-icon,
+.stat-card.confirmed .stat-icon,
+.stat-card.cancelled .stat-icon,
+.stat-card.accent-success .stat-icon,
+.stat-card.accent-warning .stat-icon,
+.stat-card.accent-danger .stat-icon {
+  background: #f3f4f6;
+  color: #2fbe4a;
+}
+
+.search-filter-bar,
+.search-filter-container {
+  gap: 0.65rem;
+  margin-bottom: 0.9rem;
+}
+
+.search-box input,
+.search-bar input,
+.search-input,
+.filter-select,
+.form-group input,
+.form-group select,
+.form-group textarea,
+.input-field {
+  background: #fff;
+  border: 1px solid #e6e8ec;
+  border-radius: 8px;
+  color: #1f2937;
+}
+
+.search-box input,
+.search-bar input,
+.search-input {
+  border-radius: 999px;
+}
+
+.btn-primary,
+.modal .btn-primary,
+.modal-actions .btn-primary,
+.modal-footer .btn-primary {
+  background: #2fbe4a;
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.btn-primary:hover,
+.modal .btn-primary:hover {
+  background: #27a840;
+  opacity: 1;
+  transform: none;
+}
+
+.btn-secondary,
+.modal .btn-secondary {
+  background: #fff;
+  color: #374151;
+  border: 1px solid #e6e8ec;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.btn-secondary:hover {
+  background: #f3f4f6;
+  transform: none;
+}
+
+.filter-btn,
+.settings-nav a,
+.platform-nav a,
+.profile-nav a,
+.dashboard .tab-btn {
+  border: 1px solid #e6e8ec;
+  border-radius: 999px;
+  background: #fff;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.filter-btn:hover,
+.settings-nav a:hover,
+.platform-nav a:hover,
+.profile-nav a:hover,
+.dashboard .tab-btn:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.filter-btn.active,
+.settings-nav a.active,
+.platform-nav a.active,
+.profile-nav a.active,
+.dashboard .tab-btn.active {
+  background: #2fbe4a;
+  border-color: #2fbe4a;
+  color: #fff;
+}
+
+.table-container th,
+.table-wrapper th,
+.table-responsive th,
+.platform-table th,
+th {
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 0;
+}
+
+.table-container td,
+.table-wrapper td,
+.table-responsive td,
+.platform-table td,
+td {
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid #f3f4f6;
+  color: #374151;
+  font-size: 0.84rem;
+}
+
+.table-container tr:hover,
+.table-wrapper tr:hover,
+tr:hover {
+  background: #fafafa;
+}
+
+.modal {
+  border-radius: 12px;
+  border: 1px solid #eceff3;
+  box-shadow: 0 18px 40px rgb(15 23 42 / 0.16);
+}
+
+.modal-header {
+  border-bottom: 1px solid #eceff3;
+}
+
+.modal-header h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.login-brand {
+  background: #2fbe4a;
+}
+
+.table-card {
+  border: 1px solid #eceff3;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+}
+
+.table-card::before {
+  display: none;
+}

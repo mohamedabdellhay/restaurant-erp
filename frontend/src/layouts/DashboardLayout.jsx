@@ -43,7 +43,7 @@ const DashboardLayout = () => {
           flex-direction: column;
           min-width: 0;
           min-height: 100vh;
-          margin-inline-start: 260px;
+          margin-inline-start: 228px;
           transition: margin-inline-start var(--transition-normal);
         }
 
@@ -54,7 +54,7 @@ const DashboardLayout = () => {
         .content-area {
           flex: 1;
           min-width: 0;
-          padding: 2rem;
+          padding: 1.15rem 1.35rem 1.5rem;
           overflow: auto;
         }
 

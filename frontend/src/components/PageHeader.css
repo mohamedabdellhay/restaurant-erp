@@ -3,23 +3,28 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 0.9rem;
 }
 
 .page-header .header-content h1 {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin: 0 0 0.5rem;
-  color: var(--text-primary);
-  font-size: 2rem;
+  gap: 0.55rem;
+  margin: 0;
+  color: #1f2937;
+  font-size: 1.45rem;
   font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.page-header .header-content h1 svg {
+  display: none;
 }
 
 .page-header .header-content p {
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 1rem;
+  margin: 0.25rem 0 0;
+  color: #6b7280;
+  font-size: 0.85rem;
 }
 
 .page-header .header-content .page-header-eyebrow {

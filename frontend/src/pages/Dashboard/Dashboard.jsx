@@ -7,6 +7,7 @@ import {
   ChefHat,
   TrendingUp,
   Activity,
+  Calendar,
 } from "lucide-react";
 import { useAuth } from "@hooks/useAuth";
 import { useRestaurant } from "@hooks/useRestaurant";
@@ -19,7 +20,6 @@ import RealTimeMetrics from "@components/dashboard/RealTimeMetrics";
 import InventoryAlerts from "@components/dashboard/InventoryAlerts";
 import { NavLink, Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 import { CheckCircle2, XCircle, X } from "lucide-react";
-import PageHeader from "@components/PageHeader";
 import "./Dashboard.css";
 import "@components/dashboard/sections.css";
 
@@ -163,11 +163,6 @@ const Dashboard = () => {
         (preset.range.to || "") === (dateRange.to || ""),
     )?.id || "";
   const showDateFilter = activeTab !== "realtime" && activeTab !== "inventory";
-  const todayLabel = today.toLocaleDateString(undefined, {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  });
 
   if (!activeTab) {
     return <Navigate to={`/dashboard/${tabs[0]?.id || "overview"}`} replace />;
@@ -196,16 +191,12 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard">
-      <PageHeader
-        icon={BarChart3}
-        eyebrow={getRestaurantName()}
-        title={t("dashboard.title")}
-        subtitle={t("dashboard.subtitle")}
-      >
-        <time className="today-chip" dateTime={todayISO}>
-          {todayLabel}
-        </time>
-      </PageHeader>
+      <div className="fa-dash-head">
+        <h1>{t("nav.dashboard")}</h1>
+        <p className="fa-welcome">
+          {t("dashboard.welcome_banner", { name: getRestaurantName() })}
+        </p>
+      </div>
 
       {paymentStatus && (
         <div className={`payment-banner ${paymentStatus.type}`}>
@@ -243,41 +234,48 @@ const Dashboard = () => {
 
       {showDateFilter && (
         <div className="dashboard-toolbar">
-          <div className="preset-group" role="group" aria-label={t("dashboard.date_range")}>
-            {presets.map((preset) => (
-              <button
-                key={preset.id}
-                type="button"
-                className={`preset-btn ${activePreset === preset.id ? "active" : ""}`}
-                onClick={() => handleDateRangeChange(preset.range)}
-              >
-                {preset.label}
-              </button>
-            ))}
+          <div className="fa-field fa-outlet">
+            <span>{t("dashboard.select_outlet")}</span>
+            <strong>{getRestaurantName()}</strong>
           </div>
-          <div className="filter-group">
-            <label className="filter-label" htmlFor="dashboard-from">
-              {t("dashboard.date_range")}
-            </label>
-            <input
-              id="dashboard-from"
-              type="date"
-              value={dateRange.from || ""}
-              onChange={(e) =>
-                handleDateRangeChange({ ...dateRange, from: e.target.value })
-              }
-              className="date-input"
-            />
-            <span className="filter-separator">{t("dashboard.to")}</span>
-            <input
-              type="date"
-              aria-label={t("dashboard.to")}
-              value={dateRange.to || ""}
-              onChange={(e) =>
-                handleDateRangeChange({ ...dateRange, to: e.target.value })
-              }
-              className="date-input"
-            />
+          <div className="fa-toolbar-end">
+            <select
+              className="fa-field"
+              aria-label={t("dashboard.date_range")}
+              value={activePreset || "custom"}
+              onChange={(event) => {
+                const preset = presets.find((item) => item.id === event.target.value);
+                if (preset) handleDateRangeChange(preset.range);
+              }}
+            >
+              {presets.map((preset) => (
+                <option key={preset.id} value={preset.id}>
+                  {preset.label}
+                </option>
+              ))}
+              <option value="custom">{t("dashboard.date_range")}</option>
+            </select>
+            <div className="fa-field fa-dates">
+              <Calendar size={15} aria-hidden="true" />
+              <input
+                id="dashboard-from"
+                type="date"
+                aria-label={t("dashboard.date_range")}
+                value={dateRange.from || ""}
+                onChange={(e) =>
+                  handleDateRangeChange({ ...dateRange, from: e.target.value })
+                }
+              />
+              <span>{t("dashboard.to")}</span>
+              <input
+                type="date"
+                aria-label={t("dashboard.to")}
+                value={dateRange.to || ""}
+                onChange={(e) =>
+                  handleDateRangeChange({ ...dateRange, to: e.target.value })
+                }
+              />
+            </div>
           </div>
         </div>
       )}
