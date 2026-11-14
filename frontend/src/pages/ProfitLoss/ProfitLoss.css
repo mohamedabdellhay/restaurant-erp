@@ -1,0 +1,128 @@
+.profit-loss h1 {
+  margin: 0 0 0.9rem;
+  color: #1f2937;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.pl-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.9rem;
+}
+
+.pl-range {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  height: 2.3rem;
+  padding: 0 0.7rem;
+  border: 1px solid #e6e8ec;
+  border-radius: 8px;
+  background: #fff;
+  color: #6b7280;
+}
+
+.pl-range input {
+  border: 0;
+  background: transparent;
+  color: #374151;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.pl-compare {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 2.3rem;
+  padding: 0 0.8rem;
+  border: 1px solid #e6e8ec;
+  border-radius: 8px;
+  background: #fff;
+  color: #16a34a;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pl-compare.active {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.profit-loss th:last-child,
+.profit-loss td:last-child,
+.profit-loss th:nth-child(2),
+.profit-loss td:nth-child(2) {
+  text-align: end;
+  white-space: nowrap;
+}
+
+.pl-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.pl-toggle svg {
+  transform: rotate(-90deg);
+  transition: transform 0.15s ease;
+}
+
+[data-direction="rtl"] .pl-toggle svg {
+  transform: rotate(90deg);
+}
+
+.pl-toggle.open svg,
+[data-direction="rtl"] .pl-toggle.open svg {
+  transform: rotate(0deg);
+}
+
+.pl-summary td {
+  background: #e5e7eb;
+  font-weight: 700;
+}
+
+.pl-total td {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+}
+
+.pl-lines td {
+  background: #f9fafb;
+}
+
+.pl-lines p {
+  margin: 0.2rem 0;
+  color: #6b7280;
+}
+
+.pl-lines ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pl-lines li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.25rem 0.2rem 0.25rem 1.4rem;
+  color: #4b5563;
+  font-size: 0.82rem;
+}
+
+@media (max-width: 720px) {
+  .pl-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

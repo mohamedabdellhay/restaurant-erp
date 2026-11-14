@@ -56,6 +56,8 @@ const NAV_ENTRIES = [
       { label: "nav.inventory", path: "/inventory", permission: "view_inventory" },
       { label: "nav.ingredient_categories", path: "/ingredient-categories", permission: "view_inventory" },
       { label: "nav.ingredient_items", path: "/ingredient-items", permission: "view_inventory" },
+      { label: "nav.support_item_categories", path: "/support-item-categories", permission: "view_inventory" },
+      { label: "nav.support_items", path: "/support-items", permission: "view_inventory" },
       { label: "nav.sfg", path: "/semi-finished", permission: "view_inventory" },
       { label: "nav.stock_count", path: "/stock-count", permission: "view_inventory" },
       { label: "nav.purchase_return", path: "/purchase-returns", permission: "view_inventory" },
@@ -66,6 +68,8 @@ const NAV_ENTRIES = [
     label: "nav.group_finance",
     icon: TrendingUp,
     items: [
+      { label: "nav.pl", path: "/profit-loss", permission: "view_invoices" },
+      { label: "nav.business_closing", path: "/business-closing", permission: "view_invoices" },
       { label: "nav.invoices", path: "/invoices", permission: "view_invoices" },
     ],
   },

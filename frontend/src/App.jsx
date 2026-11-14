@@ -12,6 +12,8 @@ import Departments from "@pages/Departments/Departments";
 import Suppliers from "@pages/Suppliers/Suppliers";
 import Inventory from "@pages/Inventory/Inventory";
 import IngredientCategories from "@pages/IngredientCategories/IngredientCategories";
+import SupportItemCategories from "@pages/SupportItemCategories/SupportItemCategories";
+import SupportItems from "@pages/SupportItems/SupportItems";
 import SemiFinished from "@pages/SemiFinished/SemiFinished";
 import StockCount from "@pages/StockCount/StockCount";
 import PurchaseReturns from "@pages/PurchaseReturns/PurchaseReturns";
@@ -27,6 +29,8 @@ import WaitingDisplay from "@pages/WaitingDisplay/WaitingDisplay";
 import Kds from "@pages/Kds/Kds";
 import Settings from "@pages/Settings/Settings";
 import Invoices from "@pages/Invoices/Invoices";
+import BusinessClosing from "@pages/BusinessClosing/BusinessClosing";
+import ProfitLoss from "@pages/ProfitLoss/ProfitLoss";
 import Dashboard from "@pages/Dashboard/Dashboard";
 import Menu from "@pages/Menu/Menu";
 import Reports from "@pages/Reports/Reports";
@@ -199,6 +203,22 @@ function App() {
                   }
                 />
                 <Route
+                  path="/support-item-categories"
+                  element={
+                    <ProtectedRoute permission="view_inventory">
+                      <SupportItemCategories />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/support-items"
+                  element={
+                    <ProtectedRoute permission="view_inventory">
+                      <SupportItems />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="/semi-finished"
                   element={
                     <ProtectedRoute permission="view_inventory">
@@ -261,6 +281,22 @@ function App() {
                   element={
                     <ProtectedRoute permission="view_invoices">
                       <Invoices />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/business-closing"
+                  element={
+                    <ProtectedRoute permission="view_invoices">
+                      <BusinessClosing />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/profit-loss"
+                  element={
+                    <ProtectedRoute permission="view_invoices">
+                      <ProfitLoss />
                     </ProtectedRoute>
                   }
                 />
