@@ -182,17 +182,13 @@
   transition: background-color 0.2s ease;
 }
 
-.permission-checkbox:hover {
-  background: var(--bg-card);
+.permission-checkbox:hover,
+.permission-checkbox:has(input:checked) {
+  background: color-mix(in srgb, var(--primary) 8%, var(--bg-card));
 }
 
-.permission-checkbox input[type="checkbox"] {
-  accent-color: var(--primary);
-}
-
-.permission-checkbox span {
+.permission-checkbox .ui-check-label {
   font-size: 0.85rem;
-  color: var(--text-primary);
   text-transform: capitalize;
 }
 
@@ -310,10 +306,6 @@
 
 [data-direction="rtl"] .role-actions {
   justify-content: flex-start;
-}
-
-[data-direction="rtl"] .permission-checkbox {
-  flex-direction: row-reverse;
 }
 
 [data-direction="rtl"] .search-bar {

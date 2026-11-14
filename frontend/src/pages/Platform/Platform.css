@@ -82,7 +82,7 @@
   gap: 0.9rem;
 }
 
-.platform-form label,
+.platform-form label:not(.ui-check),
 .platform-check {
   display: flex;
   flex-direction: column;
@@ -92,7 +92,7 @@
   font-weight: 600;
 }
 
-.platform-form input,
+.platform-form input:not(.ui-check-input),
 .platform-form select,
 .platform-form textarea,
 .platform-table select {

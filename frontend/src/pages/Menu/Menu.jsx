@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import Checkbox from "@components/Checkbox";
 import PageHeader from "@components/PageHeader";
 import Alert from "@components/Alert";
 import "./Menu.css";
@@ -747,18 +748,13 @@ const Menu = () => {
                   rows="3"
                 />
               </div>
-              <div className="form-group checkbox-group">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={formData.isActive}
-                    onChange={(e) =>
-                      setFormData({ ...formData, isActive: e.target.checked })
-                    }
-                  />
-                  {t("menu.is_active")}
-                </label>
-              </div>
+              <Checkbox
+                checked={formData.isActive}
+                onChange={(checked) =>
+                  setFormData({ ...formData, isActive: checked })
+                }
+                label={t("menu.is_active")}
+              />
 
               {/* Recipe Section */}
               <div className="recipe-section">
@@ -1129,21 +1125,16 @@ const Menu = () => {
                       placeholder={t("menu.category_description_placeholder")}
                     />
                   </div>
-                  <div className="form-group checkbox-group">
-                    <label className="checkbox-label">
-                      <input
-                        type="checkbox"
-                        checked={categoryFormData.isActive}
-                        onChange={(e) =>
-                          setCategoryFormData({
-                            ...categoryFormData,
-                            isActive: e.target.checked,
-                          })
-                        }
-                      />
-                      {t("menu.category_active")}
-                    </label>
-                  </div>
+                  <Checkbox
+                    checked={categoryFormData.isActive}
+                    onChange={(checked) =>
+                      setCategoryFormData({
+                        ...categoryFormData,
+                        isActive: checked,
+                      })
+                    }
+                    label={t("menu.category_active")}
+                  />
                 </div>
               </div>
               <div className="modal-footer">

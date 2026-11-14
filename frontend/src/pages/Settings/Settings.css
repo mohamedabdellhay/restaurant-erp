@@ -126,16 +126,20 @@
         .invoice-toggles {
           display: flex;
           flex-wrap: wrap;
-          gap: 1.25rem;
+          gap: 0.75rem;
           margin: 0.25rem 0 1.25rem;
         }
 
-        .invoice-toggles label {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.5rem;
-          color: var(--text-primary);
-          font-weight: 500;
+        .invoice-toggles .ui-check {
+          padding: 0.55rem 0.9rem;
+          border: 1px solid var(--border-color);
+          border-radius: 999px;
+          background: var(--bg-base);
+        }
+
+        .invoice-toggles .ui-check:has(input:checked) {
+          border-color: color-mix(in srgb, var(--primary) 40%, var(--border-color));
+          background: color-mix(in srgb, var(--primary) 8%, var(--bg-base));
         }
 
         .form-group input:focus,

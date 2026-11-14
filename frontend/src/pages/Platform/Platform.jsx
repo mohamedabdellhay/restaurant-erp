@@ -8,6 +8,7 @@ import {
   Settings,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import Checkbox from "@components/Checkbox";
 import PageHeader from "@components/PageHeader";
 import Alert from "@components/Alert";
 import platformService from "@services/platformService";
@@ -279,26 +280,20 @@ const Platform = () => {
               </select>
             </label>
             <div className="platform-checks platform-span">
-              <label className="platform-check">
-                <input
-                  type="checkbox"
-                  checked={Boolean(settings.allowRegistration)}
-                  onChange={(event) =>
-                    setSettings({ ...settings, allowRegistration: event.target.checked })
-                  }
-                />
-                {t("platform.allow_registration")}
-              </label>
-              <label className="platform-check">
-                <input
-                  type="checkbox"
-                  checked={Boolean(settings.maintenanceMode)}
-                  onChange={(event) =>
-                    setSettings({ ...settings, maintenanceMode: event.target.checked })
-                  }
-                />
-                {t("platform.maintenance_mode")}
-              </label>
+              <Checkbox
+                checked={Boolean(settings.allowRegistration)}
+                onChange={(checked) =>
+                  setSettings({ ...settings, allowRegistration: checked })
+                }
+                label={t("platform.allow_registration")}
+              />
+              <Checkbox
+                checked={Boolean(settings.maintenanceMode)}
+                onChange={(checked) =>
+                  setSettings({ ...settings, maintenanceMode: checked })
+                }
+                label={t("platform.maintenance_mode")}
+              />
             </div>
           </div>
           <div className="platform-actions">
@@ -524,16 +519,11 @@ const Platform = () => {
                 required
               />
             </label>
-            <label className="platform-check">
-              <input
-                type="checkbox"
-                checked={Boolean(planForm.isActive)}
-                onChange={(event) =>
-                  setPlanForm({ ...planForm, isActive: event.target.checked })
-                }
-              />
-              {t("platform.active")}
-            </label>
+            <Checkbox
+              checked={Boolean(planForm.isActive)}
+              onChange={(checked) => setPlanForm({ ...planForm, isActive: checked })}
+              label={t("platform.active")}
+            />
             <label className="platform-span">
               {t("platform.description")}
               <input

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import roleService from "@services/roleService";
 import { PERMISSIONS } from "@utils/permissionUtils";
+import Checkbox from "@components/Checkbox";
 import PageHeader from "@components/PageHeader";
 import Alert from "@components/Alert";
 import "./Roles.css";
@@ -358,14 +359,13 @@ const Roles = () => {
                         <h4>{group.module}</h4>
                         <div className="permission-list">
                           {group.permissions.map((perm) => (
-                            <label key={perm.key} className="permission-checkbox">
-                              <input
-                                type="checkbox"
-                                checked={formData.permissions.includes(perm.key)}
-                                onChange={() => handlePermissionToggle(perm.key)}
-                              />
-                              <span>{perm.label}</span>
-                            </label>
+                            <Checkbox
+                              key={perm.key}
+                              className="permission-checkbox"
+                              checked={formData.permissions.includes(perm.key)}
+                              onChange={() => handlePermissionToggle(perm.key)}
+                              label={perm.label}
+                            />
                           ))}
                         </div>
                       </div>

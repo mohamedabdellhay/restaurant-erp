@@ -4,6 +4,7 @@ import "./Settings.css";
 import { useRestaurant } from "@hooks/useRestaurant";
 import { useTheme } from "@hooks/useTheme";
 import { useTranslation } from "react-i18next";
+import Checkbox from "@components/Checkbox";
 import restaurantService from "@services/restaurantService";
 import paymentService from "@services/paymentService";
 import {
@@ -865,14 +866,12 @@ const Settings = () => {
               ["showVat", "settings.invoice_show_vat"],
               ["showCr", "settings.invoice_show_cr"],
             ].map(([field, label]) => (
-              <label key={field}>
-                <input
-                  type="checkbox"
-                  checked={formData.settings?.invoice?.[field] !== false}
-                  onChange={(e) => updateInvoiceSetting(field, e.target.checked)}
-                />
-                <span>{t(label)}</span>
-              </label>
+              <Checkbox
+                key={field}
+                checked={formData.settings?.invoice?.[field] !== false}
+                onChange={(checked) => updateInvoiceSetting(field, checked)}
+                label={t(label)}
+              />
             ))}
           </div>
           <div className="form-group">
@@ -1376,24 +1375,14 @@ const Settings = () => {
                 </div>
               </div>
 
-              <div className="form-group flex items-center gap-3 pt-6">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={paymentSettings.testMode}
-                    onChange={(e) => setPaymentSettings({ ...paymentSettings, testMode: e.target.checked })}
-                    className="w-5 h-5 rounded border-[var(--border-color)] text-[var(--primary)]"
-                  />
-                  <div>
-                    <span className="font-medium text-[var(--text-primary)] block">
-                      {t("settings.test_mode")}
-                    </span>
-                    <span className="text-xs text-[var(--text-secondary)]">
-                      {t("settings.test_mode_desc")}
-                    </span>
-                  </div>
-                </label>
-              </div>
+              <Checkbox
+                checked={paymentSettings.testMode}
+                onChange={(checked) =>
+                  setPaymentSettings({ ...paymentSettings, testMode: checked })
+                }
+                label={t("settings.test_mode")}
+                hint={t("settings.test_mode_desc")}
+              />
             </div>
 
             <div className="mt-8 pt-6 border-t border-[var(--border-color)] flex justify-end">
