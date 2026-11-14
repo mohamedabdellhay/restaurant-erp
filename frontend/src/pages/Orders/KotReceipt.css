@@ -1,0 +1,102 @@
+.kot-receipt-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgb(15 23 42 / 0.55);
+}
+
+.kot-receipt {
+  width: min(100%, 440px);
+  max-height: 92vh;
+  overflow: auto;
+  border-radius: 10px;
+  background: #fff;
+  color: #111827;
+  box-shadow: 0 18px 50px rgb(15 23 42 / 0.28);
+}
+
+.kot-receipt header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0.9rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f3f4f6;
+}
+
+.kot-receipt header button {
+  display: grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.kot-receipt article {
+  padding: 1rem 1rem 1.4rem;
+}
+
+.kot-receipt h2 {
+  margin: 0 0 0.8rem;
+  text-align: center;
+  font-size: 1.15rem;
+}
+
+.kot-receipt-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.25rem 1rem;
+  margin-bottom: 0.8rem;
+  font-size: 0.86rem;
+}
+
+.kot-receipt-meta span:nth-child(even) {
+  text-align: end;
+}
+
+.kot-receipt table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.kot-receipt th,
+.kot-receipt td {
+  padding: 0.4rem 0.2rem;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: start;
+  vertical-align: top;
+}
+
+.kot-receipt th:nth-child(2),
+.kot-receipt td:nth-child(2),
+.kot-receipt th:nth-child(3),
+.kot-receipt td:nth-child(3) {
+  text-align: end;
+  white-space: nowrap;
+}
+
+.kot-receipt td strong {
+  display: block;
+  font-weight: 600;
+}
+
+.kot-receipt td em {
+  display: block;
+  margin-top: 0.15rem;
+  color: #ef4444;
+  font-style: normal;
+  font-size: 0.82rem;
+}
+
+.kot-receipt input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--primary);
+}

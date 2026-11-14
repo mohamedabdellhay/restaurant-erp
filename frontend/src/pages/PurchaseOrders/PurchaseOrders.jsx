@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Download, Eye, Package, Pencil, Plus, Search } from "lucide-react";
+import { ClipboardList, Download, Eye, Package, Pencil, Plus, Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import supplierService from "@services/supplierService";
 import inventoryService from "@services/inventoryService";
 import ingredientCategoryService from "@services/ingredientCategoryService";
+import { useAuth } from "@hooks/useAuth";
 import { useRestaurant } from "@hooks/useRestaurant";
 import { formatMoney } from "../../utils/money";
 import "./PurchaseOrders.css";
@@ -42,6 +43,12 @@ function readRows(restaurantId) {
   }
 }
 
+function streetOf(address) {
+  if (!address) return "";
+  if (typeof address === "string") return address;
+  return address.street || address.line || "";
+}
+
 function nextNumber(rows) {
   const highest = rows.reduce((max, row) => {
     const value = Number(String(row.number || "").replace(/\D/g, ""));
@@ -52,7 +59,8 @@ function nextNumber(rows) {
 
 const PurchaseOrders = () => {
   const { t } = useTranslation();
-  const { getRestaurantId, getCurrency } = useRestaurant();
+  const { user } = useAuth();
+  const { getRestaurantId, getCurrency, getRestaurantData } = useRestaurant();
   const restaurantId = getRestaurantId();
   const currency = getCurrency();
   const [rows, setRows] = useState([]);
@@ -61,6 +69,7 @@ const PurchaseOrders = () => {
   const [filter, setFilter] = useState("all");
   const [form, setForm] = useState(null);
   const [viewing, setViewing] = useState(null);
+  const [grn, setGrn] = useState(null);
   const [supplies, setSupplies] = useState([]);
   const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState("");
@@ -228,53 +237,195 @@ const PurchaseOrders = () => {
 
   const itemLabel = (item) => `${item.name}${item.unit ? ` (${item.unit})` : ""}`;
 
+  if (grn) {
+    const restaurant = getRestaurantData();
+    const supplier = suppliers.find((item) => item._id === grn.supplierId);
+    const lines = grn.items || [];
+    const qtyTotal = lines.reduce((sum, item) => sum + (Number(item.qty) || 0), 0);
+    const total = lines.reduce((sum, item) => sum + (Number(item.qty) || 0) * (Number(item.price) || 0), 0);
+    const address = restaurant.address || "—";
+    return (
+      <div className="po-page">
+        <div className="po-head">
+          <button type="button" className="po-back" onClick={() => setGrn(null)}>
+            <span aria-hidden="true">‹</span>
+            {t("nav.grn")}
+          </button>
+        </div>
+        <article className="purchase-receipt">
+          <header>
+            <h2>{restaurant.name || "—"}</h2>
+            <p>{address}</p>
+            <strong>{t("nav.grn_title")}</strong>
+          </header>
+          <div className="purchase-receipt-meta">
+            <p><span>{t("nav.po_no")}</span><b>{grn.number}</b></p>
+            <p><span>{t("nav.grn_location")}</span><b>{address}</b></p>
+            <p><span>{t("nav.po_date")}</span><b>{formatDate(grn.date)}</b></p>
+            <p><span>{t("nav.grn_challan")}</span><b>—</b></p>
+            <p><span>{t("nav.po_supplier")}</span><b>{grn.supplierName || "—"}</b></p>
+            <p><span>{t("nav.grn_challan_date")}</span><b>—</b></p>
+            <p><span>{t("nav.po_supplier_address")}</span><b>{streetOf(supplier?.address) || "—"}</b></p>
+            <p><span>{t("nav.grn_transaction")}</span><b>—</b></p>
+            <p><span>{t("nav.po_mobile")}</span><b>{supplier?.phone || "—"}</b></p>
+            <p><span>{t("nav.grn_transaction_date")}</span><b>{grn.status === "delivered" ? formatDate(grn.expectedDate) : "—"}</b></p>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>{t("nav.po_sl")}</th>
+                <th>{t("nav.po_supplies")}</th>
+                <th>{t("nav.po_unit")}</th>
+                <th>{t("nav.po_qty")}</th>
+                <th>{t("nav.po_u_price")}</th>
+                <th>{t("nav.po_line_total")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {lines.length === 0 && (
+                <tr>
+                  <td colSpan={6}>{t("nav.po_no_items")}</td>
+                </tr>
+              )}
+              {lines.map((item, index) => {
+                const lineTotal = (Number(item.qty) || 0) * (Number(item.price) || 0);
+                return (
+                  <tr key={`${item.itemId}-${index}`}>
+                    <td>{index + 1}</td>
+                    <td>{item.name}</td>
+                    <td>{item.unit || "—"}</td>
+                    <td>{item.qty}</td>
+                    <td>{formatMoney(item.price, currency)}</td>
+                    <td>{formatMoney(lineTotal, currency)}</td>
+                  </tr>
+                );
+              })}
+              <tr className="purchase-receipt-grand">
+                <td />
+                <td>{t("nav.po_grand_total")}</td>
+                <td />
+                <td>{qtyTotal}</td>
+                <td />
+                <td>{formatMoney(total, currency)}</td>
+              </tr>
+            </tbody>
+          </table>
+          <p className="purchase-receipt-comment">
+            <span>{t("nav.po_comment")}:</span>
+            {grn.quotation || ""}
+          </p>
+          <footer>
+            <p>
+              <strong>{user?.name || "—"}</strong>
+              <span>{t("nav.po_prepared")}</span>
+            </p>
+            <p>
+              <strong />
+              <span>{t("nav.grn_authorised")}</span>
+            </p>
+          </footer>
+        </article>
+      </div>
+    );
+  }
+
   if (viewing) {
+    const restaurant = getRestaurantData();
+    const supplier = suppliers.find((item) => item._id === viewing.supplierId);
     const lines = viewing.items || [];
-    const grand = lines.reduce((sum, item) => sum + (Number(item.qty) || 0) * (Number(item.price) || 0), 0);
+    const qtyTotal = lines.reduce((sum, item) => sum + (Number(item.qty) || 0), 0);
+    const subtotal = lines.reduce((sum, item) => sum + (Number(item.qty) || 0) * (Number(item.price) || 0), 0);
+    const address = restaurant.address || "—";
     return (
       <div className="po-page">
         <div className="po-head">
           <button type="button" className="po-back" onClick={() => setViewing(null)}>
             <span aria-hidden="true">‹</span>
-            {t("nav.po_view")}
+            {t("nav.purchase_receipt")}
           </button>
         </div>
-        <section className="po-card po-detail">
-          <h2>{viewing.number}</h2>
-          <div className="po-info">
-            <span>{t("nav.po_date")}: <strong>{formatDate(viewing.date)}</strong></span>
-            <span>{t("nav.po_expected")}: <strong>{formatDate(viewing.expectedDate)}</strong></span>
-            <span>{t("nav.po_supplier_label")}: <strong>{viewing.supplierName}</strong></span>
-            <em className={viewing.status}>{t(`nav.po_${viewing.status}`)}</em>
+        <article className="purchase-receipt">
+          <header>
+            <h2>{restaurant.name || "—"}</h2>
+            <p>{address}</p>
+            <strong>{t("nav.po_order_heading")}</strong>
+          </header>
+          <div className="purchase-receipt-meta">
+            <p><span>{t("nav.po_no")}</span><b>{viewing.number}</b></p>
+            <p><span>{t("nav.po_approval")}</span><b>{t(`nav.po_${viewing.status}`)}</b></p>
+            <p><span>{t("nav.po_date")}</span><b>{formatDate(viewing.date)}</b></p>
+            <p><span>{t("nav.po_validity")}</span><b>{formatDate(viewing.expectedDate)}</b></p>
+            <p><span>{t("nav.po_address")}</span><b>{address}</b></p>
+            <p><span>{t("nav.po_supplier")}</span><b>{viewing.supplierName || "—"}</b></p>
+            <p><span>{t("nav.po_delivery_address")}</span><b>{address}</b></p>
+            <p><span>{t("nav.po_supplier_address")}</span><b>{streetOf(supplier?.address) || "—"}</b></p>
+            <p><span>{t("nav.po_receiver_mobile")}</span><b>{restaurant.phone || "—"}</b></p>
+            <p><span>{t("nav.po_mobile")}</span><b>{supplier?.phone || "—"}</b></p>
           </div>
-          <h3>{t("nav.po_items")}</h3>
-          <div className="po-lines">
-            <div className="po-line head">
-              <span>{t("nav.purchase_item")}</span>
-              <span>{t("nav.po_qty")}</span>
-              <span>{t("nav.po_price")}</span>
-              <span>{t("nav.po_line_total")}</span>
-            </div>
-            {lines.length === 0 && <p>{t("nav.po_no_items")}</p>}
-            {lines.map((item, index) => {
-              const total = (Number(item.qty) || 0) * (Number(item.price) || 0);
-              return (
-                <div key={`${item.itemId}-${index}`} className="po-line">
-                  <span>{itemLabel(item)}</span>
-                  <span>{item.qty}</span>
-                  <span>{formatMoney(item.price, currency)}</span>
-                  <span>{formatMoney(total, currency)}</span>
-                </div>
-              );
-            })}
-            <div className="po-line total">
-              <span>{t("nav.po_grand")}</span>
-              <span />
-              <span />
-              <span>{formatMoney(grand, currency)}</span>
-            </div>
-          </div>
-        </section>
+          <table>
+            <thead>
+              <tr>
+                <th>{t("nav.po_sl")}</th>
+                <th>{t("nav.po_supplies")}</th>
+                <th>{t("nav.po_unit")}</th>
+                <th>{t("nav.po_qty")}</th>
+                <th>{t("nav.po_u_price")}</th>
+                <th>{t("nav.po_subtotal")}</th>
+                <th>{t("nav.po_tax_rate")}</th>
+                <th>{t("nav.po_tax_amt")}</th>
+                <th>{t("nav.po_line_total")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {lines.length === 0 && (
+                <tr>
+                  <td colSpan={9}>{t("nav.po_no_items")}</td>
+                </tr>
+              )}
+              {lines.map((item, index) => {
+                const lineSubtotal = (Number(item.qty) || 0) * (Number(item.price) || 0);
+                return (
+                  <tr key={`${item.itemId}-${index}`}>
+                    <td>{index + 1}</td>
+                    <td>{item.name}</td>
+                    <td>{item.unit || "—"}</td>
+                    <td>{item.qty}</td>
+                    <td>{formatMoney(item.price, currency)}</td>
+                    <td>{formatMoney(lineSubtotal, currency)}</td>
+                    <td>0%</td>
+                    <td>{formatMoney(0, currency)}</td>
+                    <td>{formatMoney(lineSubtotal, currency)}</td>
+                  </tr>
+                );
+              })}
+              <tr className="purchase-receipt-grand">
+                <td />
+                <td>{t("nav.po_grand_total")}</td>
+                <td />
+                <td>{qtyTotal}</td>
+                <td />
+                <td>{formatMoney(subtotal, currency)}</td>
+                <td />
+                <td>{formatMoney(0, currency)}</td>
+                <td>{formatMoney(subtotal, currency)}</td>
+              </tr>
+            </tbody>
+          </table>
+          <p className="purchase-receipt-comment">
+            <span>{t("nav.po_comment")}:</span>
+            {viewing.quotation || ""}
+          </p>
+          <footer>
+            <p>
+              <strong>{user?.name || "—"}</strong>
+              <span>{t("nav.po_prepared")}</span>
+            </p>
+            <p>
+              <strong />
+              <span>{t("nav.po_approved")}</span>
+            </p>
+          </footer>
+        </article>
       </div>
     );
   }
@@ -502,11 +653,14 @@ const PurchaseOrders = () => {
                 <button type="button" aria-label={t("nav.requisition_download")} onClick={() => downloadRow(row)}>
                   <Download size={15} />
                 </button>
-                <button type="button" aria-label={t("nav.requisition_view")} onClick={() => { setForm(null); setViewing(row); }}>
+                <button type="button" aria-label={t("nav.requisition_view")} onClick={() => { setForm(null); setGrn(null); setViewing(row); }}>
                   <Eye size={15} />
                 </button>
-                <button type="button" aria-label={t("nav.requisition_edit")} onClick={() => { setViewing(null); setForm(row); }}>
+                <button type="button" aria-label={t("nav.requisition_edit")} onClick={() => { setViewing(null); setGrn(null); setForm(row); }}>
                   <Pencil size={15} />
+                </button>
+                <button type="button" className="po-grn" aria-label={t("nav.grn")} onClick={() => { setForm(null); setViewing(null); setGrn(row); }}>
+                  <ClipboardList size={15} />
                 </button>
               </span>
             </div>

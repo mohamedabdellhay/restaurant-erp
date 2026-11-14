@@ -117,6 +117,10 @@
   background: #f5a024;
 }
 
+.po-actions button.po-grn {
+  background: var(--primary);
+}
+
 .po-back {
   display: inline-flex;
   align-items: center;
@@ -408,4 +412,102 @@
   border: 1px solid #fca5a5;
   background: #fff;
   color: #dc2626;
+}
+
+.purchase-receipt {
+  padding: 1.4rem 1.2rem 1.6rem;
+  background: #fff;
+  border-radius: 12px;
+  color: #111827;
+}
+
+.purchase-receipt header {
+  text-align: center;
+}
+
+.purchase-receipt header h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.purchase-receipt header p {
+  margin: 0.2rem 0 0.8rem;
+}
+
+.purchase-receipt header strong {
+  display: block;
+  margin: 0 auto;
+  max-width: 16rem;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid #111827;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+}
+
+.purchase-receipt-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem 1.5rem;
+  margin: 1rem 0;
+  font-size: 0.88rem;
+}
+
+.purchase-receipt-meta p {
+  display: grid;
+  grid-template-columns: 9.5rem 1fr;
+  gap: 0.4rem;
+  margin: 0;
+}
+
+.purchase-receipt-meta b {
+  font-weight: 600;
+}
+
+.purchase-receipt table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.purchase-receipt th,
+.purchase-receipt td {
+  padding: 0.35rem 0.3rem;
+  border: 1px solid #d1d5db;
+  text-align: start;
+}
+
+.purchase-receipt-grand td {
+  font-weight: 700;
+}
+
+.purchase-receipt-comment {
+  min-height: 3rem;
+  margin: 0.9rem 0 1.4rem;
+}
+
+.purchase-receipt-comment span {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+}
+
+.purchase-receipt footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.purchase-receipt footer p {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 8rem;
+  margin: 0;
+}
+
+.purchase-receipt footer strong {
+  min-height: 1.2rem;
+  border-bottom: 1px solid #111827;
+  font-weight: 600;
 }

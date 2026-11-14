@@ -1,0 +1,122 @@
+.sales-receipt-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgb(15 23 42 / 0.55);
+}
+
+.sales-receipt {
+  position: relative;
+  width: min(100%, 420px);
+  max-height: 92vh;
+  overflow: auto;
+  border-radius: 10px;
+  background: #fff;
+  color: #111827;
+  box-shadow: 0 18px 50px rgb(15 23 42 / 0.28);
+}
+
+.sales-receipt-close {
+  position: absolute;
+  inset-block-start: 0.7rem;
+  inset-inline-end: 0.7rem;
+  display: grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.sales-receipt article {
+  padding: 1rem 1.1rem 1.3rem;
+  text-align: center;
+  font-size: 0.82rem;
+}
+
+.sales-receipt h2,
+.sales-receipt h3 {
+  margin: 0;
+  color: #111827;
+}
+
+.sales-receipt h2 {
+  font-size: 1.25rem;
+}
+
+.sales-receipt h3 {
+  margin: 0.7rem 0 0.45rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.sales-receipt article > p {
+  margin: 0.15rem 0;
+}
+
+.sales-receipt-meta {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.15rem 0.6rem;
+  margin-top: 0.7rem;
+  text-align: start;
+}
+
+.sales-receipt-meta span:last-child {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+}
+
+.sales-receipt table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: start;
+}
+
+.sales-receipt th,
+.sales-receipt td {
+  padding: 0.28rem 0.15rem;
+  border-bottom: 1px dashed #d1d5db;
+  font-weight: 500;
+}
+
+.sales-receipt th:not(:first-child),
+.sales-receipt td:not(:first-child) {
+  text-align: end;
+}
+
+.sales-receipt dl {
+  margin: 0.35rem 0 0.8rem;
+}
+
+.sales-receipt dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.16rem 0;
+}
+
+.sales-receipt dt {
+  font-weight: 600;
+}
+
+.sales-receipt-total {
+  margin-top: 0.25rem;
+  border-top: 1px dashed #d1d5db;
+  font-weight: 700;
+}
+
+.sales-receipt-thanks {
+  margin: 1.2rem 0 0.2rem;
+}
+
+.sales-receipt-thanks {
+  font-weight: 700;
+}

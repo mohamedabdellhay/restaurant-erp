@@ -39,8 +39,9 @@ const SupplierCredit = () => {
           suppliers
             .map((supplier, index) => {
               const entries = transactionsOf(statements[index]);
-              const total = money(entries.filter((entry) => entry.type === "purchase").reduce((sum, entry) => sum + money(entry.amount), 0));
-              const paid = money(entries.filter((entry) => entry.type === "payment").reduce((sum, entry) => sum + money(entry.amount), 0));
+              const sumOf = (type) => entries.filter((entry) => entry.type === type).reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
+              const total = money(sumOf("purchase"));
+              const paid = money(sumOf("payment"));
               return {
                 id: supplier._id,
                 name: supplier.name,

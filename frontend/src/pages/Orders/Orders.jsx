@@ -3,6 +3,8 @@ import PageHeader from "@components/PageHeader";
 import Alert from "@components/Alert";
 import PinPad from "@components/PinPad";
 import "./Orders.css";
+import SalesReceipt from "./SalesReceipt";
+import KotReceipt from "./KotReceipt";
 import { useTranslation } from "react-i18next";
 import {
   Plus,
@@ -67,7 +69,7 @@ const formatOpeningStamp = (date) => {
 
 const Orders = () => {
   const { t, i18n } = useTranslation();
-  const { getCurrency, getTaxPercent, getServiceCharge } = useRestaurant();
+  const { getCurrency, getTaxPercent, getServiceCharge, getRestaurantData, getRestaurantId } = useRestaurant();
   const currency = getCurrency();
   const [orders, setOrders] = useState([]);
   const [pinUnlocked, setPinUnlocked] = useState(
@@ -102,6 +104,8 @@ const Orders = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [receipt, setReceipt] = useState(null);
+  const [kot, setKot] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [message, setMessage] = useState({ type: "", text: "" });
   const [showCustomerModal, setShowCustomerModal] = useState(false);
@@ -1211,7 +1215,37 @@ const Orders = () => {
             <aside className="pos-ticket">
               <div className="pos-ticket-head">
                 <strong>{ticketNumber}</strong>
-                <button type="button" className="pos-kot" onClick={() => saveOrder("in_kitchen")}>
+                <button
+                  type="button"
+                  className="pos-kot"
+                  onClick={async () => {
+                    let meta = {};
+                    try {
+                      meta = JSON.parse(localStorage.getItem(`menuItemMeta:${getRestaurantId() || "restaurant"}`) || "{}");
+                    } catch {
+                      meta = {};
+                    }
+                    const lines = formData.items.map((item) => ({
+                      name: item.name,
+                      qty: item.quantity || item.qty || 1,
+                      note: String(item.notes || "").trim(),
+                      detail: (item.modifiers || []).map((modifier) => modifier.name).filter(Boolean).join(", "),
+                      ideal: meta[item.menuItem]?.prep || "",
+                    }));
+                    const saved = await saveOrder("in_kitchen");
+                    if (!saved) return;
+                    const table = tables.find((item) => item._id === (saved.table?._id || formData.table));
+                    setKot({
+                      id: saved.orderNumber
+                        ? `#${saved.orderNumber}`
+                        : `#${String(saved._id || "").slice(0, 8)}`,
+                      createdAt: saved.createdAt || new Date().toISOString(),
+                      channel: (channels.find((item) => item.id === formData.type) || channels[0]).label,
+                      table: table ? tableLabel(table) : "",
+                      lines,
+                    });
+                  }}
+                >
                   <Monitor size={15} />
                   {t("nav.orders_kot")}
                 </button>
@@ -1219,8 +1253,28 @@ const Orders = () => {
                   type="button"
                   className="pos-bill"
                   onClick={async () => {
+                    const lines = formData.items.map((item) => {
+                      const extra = (item.modifiers || []).reduce(
+                        (sum, modifier) => sum + (Number(modifier.price) || 0),
+                        0,
+                      );
+                      const price = Number(item.price) + extra;
+                      const qty = item.quantity || item.qty || 1;
+                      return { name: item.name, qty, price, total: price * qty };
+                    });
+                    const figures = billFigures();
                     const saved = await saveOrder();
-                    if (saved) handleGenerateInvoice(saved);
+                    if (!saved) return;
+                    handleGenerateInvoice(saved);
+                    setReceipt({
+                      id: saved.orderNumber
+                        ? `#${saved.orderNumber}`
+                        : `#${String(saved._id || "").slice(0, 8)}`,
+                      createdAt: saved.createdAt || new Date().toISOString(),
+                      lines,
+                      figures,
+                      method: saved.paymentStatus === "paid" ? saved.paymentMethod : "",
+                    });
                   }}
                 >
                   <Printer size={15} />
@@ -2198,6 +2252,14 @@ const Orders = () => {
           </div>
         </div>
       )}
+
+      <KotReceipt ticket={kot} onClose={() => setKot(null)} />
+      <SalesReceipt
+        receipt={receipt}
+        restaurant={getRestaurantData()}
+        currency={currency}
+        onClose={() => setReceipt(null)}
+      />
 
       <CustomerModal
         isOpen={showCustomerModal}
