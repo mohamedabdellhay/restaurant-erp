@@ -7,6 +7,7 @@ const PaymentResult = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const isOrderPayment = searchParams.get("kind") === "order";
   const status = React.useMemo(() => {
     const path = window.location.pathname;
     if (path.includes("success") || searchParams.get("payment") === "success") {
@@ -23,11 +24,11 @@ const PaymentResult = () => {
   useEffect(() => {
     if (status === "success") {
       const timer = setTimeout(() => {
-        navigate("/dashboard");
+        navigate(isOrderPayment ? "/orders" : "/dashboard");
       }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [status, navigate]);
+  }, [status, navigate, isOrderPayment]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--bg-base)] px-4">
@@ -50,13 +51,17 @@ const PaymentResult = () => {
               </svg>
             </div>
             <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-4">
-              {t("payment.success_title") || "Payment Successful!"}
+              {isOrderPayment
+                ? t("payment.order_success_title")
+                : t("payment.success_title") || "Payment Successful!"}
             </h2>
             <p className="text-[var(--text-secondary)] mb-8">
-              {t("payment.success_desc") ||
-                "Your subscription is now active. Redirecting you to the dashboard..."}
+              {isOrderPayment
+                ? t("payment.order_success_desc")
+                : t("payment.success_desc") ||
+                  "Your subscription is now active. Redirecting you to the dashboard..."}
             </p>
-            <Link to="/dashboard" className="btn-primary inline-block">
+            <Link to={isOrderPayment ? "/orders" : "/dashboard"} className="btn-primary inline-block">
               {t("common.dashboard") || "Go to Dashboard"}
             </Link>
           </div>

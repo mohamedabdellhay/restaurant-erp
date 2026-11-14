@@ -1,5 +1,6 @@
 import prisma from "../../db/client.js";
 import { requireUuid } from "../../db/ids.js";
+import OrderService from "../order/order.service.js";
 
 class TransactionService {
   async resolveTransactionStatus(transaction, normalizedData) {
@@ -43,22 +44,22 @@ class TransactionService {
       const orderId = requireUuid(referenceId);
       if (!orderId) return;
       const order = await prisma.order.findUnique({ where: { id: orderId } });
-      if (order && order.paymentStatus !== "paid") {
-        await prisma.order.update({
-          where: { id: orderId },
-          data: {
-            paymentStatus: "paid",
-            status: "paid",
-            paymentMethod: "online",
-            payment: {
-              method: "online",
-              paidAt: new Date(),
-              amount,
-              currency,
-            },
+      if (!order || order.paymentStatus === "paid" || order.status === "cancelled") return;
+      await OrderService.updateOrder(
+        orderId,
+        order.restaurantId,
+        {
+          paymentStatus: "paid",
+          paymentMethod: "online",
+          payment: {
+            method: "online",
+            paidAt: new Date().toISOString(),
+            amount,
+            currency,
           },
-        });
-      }
+        },
+        null,
+      );
     }
   }
 }

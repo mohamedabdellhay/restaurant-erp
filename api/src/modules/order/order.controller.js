@@ -23,7 +23,12 @@ class OrderController {
   });
 
   update = asyncHandler(async (req, res) => {
-    const order = await OrderService.updateOrder(req.params.id, req.user.restaurant, req.body);
+    const order = await OrderService.updateOrder(
+      req.params.id,
+      req.user.restaurant,
+      req.body,
+      req.user._id,
+    );
     if (!order) {
       return ResponseHandler.error(res, "Order not found", 404);
     }
@@ -31,7 +36,11 @@ class OrderController {
   });
 
   delete = asyncHandler(async (req, res) => {
-    const order = await OrderService.deleteOrder(req.params.id, req.user.restaurant);
+    const order = await OrderService.deleteOrder(
+      req.params.id,
+      req.user.restaurant,
+      req.user._id,
+    );
     if (!order) {
       return ResponseHandler.error(res, "Order not found", 404);
     }
@@ -48,11 +57,7 @@ class OrderController {
   });
 
   getPaymentUrl = asyncHandler(async (req, res) => {
-    const checkoutUrl = await OrderService.getPaymentUrl(
-      req.params.id,
-      req.user.restaurant,
-      req.get("host"),
-    );
+    const checkoutUrl = await OrderService.getPaymentUrl(req.params.id, req.user.restaurant);
     ResponseHandler.success(res, { checkoutUrl }, "Payment link generated successfully");
   });
 }

@@ -67,25 +67,27 @@ const plans = [
   },
 ];
 
+export async function upsertPlans() {
+  for (const planData of plans) {
+    await prisma.plan.upsert({
+      where: { name: planData.name },
+      update: {
+        price: planData.price,
+        features: planData.features,
+        limits: planData.limits,
+        description: planData.description,
+      },
+      create: planData,
+    });
+    console.log(`Upserted Plan: ${planData.name}`);
+  }
+}
+
 const seedPlans = async () => {
   try {
     await prisma.$connect();
     console.log("Connected to PostgreSQL...");
-
-    for (const planData of plans) {
-      await prisma.plan.upsert({
-        where: { name: planData.name },
-        update: {
-          price: planData.price,
-          features: planData.features,
-          limits: planData.limits,
-          description: planData.description,
-        },
-        create: planData,
-      });
-      console.log(`Upserted Plan: ${planData.name}`);
-    }
-
+    await upsertPlans();
     console.log("Plans seeded successfully.");
     process.exit(0);
   } catch (error) {
@@ -94,4 +96,6 @@ const seedPlans = async () => {
   }
 };
 
-seedPlans();
+if (process.argv[1]?.endsWith("seedPlans.js")) {
+  seedPlans();
+}

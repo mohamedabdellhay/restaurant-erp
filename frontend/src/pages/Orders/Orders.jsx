@@ -21,6 +21,7 @@ import {
   Wallet,
   Banknote,
   Globe,
+  Truck,
 } from "lucide-react";
 import paymentService from "@services/paymentService";
 import orderService from "@services/orderService";
@@ -58,6 +59,7 @@ const Orders = () => {
     type: "dineIn",
     table: "",
     customer: "",
+    deliveryAddress: "",
     items: [],
     notes: "",
   });
@@ -102,7 +104,7 @@ const Orders = () => {
     if (message.text) {
       const timer = setTimeout(() => {
         setMessage({ type: "", text: "" });
-      }, 3000);
+      }, message.type === "error" ? 8000 : 3000);
 
       return () => clearTimeout(timer);
     }
@@ -172,7 +174,11 @@ const Orders = () => {
   const selectCustomer = (customer) => {
     setSelectedCustomer(customer);
     setCustomerSearch(customer.phone);
-    setFormData({ ...formData, customer: customer._id });
+    setFormData({
+      ...formData,
+      customer: customer._id,
+      deliveryAddress: formData.deliveryAddress || customer.address || "",
+    });
     setShowCustomerDropdown(false);
     setCustomerSearchResults([]);
   };
@@ -195,7 +201,11 @@ const Orders = () => {
   const handleCustomerCreated = (newCustomer) => {
     setSelectedCustomer(newCustomer);
     setCustomerSearch(newCustomer.phone);
-    setFormData({ ...formData, customer: newCustomer._id });
+    setFormData({
+      ...formData,
+      customer: newCustomer._id,
+      deliveryAddress: formData.deliveryAddress || newCustomer.address || "",
+    });
     setShowCustomerModal(false);
     setMessage({
       type: "success",
@@ -231,28 +241,64 @@ const Orders = () => {
     setFormData({ ...formData, items: newItems });
   };
 
+  const recordId = (value) => {
+    if (!value) return "";
+    if (typeof value === "string") return value;
+    return value._id || value.id || "";
+  };
+
   const calculateOrderTotal = () => {
     return formData.items.reduce((total, item) => {
-      const itemTotal = item.price * item.quantity;
+      const qty = item.quantity || item.qty || 1;
       const modifiersTotal =
         item.modifiers?.reduce(
           (modTotal, mod) => modTotal + (mod.price || 0),
           0,
         ) || 0;
-      return total + itemTotal + modifiersTotal * item.quantity;
+      return total + (item.price + modifiersTotal) * qty;
     }, 0);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const payload = {
+      type: formData.type,
+      table: formData.type === "dineIn" ? recordId(formData.table) : null,
+      customer: recordId(formData.customer) || null,
+      deliveryAddress:
+        formData.type === "delivery" ? formData.deliveryAddress.trim() : "",
+      notes: formData.notes,
+      items: formData.items.map((item) => ({
+        menuItem: recordId(item.menuItem),
+        qty: Number(item.quantity || item.qty) || 1,
+        notes: item.notes || "",
+        modifiers: item.modifiers || [],
+      })),
+    };
+
+    if (!payload.items.length) {
+      setMessage({ type: "error", text: t("nav.orders_no_items") });
+      return;
+    }
+    if (payload.type === "dineIn" && !payload.table) {
+      setMessage({ type: "error", text: t("nav.orders_select_table") });
+      return;
+    }
+    if (payload.type === "delivery" && !payload.customer) {
+      setMessage({ type: "error", text: t("nav.orders_delivery_needs_customer") });
+      return;
+    }
+    if (payload.type === "delivery" && !payload.deliveryAddress) {
+      setMessage({ type: "error", text: t("nav.orders_delivery_needs_address") });
+      return;
+    }
+
     try {
       if (selectedOrder) {
-        // Update order
-        await orderService.update(selectedOrder._id, formData);
+        await orderService.update(selectedOrder._id, payload);
         setMessage({ type: "success", text: "Order updated successfully!" });
       } else {
-        // Create new order
-        await orderService.create(formData);
+        await orderService.create(payload);
         setMessage({ type: "success", text: "Order created successfully!" });
       }
 
@@ -272,15 +318,22 @@ const Orders = () => {
     setSelectedOrder(order);
     setFormData({
       type: order.type || "dineIn",
-      table: order.table || "",
-      customer: order.customer || "",
-      items: order.items || [],
+      table: recordId(order.table),
+      customer: recordId(order.customer),
+      deliveryAddress: order.deliveryAddress || order.customer?.address || "",
+      items: (order.items || []).map((item) => ({
+        menuItem: recordId(item.menuItem),
+        name: item.menuItem?.name || item.name || "",
+        price: item.price,
+        quantity: item.qty || item.quantity || 1,
+        modifiers: item.modifiers || [],
+        notes: item.notes || "",
+      })),
       notes: order.notes || "",
     });
 
-    // Set customer search state if customer exists
-    if (order.customer) {
-      setCustomerSearch(order.customer);
+    if (order.customer && typeof order.customer === "object") {
+      setCustomerSearch(order.customer.phone || order.customer.name || "");
       setSelectedCustomer(order.customer);
     }
 
@@ -346,19 +399,10 @@ const Orders = () => {
         }
       }
 
-      const response = await invoiceService.updatePaymentStatus(
-        paymentData.orderId,
-        {
-          status: paymentData.status,
-          method: paymentData.method,
-        },
-      );
-
-      // Handle Payment Gateway Redirect if returned from update (backup/fallback)
-      if (response && response.data && response.data.checkoutUrl) {
-        window.location.href = response.data.checkoutUrl;
-        return;
-      }
+      await orderService.update(paymentData.orderId, {
+        paymentStatus: paymentData.status,
+        paymentMethod: paymentData.method,
+      });
 
       setMessage({ type: "success", text: "Payment processed successfully!" });
       setShowPaymentModal(false);
@@ -377,6 +421,7 @@ const Orders = () => {
       type: "dineIn",
       table: "",
       customer: "",
+      deliveryAddress: "",
       items: [],
       notes: "",
     });
@@ -410,7 +455,10 @@ const Orders = () => {
       case "in_kitchen":
         return "text-blue-600 bg-blue-50";
       case "served":
+      case "delivered":
         return "text-green-600 bg-green-50";
+      case "out_for_delivery":
+        return "text-teal-700 bg-teal-50";
       case "paid":
         return "text-purple-600 bg-purple-50";
       case "cancelled":
@@ -427,7 +475,10 @@ const Orders = () => {
       case "in_kitchen":
         return <ChefHat size={16} />;
       case "served":
+      case "delivered":
         return <CheckCircle size={16} />;
+      case "out_for_delivery":
+        return <Truck size={16} />;
       case "paid":
         return <DollarSign size={16} />;
       case "cancelled":
@@ -435,6 +486,13 @@ const Orders = () => {
       default:
         return <Package size={16} />;
     }
+  };
+
+  const orderTypeLabel = (type) => {
+    if (type === "dineIn") return t("nav.orders_dine_in");
+    if (type === "takeaway") return t("nav.orders_takeaway");
+    if (type === "delivery") return t("nav.orders_delivery");
+    return type || "-";
   };
 
   const getOrderTypeColor = (type) => {
@@ -461,11 +519,11 @@ const Orders = () => {
   const calculateTotal = (items) => {
     return items.reduce((total, item) => {
       const itemPrice = item.menuItem?.price || item.price || 0;
-      const itemTotal = itemPrice * item.qty;
+      const qty = item.qty || item.quantity || 1;
       const modifiersTotal = item.modifiers
         ? item.modifiers.reduce((sum, mod) => sum + (mod.price || 0), 0)
         : 0;
-      return total + (itemTotal + modifiersTotal) * item.qty;
+      return total + (itemPrice + modifiersTotal) * qty;
     }, 0);
   };
 
@@ -570,6 +628,18 @@ const Orders = () => {
             {t("nav.orders_filter_served")}
           </button>
           <button
+            className={`filter-btn ${filterStatus === "out_for_delivery" ? "active" : ""}`}
+            onClick={() => setFilterStatus("out_for_delivery")}
+          >
+            {t("nav.orders_filter_out_for_delivery")}
+          </button>
+          <button
+            className={`filter-btn ${filterStatus === "delivered" ? "active" : ""}`}
+            onClick={() => setFilterStatus("delivered")}
+          >
+            {t("nav.orders_filter_delivered")}
+          </button>
+          <button
             className={`filter-btn ${filterStatus === "paid" ? "active" : ""}`}
             onClick={() => setFilterStatus("paid")}
           >
@@ -610,8 +680,11 @@ const Orders = () => {
                     <Users size={16} />
                     <span>
                       {order.customer?.name ||
-                        order.customer ||
+                        (typeof order.customer === "string" ? order.customer : "") ||
                         t("nav.orders_guest_customer")}
+                      {order.type === "delivery" && order.deliveryAddress && (
+                        <span className="order-address">{order.deliveryAddress}</span>
+                      )}
                     </span>
                   </div>
                 </td>
@@ -619,7 +692,7 @@ const Orders = () => {
                   <span
                     className={`status-badge ${getOrderTypeColor(order.type)}`}
                   >
-                    {t(`nav.orders_${order.type}`)}
+                    {orderTypeLabel(order.type)}
                   </span>
                 </td>
                 <td data-direction={i18n.dir()}>
@@ -693,7 +766,18 @@ const Orders = () => {
                           <ChefHat size={16} />
                         </button>
                       )}
-                      {order.status === "in_kitchen" && (
+                      {order.status === "in_kitchen" && order.type === "delivery" && (
+                        <button
+                          onClick={() =>
+                            handleStatusUpdate(order._id, "out_for_delivery")
+                          }
+                          className="btn-status"
+                          title={t("nav.orders_out_for_delivery")}
+                        >
+                          <Truck size={16} />
+                        </button>
+                      )}
+                      {order.status === "in_kitchen" && order.type !== "delivery" && (
                         <button
                           onClick={() =>
                             handleStatusUpdate(order._id, "served")
@@ -704,7 +788,29 @@ const Orders = () => {
                           <CheckCircle size={16} />
                         </button>
                       )}
-                      {order.status === "served" && (
+                      {order.status === "out_for_delivery" && (
+                        <button
+                          onClick={() =>
+                            handleStatusUpdate(order._id, "delivered")
+                          }
+                          className="btn-status"
+                          title={t("nav.orders_mark_delivered")}
+                        >
+                          <CheckCircle size={16} />
+                        </button>
+                      )}
+                      {order.status !== "paid" && order.status !== "cancelled" && (
+                        <button
+                          onClick={() =>
+                            handleStatusUpdate(order._id, "cancelled")
+                          }
+                          className="btn-status"
+                          title={t("nav.orders_cancel_order")}
+                        >
+                          <XCircle size={16} />
+                        </button>
+                      )}
+                      {(order.status === "served" || order.status === "delivered") && (
                         <>
                           <ProtectedButton
                             permission={PERMISSIONS.MANAGE_INVOICES}
@@ -800,6 +906,21 @@ const Orders = () => {
                         </option>
                       ))}
                     </select>
+                  </div>
+                )}
+
+                {formData.type === "delivery" && (
+                  <div className="form-group full-width">
+                    <label>{t("nav.orders_delivery_address")}</label>
+                    <textarea
+                      value={formData.deliveryAddress}
+                      onChange={(e) =>
+                        setFormData({ ...formData, deliveryAddress: e.target.value })
+                      }
+                      placeholder={t("nav.orders_delivery_address_placeholder")}
+                      rows={2}
+                      required
+                    />
                   </div>
                 )}
 
@@ -902,13 +1023,15 @@ const Orders = () => {
                       value=""
                     >
                       <option value="">{t("nav.orders_select_item")}</option>
-                      {menuItems
-                        .filter((item) => item.isActive !== false)
-                        .map((item) => (
-                          <option key={item._id} value={item._id}>
+                      {menuItems.map((item) => {
+                        const unavailable = item.isActive === false || item.isAvailable === false;
+                        return (
+                          <option key={item._id} value={item._id} disabled={unavailable}>
                             {item.name} - {formatMoney(item.price, currency)}
+                            {unavailable ? ` (${t("nav.orders_out_of_stock")})` : ""}
                           </option>
-                        ))}
+                        );
+                      })}
                     </select>
                   </div>
 

@@ -4,10 +4,26 @@ import { requireUuid } from "../../db/ids.js";
 import RestaurantService from "../restaurant/restaurant.service.js";
 import PaymentFactory from "../payment/payment.factory.js";
 import AppError from "../../utils/errors/AppError.js";
+import {
+  applyStockDelta,
+  assertStock,
+  consumesStock,
+  recipeNeeds,
+} from "../inventory/stockConsumption.js";
+
+const ORDER_STATUSES = new Set([
+  "pending",
+  "in_kitchen",
+  "served",
+  "out_for_delivery",
+  "delivered",
+  "paid",
+  "cancelled",
+]);
 
 const orderInclude = {
   table: { select: { id: true, number: true } },
-  customer: { select: { id: true, name: true, phone: true, email: true } },
+  customer: { select: { id: true, name: true, phone: true, email: true, address: true } },
   createdBy: { select: { id: true, name: true } },
   items: {
     include: {
@@ -15,6 +31,18 @@ const orderInclude = {
     },
   },
 };
+
+function appOrigin() {
+  const raw = process.env.FRONTEND_URL || process.env.CORS_ORIGIN || "http://localhost:5173";
+  return String(raw).split(",")[0].trim().replace(/\/$/, "");
+}
+
+function linesOf(items) {
+  return (items || []).map((item) => ({
+    menuItemId: item.menuItemId,
+    qty: item.qty,
+  }));
+}
 
 class OrderService {
   async getAllOrders(restaurantId, filter = {}) {
@@ -42,20 +70,30 @@ class OrderService {
   }
 
   async _priceItems(items, restaurantId) {
+    if (!Array.isArray(items) || items.length === 0) {
+      throw new AppError("Add at least one menu item.", 400);
+    }
+
     let subtotal = 0;
     const priced = [];
-    for (const item of items || []) {
+    for (const item of items) {
       const menuItemId = requireUuid(item.menuItem || item.menuItemId);
-      if (!menuItemId) continue;
+      if (!menuItemId) throw new AppError("Each order line needs a menu item.", 400);
+
       const menuItem = await prisma.menuItem.findFirst({
         where: { id: menuItemId, restaurantId: requireUuid(restaurantId) },
       });
-      if (!menuItem) continue;
+      if (!menuItem) throw new AppError("A menu item on this order is not on this menu.", 400);
+      if (!menuItem.isActive) throw new AppError(`${menuItem.name} is not on the menu.`, 400);
 
-      const qty = item.qty || 1;
+      const qty = Number(item.qty ?? item.quantity);
+      if (!Number.isFinite(qty) || qty < 1) {
+        throw new AppError(`Quantity for ${menuItem.name} must be at least 1.`, 400);
+      }
+
       let modifiersTotal = 0;
       for (const mod of item.modifiers || []) {
-        modifiersTotal += mod.price || 0;
+        modifiersTotal += Number(mod.price) || 0;
       }
       subtotal += (menuItem.price + modifiersTotal) * qty;
       priced.push({
@@ -77,58 +115,169 @@ class OrderService {
     return { tax, serviceCharge, total: subtotal + tax + serviceCharge };
   }
 
+  async _deliveryAddress(tx, { type, customerId, deliveryAddress, restaurantId }) {
+    if (type !== "delivery") return null;
+    if (!customerId) throw new AppError("A delivery order needs a customer.", 400);
+    const customer = await tx.customer.findFirst({
+      where: { id: customerId, restaurantId },
+    });
+    if (!customer) throw new AppError("Customer not found.", 404);
+    const address = String(deliveryAddress || customer.address || "").trim();
+    if (!address) {
+      throw new AppError("Add a delivery address before sending this order.", 400);
+    }
+    return address;
+  }
+
+  async _syncTables(tx, tableIds) {
+    const ids = [...new Set(tableIds.filter(Boolean))];
+    for (const tableId of ids) {
+      const table = await tx.table.findUnique({ where: { id: tableId } });
+      if (!table) continue;
+      const open = await tx.order.count({
+        where: {
+          tableId,
+          status: { notIn: ["paid", "cancelled"] },
+        },
+      });
+      if (open > 0 && (table.status === "available" || table.status === "occupied")) {
+        if (table.status !== "occupied") {
+          await tx.table.update({ where: { id: tableId }, data: { status: "occupied" } });
+        }
+      } else if (open === 0 && table.status === "occupied") {
+        await tx.table.update({ where: { id: tableId }, data: { status: "available" } });
+      }
+    }
+  }
+
+  _nextStatus(data, existingStatus) {
+    let status = data.status !== undefined ? data.status : existingStatus;
+    if (data.paymentStatus === "paid" && status !== "cancelled") status = "paid";
+    if (!ORDER_STATUSES.has(status)) throw new AppError("Invalid order status.", 400);
+    return status;
+  }
+
   async createOrder(data, staffId) {
     const restaurantId = requireUuid(data.restaurant) || (await RestaurantService.getCurrent())?.id;
-    const restaurant = restaurantId
-      ? await prisma.restaurant.findUnique({ where: { id: restaurantId } })
-      : null;
+    if (!restaurantId) throw new AppError("Restaurant is required.", 400);
+    const restaurant = await prisma.restaurant.findUnique({ where: { id: restaurantId } });
+    if (!restaurant) throw new AppError("Restaurant not found.", 404);
+
+    const type = data.type || "dineIn";
+    const status = this._nextStatus(data, "pending");
     const { subtotal, priced } = await this._priceItems(data.items, restaurantId);
     const totals = await this._totals(subtotal, restaurant);
+    const customerId = requireUuid(data.customer);
+    const tableId = type === "dineIn" ? requireUuid(data.table) : null;
+    if (type === "dineIn" && !tableId) {
+      throw new AppError("Choose a table for a dine-in order.", 400);
+    }
 
-    const row = await prisma.order.create({
-      data: {
-        type: data.type || null,
-        tableId: requireUuid(data.table),
-        customerId: requireUuid(data.customer),
-        notes: data.notes || "",
-        status: data.status || "pending",
-        paymentStatus: data.paymentStatus || "pending",
-        paymentMethod: data.paymentMethod || "",
-        subtotal,
-        ...totals,
-        createdById: requireUuid(staffId),
+    const row = await prisma.$transaction(async (tx) => {
+      const deliveryAddress = await this._deliveryAddress(tx, {
+        type,
+        customerId,
+        deliveryAddress: data.deliveryAddress,
         restaurantId,
-        items: { create: priced },
-      },
-      include: orderInclude,
+      });
+      const needs = await recipeNeeds(tx, priced);
+      if (status !== "cancelled") await assertStock(tx, needs);
+
+      const created = await tx.order.create({
+        data: {
+          type,
+          tableId,
+          customerId,
+          deliveryAddress,
+          notes: data.notes || "",
+          status,
+          paymentStatus: data.paymentStatus || "pending",
+          paymentMethod: data.paymentMethod || "",
+          subtotal,
+          ...totals,
+          stockDeducted: false,
+          createdById: requireUuid(staffId),
+          restaurantId,
+          items: { create: priced },
+        },
+        include: orderInclude,
+      });
+
+      if (consumesStock(status)) {
+        await applyStockDelta(tx, new Map(), needs, {
+          userId: requireUuid(staffId),
+          orderId: created.id,
+        });
+        created.stockDeducted = true;
+        await tx.order.update({
+          where: { id: created.id },
+          data: { stockDeducted: true },
+        });
+      }
+
+      await this._syncTables(tx, [tableId]);
+      return created;
     });
     return toDoc(row);
   }
 
-  async updateOrder(id, restaurantId, data) {
+  async updateOrder(id, restaurantId, data, staffId) {
     const existing = await prisma.order.findFirst({
       where: { id: requireUuid(id), restaurantId: requireUuid(restaurantId) },
+      include: { items: true },
     });
     if (!existing) return null;
 
-    const payload = {};
-    if (data.type !== undefined) payload.type = data.type || null;
-    if (data.table !== undefined) payload.tableId = requireUuid(data.table);
-    if (data.customer !== undefined) payload.customerId = requireUuid(data.customer);
-    if (data.notes !== undefined) payload.notes = data.notes || "";
-    if (data.status !== undefined) payload.status = data.status;
-    if (data.paymentStatus !== undefined) payload.paymentStatus = data.paymentStatus;
-    if (data.paymentMethod !== undefined) payload.paymentMethod = data.paymentMethod || "";
-    if (data.payment !== undefined) payload.payment = data.payment;
+    const restaurant = await prisma.restaurant.findUnique({
+      where: { id: requireUuid(restaurantId) },
+    });
+    const type = data.type !== undefined ? data.type || null : existing.type;
+    const status = this._nextStatus(data, existing.status);
+    const customerId = data.customer !== undefined ? requireUuid(data.customer) : existing.customerId;
+    const tableId = type === "dineIn"
+      ? (data.table !== undefined ? requireUuid(data.table) : existing.tableId)
+      : null;
+    if (type === "dineIn" && !tableId) {
+      throw new AppError("Choose a table for a dine-in order.", 400);
+    }
+
+    let priced = existing.items.map((item) => ({
+      menuItemId: item.menuItemId,
+      qty: item.qty,
+      price: item.price,
+      modifiers: item.modifiers,
+      notes: item.notes || "",
+    }));
+    let subtotal = null;
+    let totals = null;
+    if (data.items) {
+      const pricedResult = await this._priceItems(data.items, restaurantId);
+      priced = pricedResult.priced;
+      subtotal = pricedResult.subtotal;
+      totals = await this._totals(subtotal, restaurant);
+    }
 
     const row = await prisma.$transaction(async (tx) => {
+      const deliveryAddress = await this._deliveryAddress(tx, {
+        type,
+        customerId,
+        deliveryAddress: data.deliveryAddress !== undefined ? data.deliveryAddress : existing.deliveryAddress,
+        restaurantId: requireUuid(restaurantId),
+      });
+
+      const previousNeeds = existing.stockDeducted
+        ? await recipeNeeds(tx, linesOf(existing.items))
+        : new Map();
+      const nextNeeds = consumesStock(status) ? await recipeNeeds(tx, priced) : new Map();
+      if (!consumesStock(status) && status !== "cancelled") {
+        await assertStock(tx, await recipeNeeds(tx, priced));
+      }
+      await applyStockDelta(tx, previousNeeds, nextNeeds, {
+        userId: requireUuid(staffId),
+        orderId: existing.id,
+      });
+
       if (data.items) {
-        const restaurant = await tx.restaurant.findUnique({
-          where: { id: requireUuid(restaurantId) },
-        });
-        const { subtotal, priced } = await this._priceItems(data.items, restaurantId);
-        const totals = await this._totals(subtotal, restaurant);
-        Object.assign(payload, { subtotal, ...totals });
         await tx.orderItem.deleteMany({ where: { orderId: existing.id } });
         if (priced.length) {
           await tx.orderItem.createMany({
@@ -136,21 +285,63 @@ class OrderService {
           });
         }
       }
-      return tx.order.update({
+
+      const payload = {
+        type,
+        status,
+        tableId,
+        customerId,
+        deliveryAddress,
+        stockDeducted: consumesStock(status),
+      };
+      if (data.notes !== undefined) payload.notes = data.notes || "";
+      if (data.paymentStatus !== undefined) payload.paymentStatus = data.paymentStatus;
+      if (status === "paid") payload.paymentStatus = "paid";
+      if (data.paymentMethod !== undefined) payload.paymentMethod = data.paymentMethod || "";
+      if (data.payment !== undefined) payload.payment = data.payment;
+      if (totals) Object.assign(payload, { subtotal, ...totals });
+
+      if (payload.paymentStatus || payload.paymentMethod) {
+        await tx.invoice.updateMany({
+          where: { orderId: existing.id },
+          data: {
+            ...(payload.paymentStatus ? { paymentStatus: payload.paymentStatus } : {}),
+            ...(payload.paymentMethod ? { paymentMethod: payload.paymentMethod } : {}),
+          },
+        });
+      }
+
+      const updated = await tx.order.update({
         where: { id: existing.id },
         data: payload,
         include: orderInclude,
       });
+      await this._syncTables(tx, [existing.tableId, tableId]);
+      return updated;
     });
     return toDoc(row);
   }
 
-  async deleteOrder(id, restaurantId) {
+  async deleteOrder(id, restaurantId, staffId) {
     const existing = await prisma.order.findFirst({
       where: { id: requireUuid(id), restaurantId: requireUuid(restaurantId) },
+      include: { items: true },
     });
     if (!existing) return null;
-    return toDoc(await prisma.order.delete({ where: { id: existing.id } }));
+
+    const row = await prisma.$transaction(async (tx) => {
+      if (existing.stockDeducted) {
+        const needs = await recipeNeeds(tx, linesOf(existing.items));
+        await applyStockDelta(tx, needs, new Map(), {
+          userId: requireUuid(staffId),
+          orderId: existing.id,
+        });
+      }
+      const deleted = await tx.order.delete({ where: { id: existing.id } });
+      await this._syncTables(tx, [existing.tableId]);
+      return deleted;
+    });
+    return toDoc(row);
   }
 
   async searchOrders(query, restaurantId) {
@@ -176,7 +367,7 @@ class OrderService {
     return toDocs(rows);
   }
 
-  async getPaymentUrl(orderId, restaurantId, host) {
+  async getPaymentUrl(orderId, restaurantId) {
     const order = await prisma.order.findFirst({
       where: { id: requireUuid(orderId), restaurantId: requireUuid(restaurantId) },
       include: { customer: true },
@@ -188,6 +379,14 @@ class OrderService {
       where: { id: requireUuid(restaurantId) },
     });
     const config = restaurant?.settings?.paymentGateways?.kashier || {};
+    if (!String(config.merchantId || "").trim() || !String(config.apiKey || "").trim()) {
+      throw new AppError(
+        "Online payments are not set up. Add Kashier keys in Settings, or take cash.",
+        400,
+      );
+    }
+
+    const currency = restaurant?.currency || "USD";
     const provider = PaymentFactory.getProvider("kashier");
     const transactionId = "ORD_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
 
@@ -197,7 +396,7 @@ class OrderService {
         provider: "kashier",
         restaurantId: requireUuid(restaurantId),
         amount: order.total,
-        currency: "EGP",
+        currency,
         referenceType: "Order",
         referenceId: order.id,
       },
@@ -206,13 +405,13 @@ class OrderService {
     return provider.getCheckoutUrl(
       transactionId,
       order.total,
-      "EGP",
+      currency,
       {
         name: order.customer?.name || "Customer",
         email: order.customer?.email || "customer@example.com",
         reference: order.customer?.id || order.customer?.email || order.id,
       },
-      "https://www.linkedin.com/in/mohamedabdellhay/",
+      `${appOrigin()}/payment/success?kind=order`,
       { ...config, restaurantId },
     );
   }

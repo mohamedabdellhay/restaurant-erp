@@ -6,11 +6,13 @@ model Order {
   tax            Float?
   serviceCharge  Float?
   total          Float?
-  notes          String?
-  status         String   @default("pending")
-  paymentStatus  String   @default("pending")
-  paymentMethod  String   @default("")
-  payment        Json?
+  notes           String?
+  deliveryAddress String?
+  stockDeducted   Boolean  @default(false)
+  status          String   @default("pending")
+  paymentStatus   String   @default("pending")
+  paymentMethod   String   @default("")
+  payment         Json?
   restaurantId   String?
   tableId        String?
   customerId     String?

@@ -444,9 +444,10 @@ Authorization: Bearer YOUR_JWT_TOKEN
             tax: { type: "number", example: 3.5 },
             serviceCharge: { type: "number", example: 3.0 },
             total: { type: "number", example: 31.5 },
+            deliveryAddress: { type: "string", example: "12 Nile Street, Cairo" },
             status: {
               type: "string",
-              enum: ["pending", "in_kitchen", "served", "paid", "cancelled"],
+              enum: ["pending", "in_kitchen", "served", "out_for_delivery", "delivered", "paid", "cancelled"],
               example: "pending",
             },
             customer: { type: "string", description: "ObjectId of Customer" },

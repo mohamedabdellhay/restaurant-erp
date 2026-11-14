@@ -12,6 +12,10 @@
     "start": "node server.js",
     "seed": "node src/utils/seedDatabase.js",
     "seed:plans": "node src/utils/seedPlans.js",
+    "seed:admin": "node src/seeders/admin.seeder.js",
+    "seed:subscriber": "node src/seeders/restaurantSubscriber.seeder.js",
+    "seed:accounts": "node src/seeders/index.js",
+    "seed:demo": "node src/seeders/demoData.seeder.js",
     "db:generate": "prisma generate",
     "db:push": "prisma db push"
   },
