@@ -139,16 +139,18 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       style={sidebarColors}
     >
       <div className="sidebar-header">
-        <div className="sidebar-brand">
-          <img
-            key={logo}
-            src={logo}
-            alt=""
-            className="sidebar-logo"
-            onError={showDefaultLogo}
-          />
-          {isOpen && <span className="sidebar-brand-name">{getRestaurantName()}</span>}
-        </div>
+        {isOpen && (
+          <div className="sidebar-brand">
+            <img
+              key={logo}
+              src={logo}
+              alt=""
+              className="sidebar-logo"
+              onError={showDefaultLogo}
+            />
+            <span className="sidebar-brand-name">{getRestaurantName()}</span>
+          </div>
+        )}
         <button type="button" onClick={toggle} className="toggle-btn" aria-label="Toggle sidebar">
           <ChevronLeft size={18} className={!isOpen ? "rotate" : ""} />
         </button>

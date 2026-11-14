@@ -85,9 +85,9 @@ export const ThemeProvider = ({ children }) => {
       root.style.setProperty("--restaurant-primary", primaryColor);
       root.style.setProperty("--restaurant-secondary", secondaryColor);
       root.style.setProperty("--restaurant-accent", accentColor);
-      root.style.removeProperty("--primary");
-      root.style.removeProperty("--secondary");
-      root.style.removeProperty("--accent");
+      root.style.setProperty("--primary", primaryColor);
+      root.style.setProperty("--secondary", secondaryColor);
+      root.style.setProperty("--accent", accentColor);
     }
   }, [theme, restaurantSettings]);
 

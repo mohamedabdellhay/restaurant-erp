@@ -58,7 +58,7 @@
   height: 2rem;
   border-radius: 8px;
   background: #f3f4f6;
-  color: #2fbe4a;
+  color: var(--primary);
 }
 
 .stat-card .stat-icon,
@@ -76,7 +76,7 @@
 .stat-card.accent-warning .stat-icon,
 .stat-card.accent-danger .stat-icon {
   background: #f3f4f6;
-  color: #2fbe4a;
+  color: var(--primary);
 }
 
 .search-filter-bar,
@@ -109,7 +109,7 @@
 .modal .btn-primary,
 .modal-actions .btn-primary,
 .modal-footer .btn-primary {
-  background: #2fbe4a;
+  background: var(--primary);
   color: #fff;
   border: 0;
   border-radius: 8px;
@@ -119,7 +119,7 @@
 
 .btn-primary:hover,
 .modal .btn-primary:hover {
-  background: #27a840;
+  background: var(--primary-dark);
   opacity: 1;
   transform: none;
 }
@@ -164,8 +164,8 @@
 .platform-nav a.active,
 .profile-nav a.active,
 .dashboard .tab-btn.active {
-  background: #2fbe4a;
-  border-color: #2fbe4a;
+  background: var(--primary);
+  border-color: var(--primary);
   color: #fff;
 }
 
@@ -216,7 +216,7 @@ tr:hover {
 }
 
 .login-brand {
-  background: #2fbe4a;
+  background: var(--primary);
 }
 
 .table-card {

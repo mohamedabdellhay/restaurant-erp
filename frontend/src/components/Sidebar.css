@@ -123,7 +123,7 @@
 }
 
 .nav-link.active {
-  background: #2fbe4a;
+  background: var(--primary);
   color: #fff;
   font-weight: 700;
 }
