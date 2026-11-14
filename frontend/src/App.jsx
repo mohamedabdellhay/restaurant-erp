@@ -11,6 +11,7 @@ import Staff from "@pages/Staff/Staff";
 import Departments from "@pages/Departments/Departments";
 import Suppliers from "@pages/Suppliers/Suppliers";
 import Inventory from "@pages/Inventory/Inventory";
+import IngredientCategories from "@pages/IngredientCategories/IngredientCategories";
 import StockCount from "@pages/StockCount/StockCount";
 import PurchaseReturns from "@pages/PurchaseReturns/PurchaseReturns";
 import Purchase from "@pages/Purchase/Purchase";
@@ -177,6 +178,14 @@ function App() {
                   element={
                     <ProtectedRoute permission="view_inventory">
                       <Inventory />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/ingredient-categories"
+                  element={
+                    <ProtectedRoute permission="view_inventory">
+                      <IngredientCategories />
                     </ProtectedRoute>
                   }
                 />

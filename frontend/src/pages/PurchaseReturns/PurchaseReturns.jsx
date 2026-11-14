@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Download, Eye, Pencil, Plus, Search } from "lucide-react";
+import { ArrowLeft, ArrowUpDown, ChevronDown, Download, Eye, ListFilter, Pencil, Plus, Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useRestaurant } from "@hooks/useRestaurant";
+import inventoryService from "@services/inventoryService";
+import { formatMoney } from "../../utils/money";
 import "./PurchaseReturns.css";
 
 const EMPTY_FORM = {
@@ -26,51 +28,79 @@ function readRows(restaurantId) {
   }
 }
 
+function sameNumber(left, right) {
+  const clean = (value) => String(value || "").replace(/[#\s]/g, "").toLowerCase();
+  return clean(left) === clean(right);
+}
+
+function readList(key) {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(key) || "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 function readDocuments(restaurantId) {
   const id = restaurantId || "restaurant";
-  const load = (key) => {
-    try {
-      const parsed = JSON.parse(localStorage.getItem(`${key}:${id}`) || "[]");
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
-  };
-  return [
-    ...load("purchaseOrders").map((row) => ({
-      id: `po:${row.id}`,
+  const orders = readList(`purchaseOrders:${id}`)
+    .filter((row) => row.number)
+    .map((row) => ({
+      id: row.id,
       kind: "po",
-      number: row.number || "",
+      number: row.number,
       date: row.date || "",
       returnedTo: row.supplierName || "",
-    })),
-    ...load("requisitions").map((row) => ({
-      id: `re:${row.id}`,
+      items: (row.items || []).map((item) => ({
+        itemId: item.itemId,
+        name: item.name,
+        unit: item.unit || "",
+        qty: item.qty,
+        price: item.price,
+      })),
+    }));
+  const requisitions = readList(`requisitions:${id}`)
+    .filter((row) => row.number)
+    .map((row) => ({
+      id: row.id,
       kind: "requisition",
-      number: row.number || "",
+      number: row.number,
       date: row.date || "",
       returnedTo: row.destination || "",
-    })),
-  ].filter((row) => row.number);
+      items: (row.items || []).map((item) => ({
+        itemId: item.itemId,
+        name: item.name,
+        unit: item.unit || "",
+        qty: item.required ?? item.qty ?? 0,
+        price: item.price,
+      })),
+    }));
+  return [...orders, ...requisitions];
 }
 
 const PurchaseReturns = () => {
   const { t } = useTranslation();
-  const { getRestaurantId } = useRestaurant();
+  const { getRestaurantId, getCurrency } = useRestaurant();
   const restaurantId = getRestaurantId();
+  const currency = getCurrency();
   const [rows, setRows] = useState([]);
   const [documents, setDocuments] = useState([]);
+  const [supplies, setSupplies] = useState([]);
   const [direction, setDirection] = useState("send");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("newest");
   const [filter, setFilter] = useState("all");
   const [form, setForm] = useState(null);
   const [viewing, setViewing] = useState(null);
-  const [sourceId, setSourceId] = useState("");
 
   useEffect(() => {
     setRows(readRows(restaurantId));
     setDocuments(readDocuments(restaurantId));
+    inventoryService
+      .getAll()
+      .then((result) => setSupplies(result?.data || []))
+      .catch(() => setSupplies([]));
   }, [restaurantId]);
 
   const saveRows = (next) => {
@@ -101,7 +131,6 @@ const PurchaseReturns = () => {
 
   const openCreate = () => {
     setViewing(null);
-    setSourceId("");
     setForm({
       ...EMPTY_FORM,
       direction,
@@ -109,29 +138,67 @@ const PurchaseReturns = () => {
     });
   };
 
-  const applySource = (id) => {
-    setSourceId(id);
-    const source = documents.find((item) => item.id === id);
-    if (!source) return;
-    setForm((current) => ({
-      ...current,
+  const draft = form || EMPTY_FORM;
+
+  const addInvoice = (event) => {
+    event.preventDefault();
+    const number = draft.number.trim();
+    if (!number) return;
+    const source = documents.find((item) => sameNumber(item.number, number));
+    if (!source) {
+      setForm({ ...draft, number, loaded: false, sourceKind: "", notice: t("nav.purchase_return_missing"), items: [] });
+      return;
+    }
+    const priceOf = (item) => {
+      if (item.price !== undefined && item.price !== "") return Number(item.price) || 0;
+      const supply = supplies.find((entry) => entry._id === item.itemId);
+      return Number(supply?.costPrice) || 0;
+    };
+    setForm({
+      ...draft,
       number: source.number,
       sourceDate: source.date,
       returnedTo: source.returnedTo,
+      sourceKind: source.kind,
+      loaded: true,
+      notice: "",
+      items: source.items.map((item) => ({
+        ...item,
+        price: priceOf(item),
+        returnQty: "0",
+        reason: "",
+      })),
+    });
+  };
+
+  const updateLine = (itemId, patch) => {
+    setForm((current) => ({
+      ...current,
+      items: (current.items || []).map((line) => (line.itemId === itemId ? { ...line, ...patch } : line)),
     }));
   };
 
-  const saveForm = (event) => {
+  const lineTotal = (line) => (Number(line.qty) || 0) * (Number(line.price) || 0);
+
+  const returnTotal = (draft.items || []).reduce(
+    (sum, line) => sum + (Number(line.returnQty) || 0) * (Number(line.price) || 0),
+    0,
+  );
+
+  const submitReturn = (event) => {
     event.preventDefault();
-    if (!form.number.trim() || !form.returnedTo.trim()) return;
+    if (!draft.number) return;
     const record = {
-      ...form,
-      id: form.id || crypto.randomUUID(),
-      number: form.number.trim(),
-      returnedTo: form.returnedTo.trim(),
-      direction: form.direction || direction,
+      id: draft.id || crypto.randomUUID(),
+      direction: draft.direction || direction,
+      date: draft.date || new Date().toISOString().slice(0, 10),
+      sourceDate: draft.sourceDate || "",
+      number: draft.number,
+      returnedTo: draft.returnedTo || "",
+      sourceKind: draft.sourceKind || "",
+      items: draft.items || [],
     };
-    const next = form.id ? rows.map((row) => (row.id === form.id ? record : row)) : [record, ...rows];
+    const next = draft.id ? rows.map((row) => (row.id === draft.id ? record : row)) : [record, ...rows];
     saveRows(next);
     setDirection(record.direction);
     setForm(null);
@@ -154,45 +221,88 @@ const PurchaseReturns = () => {
   };
 
   if (form) {
+    const loaded = Boolean(form.loaded);
     return (
       <div className="return-page">
-        <button type="button" className="return-back" onClick={() => setForm(null)}>
-          <ArrowLeft size={18} />
-          {form.id ? form.number : t("nav.purchase_return_new")}
-        </button>
-        <form className="return-card return-form" onSubmit={saveForm}>
-          <label>
-            {t("nav.purchase_return_source")}
-            <select value={sourceId} onChange={(event) => applySource(event.target.value)}>
-              <option value="">{t("nav.purchase_return_no_sources")}</option>
-              {documents.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.number}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            {t("nav.purchase_return_date")}
-            <input type="date" value={form.date} onChange={(event) => setForm({ ...form, date: event.target.value })} required />
-          </label>
-          <label>
-            {t("nav.purchase_return_source_date")}
-            <input type="date" value={form.sourceDate} onChange={(event) => setForm({ ...form, sourceDate: event.target.value })} />
-          </label>
-          <label>
-            {t("nav.purchase_return_no")}
-            <input value={form.number} onChange={(event) => setForm({ ...form, number: event.target.value })} required />
-          </label>
-          <label>
-            {t("nav.purchase_return_to")}
-            <input value={form.returnedTo} onChange={(event) => setForm({ ...form, returnedTo: event.target.value })} required />
-          </label>
-          <div className="return-form-actions">
+        {loaded ? (
+          <h1>{t("nav.purchase_return_title")}</h1>
+        ) : (
+          <button type="button" className="return-back" onClick={() => setForm(null)}>
+            <ArrowLeft size={18} />
+            {t("nav.purchase_return_add")}
+          </button>
+        )}
+        <section className="return-sheet">
+          <form className="return-invoice" onSubmit={addInvoice}>
+            <label htmlFor="return-invoice">{t("nav.purchase_return_invoice")}</label>
+            <input
+              id="return-invoice"
+              value={form.number}
+              onChange={(event) => setForm({ ...form, number: event.target.value, loaded: false })}
+            />
+            <button type="submit" className="return-plus" aria-label={t("nav.purchase_return_add")}>
+              <Plus size={16} />
+            </button>
+            {loaded && (
+              <>
+                <span className="return-meta">
+                  {t(form.sourceKind === "requisition" ? "nav.purchase_return_requisition_date" : "nav.purchase_return_purchase_date")}: <strong>{formatDate(form.sourceDate)}</strong>
+                </span>
+                <span className="return-meta">
+                  {t(form.sourceKind === "requisition" ? "nav.purchase_return_warehouse" : "nav.purchase_return_supplier")}: <strong>{form.returnedTo || "—"}</strong>
+                </span>
+              </>
+            )}
+          </form>
+          {form.notice && <p className="return-notice">{form.notice}</p>}
+          {loaded && (
+            <>
+              <div className="return-line head">
+                <span>{t("nav.purchase_return_item")}</span>
+                <span>{t("nav.purchase_return_qty")}</span>
+                <span>{t("nav.purchase_return_price", { currency })}</span>
+                <span>{t("nav.purchase_return_return_qty")}</span>
+                <span>{t("nav.purchase_return_reason")}</span>
+              </div>
+              <div className="return-lines">
+                {(form.items || []).map((line) => (
+                  <div key={line.itemId || line.name} className="return-line">
+                    <span>{line.name}{line.unit ? ` (${line.unit})` : ""}</span>
+                    <span>{line.qty}</span>
+                    <span>{formatMoney(lineTotal(line), currency)}</span>
+                    <input
+                      inputMode="decimal"
+                      aria-label={t("nav.purchase_return_return_qty")}
+                      value={line.returnQty}
+                      onChange={(event) => {
+                        let value = event.target.value.replace(/[^\d.]/g, "");
+                        if (value && Number(value) > Number(line.qty || 0)) value = String(line.qty);
+                        updateLine(line.itemId, { returnQty: value });
+                      }}
+                    />
+                    <input
+                      aria-label={t("nav.purchase_return_reason")}
+                      placeholder={t("nav.purchase_return_reason_placeholder")}
+                      value={line.reason}
+                      onChange={(event) => updateLine(line.itemId, { reason: event.target.value })}
+                    />
+                  </div>
+                ))}
+                {(form.items || []).length === 0 && <p className="return-empty">{t("nav.purchase_return_no_lines")}</p>}
+              </div>
+              <div className="return-total">
+                <span>{t("nav.purchase_return_total", { currency })}</span>
+                <strong>{formatMoney(returnTotal, currency)}</strong>
+              </div>
+            </>
+          )}
+        </section>
+        {loaded && (
+          <div className="return-sheet-actions">
             <button type="button" className="return-cancel" onClick={() => setForm(null)}>{t("nav.purchase_cancel")}</button>
-            <button type="submit" className="return-new">{t("nav.purchase_submit")}</button>
+            <button type="button" className="return-new" onClick={submitReturn}>{t("nav.purchase_submit")}</button>
           </div>
-        </form>
+        )}
       </div>
     );
   }
@@ -230,20 +340,24 @@ const PurchaseReturns = () => {
       </div>
       <section className="return-card">
         <div className="return-tools">
-          <label>
-            <Search size={14} />
+          <label className="return-search">
+            <Search size={15} />
             <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t("nav.purchase_search")} />
           </label>
-          <label>
-            {t("nav.requisition_sort")}
-            <select value={sort} onChange={(event) => setSort(event.target.value)}>
+          <label className="return-menu">
+            <ArrowUpDown size={14} />
+            <span>{t("nav.requisition_sort")}</span>
+            <ChevronDown size={14} />
+            <select aria-label={t("nav.requisition_sort")} value={sort} onChange={(event) => setSort(event.target.value)}>
               <option value="newest">{t("nav.purchase_return_newest")}</option>
               <option value="oldest">{t("nav.purchase_return_oldest")}</option>
             </select>
           </label>
-          <label>
-            {t("nav.requisition_filter")}
-            <select value={filter} onChange={(event) => setFilter(event.target.value)}>
+          <label className="return-menu">
+            <ListFilter size={14} />
+            <span>{t("nav.requisition_filter")}</span>
+            <ChevronDown size={14} />
+            <select aria-label={t("nav.requisition_filter")} value={filter} onChange={(event) => setFilter(event.target.value)}>
               <option value="all">{t("nav.requisition_all")}</option>
               <option value="po">{t("nav.po")}</option>
               <option value="requisition">{t("nav.requisition")}</option>
@@ -276,7 +390,7 @@ const PurchaseReturns = () => {
                 <button type="button" aria-label={t("nav.requisition_view")} onClick={() => { setForm(null); setViewing(row); }}>
                   <Eye size={15} />
                 </button>
-                <button type="button" aria-label={t("nav.requisition_edit")} onClick={() => { setViewing(null); setSourceId(""); setForm(row); }}>
+                <button type="button" aria-label={t("nav.requisition_edit")} onClick={() => { setViewing(null); setForm({ ...row, loaded: true, items: row.items || [], notice: "" }); }}>
                   <Pencil size={15} />
                 </button>
               </span>
