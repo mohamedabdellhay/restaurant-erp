@@ -8,6 +8,7 @@ import DynamicFavicon from "@components/DynamicFavicon";
 import Login from "@pages/Login/Login";
 import Profile from "@pages/Profile/Profile";
 import Staff from "@pages/Staff/Staff";
+import Waiters from "@pages/Waiters/Waiters";
 import Departments from "@pages/Departments/Departments";
 import Suppliers from "@pages/Suppliers/Suppliers";
 import Customers from "@pages/Customers/Customers";
@@ -197,6 +198,14 @@ function App() {
                   element={
                     <ProtectedRoute permission="view_staff">
                       <Staff />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/waiters"
+                  element={
+                    <ProtectedRoute permission="view_staff">
+                      <Waiters />
                     </ProtectedRoute>
                   }
                 />

@@ -4,6 +4,7 @@ model Staff {
   email        String   @unique
   passwordHash String
   phone        String?
+  code         String?
   isActive        Boolean  @default(true)
   isPlatformOwner Boolean  @default(false)
   roleId          String?

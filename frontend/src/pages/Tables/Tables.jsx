@@ -41,6 +41,12 @@ const Tables = () => {
     load();
   }, [t]);
 
+  useEffect(() => {
+    if (!message.text) return undefined;
+    const timer = setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+    return () => clearTimeout(timer);
+  }, [message.text]);
+
   const openNew = () => setForm({ id: "", number: "", seats: "", status: "available" });
 
   const openEdit = (table) => {

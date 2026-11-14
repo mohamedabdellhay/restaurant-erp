@@ -39,6 +39,11 @@ export const createStaffValidator = [
   body("phone")
     .optional()
     .trim(),
+  body("code")
+    .optional({ nullable: true })
+    .trim()
+    .isLength({ max: 20 })
+    .withMessage("Waiter ID must be 20 characters or less"),
 ];
 
 export const updateStaffValidator = [
@@ -64,6 +69,11 @@ export const updateStaffValidator = [
   body("phone")
     .optional()
     .trim(),
+  body("code")
+    .optional({ nullable: true })
+    .trim()
+    .isLength({ max: 20 })
+    .withMessage("Waiter ID must be 20 characters or less"),
 ];
 
 export const staffIdValidator = [

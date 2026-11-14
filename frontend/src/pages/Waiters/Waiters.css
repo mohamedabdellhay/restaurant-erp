@@ -1,0 +1,152 @@
+.waiter-setup {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.waiter-setup h1 {
+  margin: 0 0 0.9rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid #e6e8ec;
+  color: #1f2937;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.waiter-setup-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.waiter-setup-toolbar label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: min(100%, 280px);
+  height: 2.25rem;
+  padding: 0 0.7rem;
+  border: 1px solid #e6e8ec;
+  border-radius: 8px;
+  background: #fff;
+  color: #9ca3af;
+}
+
+.waiter-setup-toolbar input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #111827;
+}
+
+.waiter-setup-new,
+.waiter-setup-dialog-actions button[type="submit"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 2.25rem;
+  padding: 0 0.9rem;
+  border: 0;
+  border-radius: 6px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.waiter-setup .table-container {
+  overflow-x: auto;
+}
+
+.waiter-setup-actions {
+  display: inline-flex;
+  gap: 0.35rem;
+}
+
+.waiter-setup-actions button {
+  display: grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.waiter-setup-actions .is-edit {
+  color: #16a34a;
+}
+
+.waiter-setup-actions .is-delete {
+  color: #ef4444;
+}
+
+.waiter-setup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgb(15 23 42 / 0.45);
+}
+
+.waiter-setup-dialog {
+  width: min(100%, 24rem);
+  padding: 1rem;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.waiter-setup-dialog header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+}
+
+.waiter-setup-dialog header button,
+.waiter-setup-dialog-actions button[type="button"] {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.waiter-setup-dialog label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 0.7rem;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.waiter-setup-dialog input {
+  height: 2.3rem;
+  padding: 0 0.7rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.waiter-setup-dialog small {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+.waiter-setup-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.waiter-setup-dialog-actions button {
+  height: 2.25rem;
+  padding: 0 0.9rem;
+}

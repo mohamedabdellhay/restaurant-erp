@@ -59,6 +59,44 @@ import { PERMISSIONS } from "@utils/permissionUtils";
 import { useRestaurant } from "@hooks/useRestaurant";
 import { formatMoney } from "../../utils/money";
 
+function receiptFromOrder(saved) {
+  const lines = (saved?.items || []).map((item) => {
+    const modifiers = Array.isArray(item.modifiers) ? item.modifiers : [];
+    const extra = modifiers.reduce((sum, modifier) => sum + (Number(modifier?.price) || 0), 0);
+    const price = (Number(item.price) || 0) + extra;
+    const qty = Number(item.qty || item.quantity) || 1;
+    const menuName = item.menuItem && typeof item.menuItem === "object" ? item.menuItem.name : "";
+    return {
+      name: menuName || item.name || "",
+      qty,
+      price,
+      total: price * qty,
+    };
+  });
+  const lineSubtotal = lines.reduce((sum, line) => sum + line.total, 0);
+  const subtotal = saved?.subtotal == null ? lineSubtotal : Number(saved.subtotal) || 0;
+  const vatAmount = saved?.tax == null ? 0 : Number(saved.tax) || 0;
+  const serviceAmount = saved?.serviceCharge == null ? 0 : Number(saved.serviceCharge) || 0;
+  const total = saved?.total == null ? subtotal + vatAmount + serviceAmount : Number(saved.total) || 0;
+  const rawDiscount = subtotal + vatAmount + serviceAmount - total;
+  return {
+    id: saved?.orderNumber
+      ? `#${saved.orderNumber}`
+      : `#${String(saved?._id || "").slice(0, 8)}`,
+    createdAt: saved?.createdAt || new Date().toISOString(),
+    lines,
+    figures: {
+      subtotal,
+      discountValue: rawDiscount > 0.005 ? rawDiscount : 0,
+      vatAmount,
+      serviceAmount,
+      sdAmount: 0,
+      total,
+    },
+    method: saved?.paymentStatus === "paid" ? saved.paymentMethod : "",
+  };
+}
+
 const formatOpeningStamp = (date) => {
   const hours = date.getHours();
   const hour12 = hours % 12 || 12;
@@ -1253,28 +1291,10 @@ const Orders = () => {
                   type="button"
                   className="pos-bill"
                   onClick={async () => {
-                    const lines = formData.items.map((item) => {
-                      const extra = (item.modifiers || []).reduce(
-                        (sum, modifier) => sum + (Number(modifier.price) || 0),
-                        0,
-                      );
-                      const price = Number(item.price) + extra;
-                      const qty = item.quantity || item.qty || 1;
-                      return { name: item.name, qty, price, total: price * qty };
-                    });
-                    const figures = billFigures();
                     const saved = await saveOrder();
                     if (!saved) return;
                     handleGenerateInvoice(saved);
-                    setReceipt({
-                      id: saved.orderNumber
-                        ? `#${saved.orderNumber}`
-                        : `#${String(saved._id || "").slice(0, 8)}`,
-                      createdAt: saved.createdAt || new Date().toISOString(),
-                      lines,
-                      figures,
-                      method: saved.paymentStatus === "paid" ? saved.paymentMethod : "",
-                    });
+                    setReceipt(receiptFromOrder(saved));
                   }}
                 >
                   <Printer size={15} />
