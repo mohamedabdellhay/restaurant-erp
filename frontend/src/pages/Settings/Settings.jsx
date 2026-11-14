@@ -537,17 +537,19 @@ const Settings = () => {
       if (response.success) {
         setMessage({ type: "success", text: t("settings.settings_updated") });
 
-        // Update local storage with new theme settings
+        const savedSettings = payload.settings;
+        setFormData(payload);
+
+        // Keep the browser cache on the same sanitized settings that were saved.
         localStorage.setItem(
           "restaurantSettings",
-          JSON.stringify(payload.settings),
+          JSON.stringify(savedSettings),
         );
 
-        // Trigger theme update
         window.dispatchEvent(
           new StorageEvent("storage", {
             key: "restaurantSettings",
-            newValue: JSON.stringify(formData.settings),
+            newValue: JSON.stringify(savedSettings),
           }),
         );
 

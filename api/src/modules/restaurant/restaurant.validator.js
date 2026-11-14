@@ -97,7 +97,7 @@ export const updateRestaurantValidator = [
     .isLength({ max: 400 })
     .withMessage("Invoice information must be 400 characters or fewer"),
   body("settings.invoice.accentColor")
-    .optional({ values: "falsy" })
+    .optional({ values: "null" })
     .isHexColor()
     .withMessage("Invoice color must be a valid hex color"),
   body("settings.invoice.showLogo").optional().isBoolean().withMessage("Show logo must be true or false"),

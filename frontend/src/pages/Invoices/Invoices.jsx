@@ -32,7 +32,7 @@ import invoiceService from "@services/invoiceService";
 import orderService from "@services/orderService";
 
 const Invoices = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { getThemeColors, getCurrency } = useRestaurant();
   const currency = getCurrency();
   const { user } = useAuth();
@@ -435,15 +435,13 @@ const Invoices = () => {
           <table className="invoices-table">
             <thead>
               <tr>
-                <th data-direction={i18n.dir()}>{t("invoices.number")}</th>
-                <th data-direction={i18n.dir()}>{t("invoices.customer")}</th>
-                <th data-direction={i18n.dir()}>{t("invoices.date")}</th>
-                <th data-direction={i18n.dir()}>{t("invoices.amount")}</th>
-                <th data-direction={i18n.dir()}>{t("invoices.status")}</th>
-                <th data-direction={i18n.dir()}>
-                  {t("invoices.payment_method")}
-                </th>
-                <th data-direction={i18n.dir()}>{t("invoices.actions")}</th>
+                <th>{t("invoices.number")}</th>
+                <th>{t("invoices.customer")}</th>
+                <th>{t("invoices.date")}</th>
+                <th>{t("invoices.amount")}</th>
+                <th>{t("invoices.status")}</th>
+                <th>{t("invoices.payment_method")}</th>
+                <th>{t("invoices.actions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -458,7 +456,8 @@ const Invoices = () => {
                   <tr key={invoice._id}>
                     <td>
                       <span className="invoice-number">
-                        {invoice.invoiceNumber}
+                        {invoice.invoiceNumber ||
+                          String(invoice._id || "").slice(-6).toUpperCase()}
                       </span>
                     </td>
                     <td>
@@ -498,7 +497,13 @@ const Invoices = () => {
                     <td>
                       <div className="payment-method">
                         <CreditCard size={16} />
-                        <span>{invoice.paymentMethod}</span>
+                        <span>
+                          {invoice.paymentMethod
+                            ? t(`invoices.${invoice.paymentMethod}`, {
+                                defaultValue: invoice.paymentMethod,
+                              })
+                            : "—"}
+                        </span>
                       </div>
                     </td>
                     <td>

@@ -179,14 +179,30 @@ const reshapeArabic = (text) => {
   return shaped;
 };
 
-const DEJAVU = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf";
-const DEJAVU_BOLD = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf";
+const firstFont = (candidates) => candidates.find((file) => file && fs.existsSync(file));
+const ARABIC_SANS = firstFont([
+  "/usr/share/fonts/truetype/noto/NotoSansArabic-Regular.ttf",
+  path.join(__dirname, "../assets/fonts/NotoSansArabic-Regular.ttf"),
+]);
+const ARABIC_SANS_BOLD = firstFont([
+  "/usr/share/fonts/truetype/noto/NotoSansArabic-Bold.ttf",
+  ARABIC_SANS,
+]);
+const LATIN_SANS = firstFont([
+  "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf",
+  "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+  "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+]);
+const LATIN_SANS_BOLD = firstFont([
+  "/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf",
+  "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+  "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+]);
 const arabicImageCache = new Map();
 
 const arabicImage = (text, size, color, maxWidth, bold = false) => {
   const key = JSON.stringify([text, size, color, maxWidth, bold]);
   if (arabicImageCache.has(key)) return arabicImageCache.get(key);
-  const fontPath = bold && fs.existsSync(DEJAVU_BOLD) ? DEJAVU_BOLD : DEJAVU;
   const result = spawnSync(
     "python3",
     [
@@ -194,47 +210,85 @@ const arabicImage = (text, size, color, maxWidth, bold = false) => {
       [
         "from PIL import Image, ImageDraw, ImageFont",
         "import sys",
-        "text, size, color, font_path, max_width = sys.argv[1:]",
+        "text, size, color, max_width, bold, ar, ar_bold, lat, lat_bold = sys.argv[1:10]",
         "size = float(size)",
         "max_width = max(20.0, float(max_width))",
-        "font = ImageFont.truetype(font_path, size)",
+        "font_r = ImageFont.truetype(ar_bold if bold == '1' else ar, size)",
+        "font_l = ImageFont.truetype(lat_bold if bold == '1' else lat, size)",
+        "def is_ar(ch):",
+        "    o = ord(ch)",
+        "    return (0x0600 <= o <= 0x06FF or 0x0750 <= o <= 0x077F or 0x08A0 <= o <= 0x08FF or 0xFB50 <= o <= 0xFDFF or 0xFE70 <= o <= 0xFEFF)",
+        "def split_runs(value):",
+        "    out, mode, buf, isolate = [], None, '', 0",
+        "    def push():",
+        "        nonlocal buf, mode",
+        "        if buf: out.append((mode, buf))",
+        "        buf, mode = '', None",
+        "    for ch in value:",
+        "        if ch == '\\u2066':",
+        "            push(); isolate += 1; continue",
+        "        if ch == '\\u2069' and isolate:",
+        "            push(); isolate -= 1; continue",
+        "        if ch in '\\u200e\\u200f':",
+        "            continue",
+        "        kind = 'L' if isolate or not is_ar(ch) else 'R'",
+        "        if ch.isspace() or ch in ':·.,-–—/()':",
+        "            kind = mode or ('L' if isolate else 'R')",
+        "        if mode and kind != mode: push()",
+        "        mode = kind",
+        "        buf += ch",
+        "    push()",
+        "    return out",
+        "def run_width(kind, value):",
+        "    font = font_r if kind == 'R' else font_l",
+        "    opts = {'direction': 'rtl', 'language': 'ar'} if kind == 'R' else {'direction': 'ltr'}",
+        "    return font.getlength(value, **opts)",
+        "def text_width(value):",
+        "    return sum(run_width(kind, part) for kind, part in split_runs(value))",
         "lines = []",
         "for paragraph in text.split('\\n'):",
         "    words = paragraph.split(' ')",
         "    current = ''",
         "    for word in words:",
         "        trial = word if not current else current + ' ' + word",
-        "        if current and font.getlength(trial, direction='rtl', language='ar') > max_width:",
+        "        if current and text_width(trial) > max_width:",
         "            lines.append(current)",
         "            current = word",
         "        else:",
         "            current = trial",
         "    lines.append(current)",
-        "if not lines:",
-        "    lines = ['']",
-        "boxes = []",
-        "for line in lines:",
-        "    boxes.append(font.getbbox(line, direction='rtl', language='ar') if line else None)",
-        "gap = max(2, int(size * 0.3))",
-        "pad = 1",
-        "content_w = max((box[2] - box[0]) if box else 1 for box in boxes)",
-        "heights = [(box[3] - box[1]) if box else int(size) for box in boxes]",
-        "width = pad * 2 + int(content_w)",
-        "height = pad * 2 + sum(heights) + gap * max(0, len(lines) - 1)",
-        "image = Image.new('RGBA', (max(width, 1), max(height, 1)), (0, 0, 0, 0))",
-        "draw = ImageDraw.Draw(image)",
-        "cursor = pad",
-        "for line, box, line_h in zip(lines, boxes, heights):",
-        "    if box:",
-        "        draw.text((width - pad - box[2], cursor - box[1]), line, font=font, fill=color, direction='rtl', language='ar')",
-        "    cursor += line_h + gap",
-        "image.save(sys.stdout.buffer, 'PNG')",
+        "if not lines: lines = ['']",
+        "ascent = max(font_r.getmetrics()[0], font_l.getmetrics()[0])",
+        "descent = max(font_r.getmetrics()[1], font_l.getmetrics()[1])",
+        "gap = max(2, int(size * 0.25))",
+        "line_h = ascent + descent",
+        "content_w = max((text_width(line) if line else 1) for line in lines)",
+        "width = max(int(content_w) + 2, 1)",
+        "height = max(int(line_h) * len(lines) + gap * max(0, len(lines) - 1) + 2, 1)",
+        "image = Image.new('RGBA', (width, height), (0, 0, 0, 0))",
+        "pen = ImageDraw.Draw(image)",
+        "for index, line in enumerate(lines):",
+        "    baseline = 1 + ascent + index * (line_h + gap)",
+        "    cursor = width - 1",
+        "    for kind, value in split_runs(line):",
+        "        font = font_r if kind == 'R' else font_l",
+        "        opts = {'direction': 'rtl', 'language': 'ar'} if kind == 'R' else {'direction': 'ltr'}",
+        "        run_w = font.getlength(value, **opts)",
+        "        cursor -= run_w",
+        "        anchor = 'rs' if kind == 'R' else 'ls'",
+        "        x = cursor + run_w if kind == 'R' else cursor",
+        "        pen.text((x, baseline), value, font=font, fill=color, anchor=anchor, **opts)",
+        "image.crop(image.getbbox() or (0, 0, width, height)).save(sys.stdout.buffer, 'PNG')",
       ].join("\n"),
       String(text ?? ""),
       String(size),
       color,
-      fontPath,
       String(maxWidth || 400),
+      bold ? "1" : "0",
+      ARABIC_SANS,
+      ARABIC_SANS_BOLD,
+      LATIN_SANS,
+      LATIN_SANS_BOLD,
     ],
     { maxBuffer: 8 * 1024 * 1024 },
   );
@@ -366,7 +420,12 @@ export const generateInvoicePDF = (invoice, restaurant, platform = {}) => {
   if (hasArabicFont) doc.registerFont("Arabic", arabicFontPath);
 
   const platformName = platform?.name || "Restaurant ERP";
-  const platformLogo = fs.readFileSync(path.join(__dirname, "../assets/platform-logo.png"));
+  let platformLogo = null;
+  try {
+    platformLogo = fs.readFileSync(path.join(__dirname, "../assets/platform-logo.png"));
+  } catch {
+    platformLogo = null;
+  }
   const currency = restaurant?.currency || "USD";
   const language = restaurant?.settings?.invoiceLanguage === "ar" ? "ar" : "en";
   const arabic = language === "ar";
@@ -693,17 +752,21 @@ export const generateInvoicePDF = (invoice, restaurant, platform = {}) => {
     markX += platformWidth + 4;
     if (poweredImage.buffer.length) doc.image(poweredImage.buffer, markX, footerY + 6, { width: poweredImage.width, height: poweredImage.height });
     markX += poweredWidth + 4;
-    try {
-      doc.image(platformLogo, markX, footerY + 6, { fit: [12, 12] });
-    } catch {
-      // The name still identifies the platform.
+    if (platformLogo) {
+      try {
+        doc.image(platformLogo, markX, footerY + 6, { fit: [12, 12] });
+      } catch {
+        // The name still identifies the platform.
+      }
     }
   } else {
     const groupX = right - (12 + 4 + poweredWidth + 4 + platformWidth);
-    try {
-      doc.image(platformLogo, groupX, footerY + 6, { fit: [12, 12] });
-    } catch {
-      // The name still identifies the platform.
+    if (platformLogo) {
+      try {
+        doc.image(platformLogo, groupX, footerY + 6, { fit: [12, 12] });
+      } catch {
+        // The name still identifies the platform.
+      }
     }
     doc.font("Helvetica").fontSize(7).fillColor(muted)
       .text(copy.poweredBy, groupX + 16, footerY + 8, { lineBreak: false });

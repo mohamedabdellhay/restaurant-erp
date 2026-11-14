@@ -14,7 +14,6 @@
 
 .btn-primary:hover {
   background: var(--primary-light);
-  transform: translateY(-1px);
 }
 
 .btn-secondary {
@@ -38,9 +37,9 @@
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 .stat-card {
@@ -55,8 +54,7 @@
 }
 
 .stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
 }
 
 .stat-card.paid {
@@ -122,8 +120,8 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  flex: 1;
-  max-width: 400px;
+  flex: 1 1 220px;
+  min-width: 0;
   padding: 0.75rem 1rem;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -191,7 +189,8 @@
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  overflow: hidden;
+  overflow-x: auto;
+  max-width: 100%;
 }
 
 .loading-spinner {
@@ -223,29 +222,29 @@
 
 .invoices-table {
   width: 100%;
+  min-width: 860px;
   border-collapse: collapse;
 }
 
 .invoices-table th {
   background: var(--bg-base);
-  padding: 1rem;
-  text-align: right;
+  padding: 0.85rem 0.75rem;
+  text-align: start;
   font-weight: 600;
   color: var(--text-secondary);
   border-bottom: 1px solid var(--border-color);
 }
 
-[data-direction="rtl"] .invoices-table th {
-  text-align: left;
-}
-
-[data-direction="rtl"] .invoices-table td {
-  text-align: right;
+.invoices-table th:last-child,
+.invoices-table td:last-child {
+  width: 220px;
 }
 
 .invoices-table td {
-  padding: 1rem;
+  padding: 0.85rem 0.75rem;
   border-bottom: 1px solid var(--border-color);
+  text-align: start;
+  vertical-align: middle;
 }
 
 .invoices-table tr:hover {
@@ -269,7 +268,16 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  min-width: 0;
   color: var(--text-secondary);
+}
+
+.customer-info span,
+.date-info span,
+.payment-method span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .amount {
@@ -278,13 +286,15 @@
 }
 
 .status-badge {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.875rem;
+  gap: 0.35rem;
+  width: fit-content;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .status-badge.status-paid {
@@ -304,20 +314,21 @@
 
 .action-buttons {
   display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+  gap: 0.35rem;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
 }
 
 .btn-icon {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.2s;
 }
 
 .btn-view {

@@ -13,8 +13,9 @@ export const RoleBasedUI = ({
 
   if (allowedRoles.length === 0) return children;
 
-  const userRole = user?.role?.name || user?.role;
-  return allowedRoles.includes(userRole) ? children : fallback;
+  const userRole = String(user?.role?.name || user?.role || "").toLowerCase();
+  const allowed = allowedRoles.map((role) => String(role).toLowerCase());
+  return allowed.includes(userRole) ? children : fallback;
 };
 
 /**
@@ -32,8 +33,9 @@ export const withRoleProtection = (Component, allowedRoles = []) => {
       );
     }
 
-    const userRole = user?.role?.name || user?.role;
-    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+    const userRole = String(user?.role?.name || user?.role || "").toLowerCase();
+    const allowed = allowedRoles.map((role) => String(role).toLowerCase());
+    if (allowed.length > 0 && !allowed.includes(userRole)) {
       return React.createElement(
         "div",
         null,

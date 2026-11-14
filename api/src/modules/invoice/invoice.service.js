@@ -128,7 +128,7 @@ class InvoiceService {
       prisma.restaurant.findUnique({ where: { id: requireUuid(restaurantId) } }),
       prisma.platformSetting.findUnique({ where: { id: "default" } }),
     ]);
-    return generateInvoicePDF(toDoc(invoice), toDoc(restaurant), toDoc(platform));
+    return generateInvoicePDF(toDoc(invoice), toDoc(restaurant) ?? {}, toDoc(platform) ?? {});
   }
 }
 
