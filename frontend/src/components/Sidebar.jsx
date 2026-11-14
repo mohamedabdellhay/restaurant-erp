@@ -14,6 +14,7 @@ import {
   Monitor,
   Settings,
   Truck,
+  Users,
   TrendingUp,
   UtensilsCrossed,
   Warehouse,
@@ -82,6 +83,16 @@ const NAV_ENTRIES = [
     items: [
       { label: "nav.supplier_information", path: "/suppliers", permission: "view_inventory" },
       { label: "nav.supplier_dues", path: "/supplier-dues", permission: "view_inventory" },
+    ],
+  },
+  {
+    kind: "group",
+    label: "nav.group_customers",
+    icon: Users,
+    items: [
+      { label: "nav.customer_information", path: "/customers", permission: "view_customers" },
+      { label: "nav.customer_discount_groups", path: "/customer-discount-groups", permission: "view_customers" },
+      { label: "nav.discount_exclusion", path: "/discount-exclusions", permission: "view_customers" },
     ],
   },
   {

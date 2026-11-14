@@ -1,0 +1,188 @@
+.discount-groups {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.discount-groups h1 {
+  margin: 0 0 0.9rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid #e6e8ec;
+  color: #1f2937;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.discount-groups-toolbar,
+.discount-groups-dialog header,
+.discount-groups-dialog footer {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.discount-groups-toolbar {
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+}
+
+.discount-groups-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: min(100%, 240px);
+  height: 2.25rem;
+  padding: 0 0.7rem;
+  border: 1px solid #e6e8ec;
+  border-radius: 8px;
+  background: #fff;
+  color: #9ca3af;
+}
+
+.discount-groups-search input,
+.discount-groups-dialog input,
+.discount-groups-dialog select {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #111827;
+}
+
+.discount-groups-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 2.25rem;
+  padding: 0 0.9rem;
+  border: 0;
+  border-radius: 6px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.discount-groups-enabled,
+.discount-groups-disabled {
+  min-width: 5.5rem;
+  height: 1.8rem;
+  padding: 0 0.85rem;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.discount-groups-enabled {
+  background: #16a34a;
+}
+
+.discount-groups-disabled {
+  background: #ef4444;
+}
+
+.discount-groups-actions {
+  white-space: nowrap;
+  text-align: end;
+}
+
+.discount-groups-edit,
+.discount-groups-delete {
+  display: inline-grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  margin-inline-start: 0.35rem;
+  border: 0;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.discount-groups-edit {
+  background: #16a34a;
+}
+
+.discount-groups-delete {
+  background: #ef4444;
+}
+
+.discount-groups-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(15 23 42 / 0.35);
+}
+
+.discount-groups-dialog {
+  width: min(100%, 420px);
+  padding: 1rem 1.1rem 1.1rem;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.discount-groups-dialog header,
+.discount-groups-dialog footer {
+  justify-content: space-between;
+}
+
+.discount-groups-dialog header {
+  margin-bottom: 0.8rem;
+}
+
+.discount-groups-dialog footer {
+  justify-content: flex-end;
+}
+
+.discount-groups-dialog h2 {
+  margin: 0;
+  color: #111827;
+  font-size: 1.05rem;
+}
+
+.discount-groups-dialog header button {
+  display: inline-grid;
+  place-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+.discount-groups-dialog label {
+  display: grid;
+  gap: 0.3rem;
+  margin-bottom: 0.7rem;
+  color: #4b5563;
+  font-size: 0.84rem;
+}
+
+.discount-groups-dialog input,
+.discount-groups-dialog select {
+  height: 2.25rem;
+  padding: 0 0.65rem;
+  border: 1px solid #e6e8ec;
+  border-radius: 8px;
+}
+
+.discount-groups-cancel {
+  height: 2.25rem;
+  padding: 0 0.9rem;
+  border: 1px solid #e6e8ec;
+  border-radius: 6px;
+  background: #fff;
+  color: #374151;
+  font-weight: 600;
+  cursor: pointer;
+}

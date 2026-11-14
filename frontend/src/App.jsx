@@ -10,6 +10,9 @@ import Profile from "@pages/Profile/Profile";
 import Staff from "@pages/Staff/Staff";
 import Departments from "@pages/Departments/Departments";
 import Suppliers from "@pages/Suppliers/Suppliers";
+import Customers from "@pages/Customers/Customers";
+import CustomerDiscountGroups from "@pages/CustomerDiscountGroups/CustomerDiscountGroups";
+import DiscountExclusions from "@pages/DiscountExclusions/DiscountExclusions";
 import SupplierDues from "@pages/SupplierDues/SupplierDues";
 import Inventory from "@pages/Inventory/Inventory";
 import IngredientCategories from "@pages/IngredientCategories/IngredientCategories";
@@ -184,6 +187,30 @@ function App() {
                   element={
                     <ProtectedRoute permission="view_inventory">
                       <SupplierDues />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/customers"
+                  element={
+                    <ProtectedRoute permission="view_customers">
+                      <Customers />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/customer-discount-groups"
+                  element={
+                    <ProtectedRoute permission="view_customers">
+                      <CustomerDiscountGroups />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/discount-exclusions"
+                  element={
+                    <ProtectedRoute permission="view_customers">
+                      <DiscountExclusions />
                     </ProtectedRoute>
                   }
                 />

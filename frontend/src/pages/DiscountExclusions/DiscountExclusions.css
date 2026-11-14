@@ -1,0 +1,157 @@
+.discount-exclusions {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.discount-exclusions-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid #e6e8ec;
+}
+
+.discount-exclusions h1 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.discount-exclusions-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 2.25rem;
+  padding: 0 0.9rem;
+  border: 0;
+  border-radius: 6px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.discount-exclusions-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #374151;
+}
+
+.discount-exclusions-item svg {
+  color: var(--primary);
+}
+
+.exclusion-switch {
+  position: relative;
+  width: 2.45rem;
+  height: 1.35rem;
+  border: 0;
+  border-radius: 999px;
+  background: #d1d5db;
+  cursor: pointer;
+}
+
+.exclusion-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  inset-inline-start: 2px;
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 50%;
+  background: #fff;
+  transition: inset-inline-start 0.15s ease;
+}
+
+.exclusion-switch.on {
+  background: var(--primary);
+}
+
+.exclusion-switch.on::after {
+  inset-inline-start: calc(100% - 1.15rem);
+}
+
+.discount-exclusions-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(15 23 42 / 0.35);
+}
+
+.discount-exclusions-dialog {
+  width: min(100%, 420px);
+  padding: 1rem 1.1rem 1.1rem;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.discount-exclusions-dialog header,
+.discount-exclusions-dialog footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.discount-exclusions-dialog header {
+  margin-bottom: 0.8rem;
+}
+
+.discount-exclusions-dialog footer {
+  justify-content: flex-end;
+}
+
+.discount-exclusions-dialog h2 {
+  margin: 0;
+  color: #111827;
+  font-size: 1.05rem;
+}
+
+.discount-exclusions-dialog header button {
+  display: inline-grid;
+  place-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+.discount-exclusions-dialog label {
+  display: grid;
+  gap: 0.3rem;
+  margin-bottom: 0.7rem;
+  color: #4b5563;
+  font-size: 0.84rem;
+}
+
+.discount-exclusions-dialog select {
+  height: 2.25rem;
+  padding: 0 0.65rem;
+  border: 1px solid #e6e8ec;
+  border-radius: 8px;
+  background: #fff;
+  color: #111827;
+}
+
+.discount-exclusions-cancel {
+  height: 2.25rem;
+  padding: 0 0.9rem;
+  border: 1px solid #e6e8ec;
+  border-radius: 6px;
+  background: #fff;
+  color: #374151;
+  font-weight: 600;
+  cursor: pointer;
+}
