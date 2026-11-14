@@ -56,7 +56,7 @@ const Waiters = () => {
       const embedded = rows.find((person) => person.role && typeof person.role === "object");
       if (embedded?.role?._id) setRoleId(embedded.role._id);
     } catch (error) {
-      setMessage({ type: "error", text: getErrorMessage(error, t("nav.waiter_save_failed")) });
+      setMessage({ type: "error", text: getErrorMessage(error, t("nav.waiter_fetch_failed")) });
     }
     try {
       const roleResult = await api.get("/roles");

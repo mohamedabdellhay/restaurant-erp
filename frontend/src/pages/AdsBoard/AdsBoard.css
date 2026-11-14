@@ -1,0 +1,145 @@
+.ads-board {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.ads-board h1 {
+  margin: 0 0 0.9rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid #e6e8ec;
+  color: #1f2937;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.ads-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid #eceff3;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.ads-row {
+  display: grid;
+  grid-template-columns: minmax(180px, 240px) minmax(220px, 1fr) auto auto;
+  align-items: start;
+  gap: 1rem;
+}
+
+.ads-copy strong {
+  display: block;
+  color: #111827;
+  font-size: 0.95rem;
+}
+
+.ads-copy p {
+  margin: 0.35rem 0 0;
+  color: #9ca3af;
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.ads-file-line {
+  display: flex;
+  align-items: center;
+}
+
+.ads-file-line button {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 0;
+  border-radius: 4px;
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
+}
+
+.ads-file-line input[type="text"],
+.ads-file-line input:not([type="file"]) {
+  flex: 1;
+  height: 2.4rem;
+  min-width: 0;
+  padding: 0 0.7rem;
+  border: 1px solid #e5e7eb;
+  border-inline-start: 0;
+  background: #fff;
+  color: #111827;
+}
+
+.ads-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.45rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--primary);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ads-display {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  height: 2.4rem;
+  color: #4b5563;
+  font-size: 0.84rem;
+  white-space: nowrap;
+}
+
+.ads-switch {
+  position: relative;
+  width: 2.6rem;
+  height: 1.45rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #d1d5db;
+  cursor: pointer;
+}
+
+.ads-switch span {
+  position: absolute;
+  top: 0.15rem;
+  inset-inline-start: 0.15rem;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 50%;
+  background: #fff;
+  transition: inset-inline-start 0.15s ease;
+}
+
+.ads-switch.on {
+  background: var(--primary);
+}
+
+.ads-switch.on span {
+  inset-inline-start: calc(100% - 1.3rem);
+}
+
+.ads-delete {
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  margin-top: 0.1rem;
+  border: 0;
+  border-radius: 4px;
+  background: #ef4444;
+  color: #fff;
+  cursor: pointer;
+}
+
+@media (max-width: 860px) {
+  .ads-row {
+    grid-template-columns: 1fr;
+  }
+}

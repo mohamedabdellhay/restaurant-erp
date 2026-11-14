@@ -124,6 +124,32 @@ class RestaurantService {
     });
     return toDoc(row);
   }
+
+  async updateAds(id, ads) {
+    const restaurantId = requireUuid(id);
+    if (!restaurantId) return null;
+    const existing = await prisma.restaurant.findUnique({ where: { id: restaurantId } });
+    if (!existing) return null;
+
+    const current =
+      existing.settings && typeof existing.settings === "object" ? existing.settings : {};
+    const next = (Array.isArray(ads) ? ads : []).slice(0, 12).map((item) => {
+      const url = this.stripBaseUrl(String(item?.url || ""));
+      return {
+        id: String(item?.id || "").slice(0, 64),
+        name: String(item?.name || "").slice(0, 120),
+        url: url.slice(0, 300),
+        kind: item?.kind === "video" ? "video" : "image",
+        visible: Boolean(item?.visible),
+      };
+    }).filter((item) => item.id && item.url.startsWith("/uploads/ads/"));
+
+    const row = await prisma.restaurant.update({
+      where: { id: restaurantId },
+      data: { settings: { ...current, adsBoard: next } },
+    });
+    return toDoc(row);
+  }
 }
 
 export default new RestaurantService();

@@ -34,6 +34,7 @@ const NAV_ENTRIES = [
     items: [
       { label: "nav.orders", path: "/orders", permission: "view_orders" },
       { label: "nav.waiting", path: "/waiting", permission: "view_orders" },
+      { label: "nav.ads_board", path: "/ads-board", permission: "manage_settings" },
       { label: "nav.reservations", path: "/reservations", permission: "view_reservations" },
     ],
   },

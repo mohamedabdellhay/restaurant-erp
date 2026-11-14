@@ -262,6 +262,13 @@ router.get("/settings", protect, RestaurantController.getCurrent);
  *         $ref: '#/components/responses/NotFoundError'
  */
 router.put(
+  "/:id/ads",
+  protect,
+  hasPermission(PERMISSIONS.MANAGE_SETTINGS),
+  RestaurantController.updateAds,
+);
+
+router.put(
   "/:id/theme",
   protect,
   hasPermission(PERMISSIONS.MANAGE_SETTINGS),

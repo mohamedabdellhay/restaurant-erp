@@ -18,6 +18,22 @@ class UploadController {
       "File uploaded successfully",
     );
   });
+
+  uploadAd = asyncHandler(async (req, res) => {
+    if (!req.file) {
+      return ResponseHandler.error(res, "No file uploaded", 400);
+    }
+    const filePath = `/uploads/ads/${req.file.filename}`;
+    ResponseHandler.success(
+      res,
+      {
+        path: filePath,
+        name: req.file.originalname,
+        url: appendBaseUrl(filePath),
+      },
+      "File uploaded successfully",
+    );
+  });
 }
 
 export default new UploadController();

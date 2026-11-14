@@ -1,6 +1,9 @@
 .waiting-screen {
-  min-height: 100vh;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
   padding: 18px 22px 22px;
   background: #f3f4f6;
   color: #1f2937;
@@ -27,14 +30,19 @@
 .waiting-board {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.85fr);
+  grid-template-rows: minmax(0, 1fr);
   gap: 18px;
-  min-height: calc(100vh - 86px);
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .waiting-card {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  min-height: 0;
+  height: 100%;
   background: #fff;
   border-radius: 18px;
   box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
@@ -53,7 +61,8 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   flex: 1;
-  min-height: 420px;
+  min-height: 0;
+  overflow: auto;
 }
 
 .waiting-column header {
@@ -117,7 +126,7 @@
   position: relative;
   flex: 1;
   margin: 0 16px 16px;
-  min-height: 420px;
+  min-height: 0;
   border-radius: 8px;
   overflow: hidden;
   background:
@@ -145,6 +154,61 @@
 .waiting-poster::after {
   top: 68%;
   opacity: 0.7;
+}
+
+.waiting-slider {
+  position: relative;
+  flex: 1;
+  margin: 0 16px 16px;
+  min-height: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #111;
+}
+
+.waiting-slide {
+  position: absolute;
+  inset: 0;
+  animation: waiting-fade 0.45s ease;
+}
+
+.waiting-slide img,
+.waiting-slide video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #111;
+}
+
+.waiting-dots {
+  position: absolute;
+  right: 0;
+  bottom: 12px;
+  left: 0;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.waiting-dots button {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+}
+
+.waiting-dots button.on {
+  background: #fff;
+}
+
+@keyframes waiting-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .poster-logo {

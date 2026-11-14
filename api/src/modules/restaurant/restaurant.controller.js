@@ -70,6 +70,16 @@ class RestaurantController {
     ResponseHandler.success(res, withLogoUrls(restaurant).settings.theme, "Theme saved successfully");
   });
 
+  updateAds = asyncHandler(async (req, res) => {
+    const id = req.params.id;
+    if (req.user?.restaurant && req.user.restaurant !== id) {
+      return ResponseHandler.error(res, "You can only update your restaurant", 403);
+    }
+    const restaurant = await RestaurantService.updateAds(id, req.body.ads);
+    if (!restaurant) return ResponseHandler.error(res, "Restaurant not found", 404);
+    ResponseHandler.success(res, restaurant.settings?.adsBoard || [], "Ads board saved successfully");
+  });
+
   uploadLogo = asyncHandler(async (req, res) => {
     if (!req.file) return ResponseHandler.error(res, "No file uploaded", 400);
 

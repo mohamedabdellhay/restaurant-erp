@@ -31,6 +31,7 @@ import Tables from "@pages/Tables/Tables";
 import Reservations from "@pages/Reservations/Reservations";
 import Orders from "@pages/Orders/Orders";
 import WaitingDisplay from "@pages/WaitingDisplay/WaitingDisplay";
+import AdsBoard from "@pages/AdsBoard/AdsBoard";
 import Kds from "@pages/Kds/Kds";
 import Settings from "@pages/Settings/Settings";
 import Invoices from "@pages/Invoices/Invoices";
@@ -436,6 +437,14 @@ function App() {
                   }
                 />
 
+                <Route
+                  path="/ads-board"
+                  element={
+                    <ProtectedRoute permission="manage_settings">
+                      <AdsBoard />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="/settings"
                   element={<Navigate to="/settings/general" replace />}

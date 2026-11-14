@@ -1,7 +1,9 @@
 import express from "express";
 import UploadController from "./upload.controller.js";
 import { protect } from "../../middleware/authMiddleware.js";
-import { uploadImage } from "../../middleware/uploadMiddleware.js";
+import { uploadAd, uploadImage } from "../../middleware/uploadMiddleware.js";
+import { hasPermission } from "../../middleware/roleMiddleware.js";
+import { PERMISSIONS } from "../../utils/constants/permissions.js";
 
 const router = express.Router();
 
@@ -28,5 +30,12 @@ const router = express.Router();
  *         description: Image uploaded successfully
  */
 router.post("/", protect, uploadImage.single("image"), UploadController.upload);
+router.post(
+  "/ad",
+  protect,
+  hasPermission(PERMISSIONS.MANAGE_SETTINGS),
+  uploadAd.single("file"),
+  UploadController.uploadAd,
+);
 
 export default router;

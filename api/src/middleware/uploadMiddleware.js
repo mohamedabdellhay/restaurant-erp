@@ -22,6 +22,11 @@ if (!fs.existsSync(gatewaysDir)) {
   fs.mkdirSync(gatewaysDir, { recursive: true });
 }
 
+const adsDir = path.join(__dirname, "../../uploads/ads");
+if (!fs.existsSync(adsDir)) {
+  fs.mkdirSync(adsDir, { recursive: true });
+}
+
 // Configure storage
 const createStorage = (dest) =>
   multer.diskStorage({
@@ -66,6 +71,24 @@ export const uploadImage = multer({
     fileSize: 10 * 1024 * 1024, // 10MB limit
   },
   fileFilter: fileFilter,
+});
+
+const adFileFilter = (req, file, cb) => {
+  const ext = path.extname(file.originalname).toLowerCase();
+  const allowedExt = [".jpeg", ".jpg", ".png", ".gif", ".mp4"];
+  const type = String(file.mimetype || "").toLowerCase();
+  const typedOk = /^(image\/(jpeg|jpg|png|gif)|video\/mp4)$/.test(type);
+  const generic = type === "" || type === "application/octet-stream";
+  if (allowedExt.includes(ext) && (typedOk || generic)) {
+    return cb(null, true);
+  }
+  cb(new Error("Use a JPEG, PNG, GIF, or MP4 file."));
+};
+
+export const uploadAd = multer({
+  storage: createStorage(adsDir),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: adFileFilter,
 });
 
 export const uploadGatewayLogo = multer({
