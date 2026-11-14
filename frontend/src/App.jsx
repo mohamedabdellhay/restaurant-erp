@@ -43,6 +43,8 @@ import FoodCategories from "@pages/FoodCategories/FoodCategories";
 import FoodItems from "@pages/FoodItems/FoodItems";
 import FoodItemForm from "@pages/FoodItems/FoodItemForm";
 import Reports from "@pages/Reports/Reports";
+import ItemsBySupplier from "@pages/ItemsBySupplier/ItemsBySupplier";
+import SupplierTrx from "@pages/SupplierTrx/SupplierTrx";
 import Roles from "@pages/Roles/Roles";
 import Platform from "@pages/Platform/Platform";
 import { useAuth } from "@hooks/useAuth";
@@ -391,6 +393,22 @@ function App() {
                 />
 
                 {/* Reports - view_reports permission */}
+                <Route
+                  path="/reports/supplier-transactions"
+                  element={
+                    <ProtectedRoute permission="view_reports">
+                      <SupplierTrx />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/reports/items-by-supplier"
+                  element={
+                    <ProtectedRoute permission="view_reports">
+                      <ItemsBySupplier />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="/reports"
                   element={

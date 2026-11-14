@@ -169,7 +169,7 @@ const FoodItemForm = () => {
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      setMessage({ type: "error", text: t("nav.food_item_picture_note") });
+      setMessage({ type: "error", text: t("nav.food_item_picture_too_large") });
       return;
     }
     try {

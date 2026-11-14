@@ -106,7 +106,16 @@ const NAV_ENTRIES = [
       { label: "nav.tables", path: "/tables", permission: "view_tables" },
     ],
   },
-  { kind: "link", label: "nav.reports", icon: BarChart3, path: "/reports", permission: "view_reports" },
+  {
+    kind: "group",
+    label: "nav.reports",
+    icon: BarChart3,
+    items: [
+      { label: "nav.reports_home", path: "/reports", permission: "view_reports" },
+      { label: "nav.items_by_supplier", path: "/reports/items-by-supplier", permission: "view_reports" },
+      { label: "nav.supplier_trx", path: "/reports/supplier-transactions", permission: "view_reports" },
+    ],
+  },
   {
     kind: "group",
     label: "nav.group_setup",
