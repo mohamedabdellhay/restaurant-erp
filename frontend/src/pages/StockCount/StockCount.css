@@ -1,0 +1,185 @@
+.count-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.count-page h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.count-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  background: #fff;
+  border-radius: 16px;
+}
+
+.count-categories,
+.count-supply-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.count-categories button,
+.count-grid button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 8%, white);
+  color: #374151;
+}
+
+.count-categories button.active,
+.count-grid button.selected,
+.count-letters button.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.count-supply-bar {
+  justify-content: space-between;
+}
+
+.count-supply-bar label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.count-supply-bar input,
+.count-row input {
+  padding: 8px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.count-popular {
+  margin: 8px 0;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.count-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.9fr);
+  gap: 14px;
+}
+
+.count-grid-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18px;
+  gap: 8px;
+  min-height: 240px;
+}
+
+.count-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 8px;
+}
+
+.count-grid button {
+  width: 108px;
+  border-radius: 10px;
+  justify-content: flex-start;
+}
+
+.count-letters {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.count-letters button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 11px;
+  line-height: 1.15;
+}
+
+.count-sheet {
+  min-height: 280px;
+  border: 1px solid var(--primary);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.count-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) 80px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.count-row.head {
+  background: #f3f4f6;
+  border-top: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.count-row span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.count-row button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #dc2626;
+}
+
+.count-message {
+  margin: 0;
+  color: var(--primary);
+}
+
+.count-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.count-cancel,
+.count-draft,
+.count-submit {
+  padding: 8px 16px;
+  border-radius: 8px;
+}
+
+.count-cancel {
+  border: 1px solid #fca5a5;
+  background: #fff;
+  color: #dc2626;
+}
+
+.count-draft {
+  border: 1px solid var(--primary);
+  background: #fff;
+  color: var(--primary);
+}
+
+.count-submit {
+  border: 0;
+  background: var(--primary);
+  color: #fff;
+}

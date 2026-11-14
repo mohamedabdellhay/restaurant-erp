@@ -794,7 +794,34 @@ const Orders = () => {
     }
     setChannel(order.type || "dineIn");
     setPosPanel("");
+    const firstId = recordId(order.items?.[0]?.menuItem);
+    const match = menuItems.find((item) => item._id === firstId);
+    const categoryId = match ? categoryIdOf(match) : "";
+    if (categoryId) {
+      setPosCategoryId(categoryId);
+      setPosItemChip("");
+      setPosSearch("");
+    }
     setShowPos(true);
+  };
+
+  const restoreOrder = async (order) => {
+    if (order.status !== "cancelled") {
+      loadOrder(order);
+      return;
+    }
+    try {
+      const result = await orderService.updateStatus(order._id, { status: "pending" });
+      const saved = result?.data || { ...order, status: "pending" };
+      setMessage({ type: "success", text: t("nav.orders_restored") });
+      fetchOrders();
+      loadOrder(saved.items ? saved : { ...order, ...saved, status: "pending" });
+    } catch (error) {
+      setMessage({
+        type: "error",
+        text: error.response?.data?.message || "Status update failed",
+      });
+    }
   };
 
   const changeQty = (index, delta) => {
@@ -828,8 +855,10 @@ const Orders = () => {
   const shareCount = Math.max(1, Number(splitWays) || 1);
   const channelMeta = channels.find((item) => item.id === formData.type) || channels[0];
   const ChannelIcon = channelMeta.icon;
-  const ticketNumber = draftOrder?.orderNumber
-    ? `#${draftOrder.orderNumber}`
+  const ticketNumber = draftOrder
+    ? draftOrder.orderNumber
+      ? `#${draftOrder.orderNumber}`
+      : `#${String(draftOrder._id || "").slice(0, 8)}`
     : t("nav.orders_new_ticket");
 
   if (!pinUnlocked) {
@@ -844,7 +873,9 @@ const Orders = () => {
   }
 
   const orderLabel = (order) =>
-    order.orderNumber ? `#${order.orderNumber}` : String(order._id || "").slice(0, 8);
+    order.orderNumber
+      ? `#${order.orderNumber}`
+      : `#${String(order._id || "").slice(0, 8)}`;
 
   return (
     <div data-direction={i18n.dir()}>
@@ -1025,10 +1056,22 @@ const Orders = () => {
                 (orders.length === 0 ? (
                   <p>{t("nav.orders_none")}</p>
                 ) : (
-                  orders.slice(0, 8).map((order) => (
-                    <button key={order._id} type="button" onClick={() => loadOrder(order)}>
-                      {orderLabel(order)} · {order.customer?.name || t("nav.orders_guest_customer")} ·{" "}
-                      {formatMoney(order.total || calculateTotal(order.items || []), currency)}
+                  [...orders]
+                    .sort((a, b) => Number(b.status === "cancelled") - Number(a.status === "cancelled"))
+                    .slice(0, 8)
+                    .map((order) => (
+                    <button
+                      key={order._id}
+                      type="button"
+                      onClick={() =>
+                        order.status === "cancelled" ? restoreOrder(order) : loadOrder(order)
+                      }
+                    >
+                      {orderLabel(order)} ·{" "}
+                      {order.status === "cancelled"
+                        ? t("nav.orders_restore")
+                        : order.customer?.name || t("nav.orders_guest_customer")}{" "}
+                      · {formatMoney(order.total || calculateTotal(order.items || []), currency)}
                     </button>
                   ))
                 ))}

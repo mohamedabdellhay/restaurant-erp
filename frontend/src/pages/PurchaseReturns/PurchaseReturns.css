@@ -1,0 +1,162 @@
+.return-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.return-title,
+.return-tools,
+.return-form-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.return-title h1,
+.return-back,
+.return-detail h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.return-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.return-tabs button {
+  padding: 7px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.return-tabs button.active,
+.return-new {
+  background: var(--primary);
+  color: #fff;
+}
+
+.return-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-inline-start: auto;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 8px;
+}
+
+.return-card {
+  padding: 14px;
+  background: #fff;
+  border-radius: 16px;
+}
+
+.return-tools {
+  margin-bottom: 12px;
+}
+
+.return-tools label,
+.return-form label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.return-tools input,
+.return-tools select,
+.return-form input,
+.return-form select {
+  padding: 8px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.return-row {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr 1fr 1.2fr 110px;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 8px;
+  border-top: 1px solid #f3f4f6;
+  font-size: 14px;
+}
+
+.return-row.head {
+  border-top: 0;
+  background: #f3f4f6;
+  font-weight: 600;
+}
+
+.return-empty {
+  margin: 28px 0;
+  color: #6b7280;
+  text-align: center;
+}
+
+.return-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.return-actions button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 6px;
+  color: #fff;
+}
+
+.return-actions button:nth-child(1) {
+  background: #16a34a;
+}
+
+.return-actions button:nth-child(2),
+.return-actions button:nth-child(3) {
+  background: #f5a024;
+}
+
+.return-form {
+  display: grid;
+  gap: 12px;
+  max-width: 640px;
+}
+
+.return-form label {
+  display: grid;
+  justify-items: start;
+}
+
+.return-cancel {
+  padding: 8px 14px;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  background: #fff;
+  color: #dc2626;
+}
+
+.return-detail p {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  padding: 10px 0;
+  border-top: 1px solid #f3f4f6;
+}
+
+[dir="rtl"] .return-back svg {
+  transform: scaleX(-1);
+}

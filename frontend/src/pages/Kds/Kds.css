@@ -1,0 +1,263 @@
+.kds-screen {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 14px 16px 18px;
+  background: #f1f4ed;
+  color: #1f2937;
+}
+
+.kds-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.kds-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Segoe Script", "Brush Script MT", cursive;
+  font-size: 22px;
+}
+
+.kds-brand a {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary, #16a34a);
+  color: #fff;
+}
+
+.kds-brand img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.kds-clock {
+  text-align: end;
+}
+
+.kds-clock strong {
+  display: block;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.kds-clock span {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.kds-body {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.kds-common {
+  min-height: 640px;
+  background: #e7f6ea;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.kds-common h1 {
+  margin: 14px 12px 10px;
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.kds-common-head,
+.kds-common li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 36px 72px;
+  gap: 6px;
+  align-items: center;
+}
+
+.kds-common-head {
+  padding: 8px 12px;
+  background: #3cb54a;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.kds-common ul {
+  margin: 0;
+  padding: 8px 0;
+  list-style: none;
+}
+
+.kds-common li {
+  padding: 6px 12px;
+  font-size: 14px;
+}
+
+.kds-common label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.kds-common label span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kds-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.kds-empty {
+  grid-column: 1 / -1;
+  margin: 24px 0;
+  color: #6b7280;
+}
+
+.kds-ticket {
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+}
+
+.kds-ticket header {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 8px;
+  padding: 8px 10px;
+  color: #fff;
+}
+
+.kds-ticket.blue header {
+  background: #2f9fe8;
+}
+
+.kds-ticket.orange header {
+  background: #f5a024;
+}
+
+.kds-ticket header strong {
+  font-size: 20px;
+}
+
+.kds-timer {
+  justify-self: end;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #e11d48;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.kds-ticket header div {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.kds-ticket header div span:last-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.kds-progress {
+  padding: 8px 10px 4px;
+  font-size: 12px;
+}
+
+.kds-progress div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.kds-progress b {
+  display: block;
+  height: 6px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  overflow: hidden;
+}
+
+.kds-progress i {
+  display: block;
+  height: 100%;
+  background: #3cb54a;
+}
+
+.kds-ticket ul {
+  margin: 0;
+  padding: 0 10px 10px;
+  list-style: none;
+}
+
+.kds-ticket li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 22px;
+  gap: 8px;
+  align-items: start;
+  padding: 7px 0;
+  border-top: 1px solid #f3f4f6;
+  font-size: 13px;
+}
+
+.kds-ticket li strong,
+.kds-ticket li em,
+.kds-ticket li small {
+  display: block;
+}
+
+.kds-ticket li em {
+  color: #16a34a;
+  font-style: normal;
+  font-size: 12px;
+}
+
+.kds-ticket li small {
+  color: #dc2626;
+}
+
+.kds-ticket time {
+  color: #6b7280;
+  font-variant-numeric: tabular-nums;
+}
+
+.kds-ticket button {
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  padding: 0;
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
+  background: #fff;
+  color: #fff;
+}
+
+.kds-ticket li.is-ready button {
+  border-color: #16a34a;
+  background: #16a34a;
+}
+
+@media (max-width: 1100px) {
+  .kds-body,
+  .kds-grid {
+    grid-template-columns: 1fr;
+  }
+}

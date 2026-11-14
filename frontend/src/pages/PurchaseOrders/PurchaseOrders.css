@@ -1,0 +1,404 @@
+.po-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.po-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.po-head h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.po-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--primary);
+  color: #fff;
+}
+
+.po-card {
+  padding: 14px;
+  background: #fff;
+  border-radius: 16px;
+}
+
+.po-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.po-tools label,
+.po-modal label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.po-tools input,
+.po-tools select,
+.po-modal input,
+.po-modal select {
+  padding: 8px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.po-row {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr 1.3fr 1.2fr 1fr 110px;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 8px;
+  border-top: 1px solid #f3f4f6;
+  font-size: 14px;
+}
+
+.po-row.head {
+  border-top: 0;
+  background: #f3f4f6;
+  font-weight: 600;
+}
+
+.po-row em {
+  display: inline-flex;
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: #fff;
+  font-style: normal;
+  font-size: 12px;
+}
+
+.po-row em.delivered,
+.po-info em.delivered {
+  background: #16a34a;
+}
+
+.po-row em.undelivered,
+.po-info em.undelivered {
+  background: #f5a024;
+}
+
+.po-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.po-actions button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 6px;
+  color: #fff;
+}
+
+.po-actions button:nth-child(1) {
+  background: #16a34a;
+}
+
+.po-actions button:nth-child(2),
+.po-actions button:nth-child(3) {
+  background: #f5a024;
+}
+
+.po-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.po-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  margin-bottom: 14px;
+}
+
+.po-info em {
+  margin-inline-start: auto;
+  display: inline-flex;
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: #fff;
+  font-style: normal;
+  font-size: 12px;
+}
+
+.po-detail h2,
+.po-detail h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+
+.po-line {
+  display: grid;
+  grid-template-columns: 1.4fr 0.8fr 0.8fr 0.8fr;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 12px;
+}
+
+.po-line span:not(:first-child) {
+  text-align: center;
+}
+
+.po-line:nth-child(even) {
+  background: #e7f6ea;
+}
+
+.po-line.head,
+.po-line.total {
+  background: #f3f4f6;
+  font-weight: 600;
+}
+
+.po-lines {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.po-draft {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.po-modal {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(15, 23, 42, 0.35);
+}
+
+.po-modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(420px, calc(100% - 32px));
+  padding: 18px;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.po-modal form div {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.po-modal button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+.po-modal button[type="submit"] {
+  border: 0;
+  background: var(--primary);
+  color: #fff;
+}
+
+.po-outline {
+  padding: 8px 12px;
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--primary);
+}
+
+.po-outline.active {
+  background: color-mix(in srgb, var(--primary) 12%, white);
+}
+
+.po-categories,
+.po-supply-bar,
+.po-entry-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.po-categories button,
+.po-grid button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 8%, white);
+  color: #374151;
+}
+
+.po-categories button.active,
+.po-grid button.selected,
+.po-letters button.active,
+.po-submit {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.po-categories > button:first-of-type,
+.po-supply-bar a {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.po-new-category {
+  display: flex;
+  gap: 8px;
+}
+
+.po-new-category input,
+.po-supply-bar input,
+.po-order-row input,
+.po-entry-foot input,
+.po-entry-foot select {
+  padding: 8px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.po-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(240px, 0.9fr);
+  gap: 14px;
+}
+
+.po-supply-bar {
+  justify-content: space-between;
+}
+
+.po-supply-bar strong,
+.po-supply-bar label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.po-popular {
+  margin: 8px 0;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.po-grid-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18px;
+  gap: 8px;
+  min-height: 220px;
+}
+
+.po-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 8px;
+}
+
+.po-grid button {
+  width: 108px;
+  border-radius: 10px;
+  justify-content: flex-start;
+}
+
+.po-letters {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.po-letters button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 11px;
+  line-height: 1.15;
+}
+
+.po-order {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+  min-height: 220px;
+}
+
+.po-order-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) 72px 88px 72px;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.po-order-row.head {
+  background: #f3f4f6;
+  border-top: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.po-entry-foot {
+  justify-content: space-between;
+  padding-top: 8px;
+}
+
+.po-entry-foot label,
+.po-entry-foot div,
+.po-entry-foot p {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.po-cancel,
+.po-submit {
+  padding: 8px 16px;
+  border-radius: 8px;
+}
+
+.po-cancel {
+  border: 1px solid #fca5a5;
+  background: #fff;
+  color: #dc2626;
+}

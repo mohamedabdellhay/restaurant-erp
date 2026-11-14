@@ -1,0 +1,470 @@
+.requisition-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.requisition-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.requisition-head h1,
+.requisition-modal h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.requisition-add,
+.requisition-modal form button[type="submit"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--primary);
+  color: #fff;
+}
+
+.requisition-card {
+  padding: 14px;
+  background: #fff;
+  border-radius: 16px;
+}
+
+.requisition-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.requisition-tools label,
+.requisition-modal label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.requisition-tools input,
+.requisition-tools select,
+.requisition-modal input,
+.requisition-modal select {
+  padding: 8px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.requisition-row {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr 1.3fr 1.2fr 1fr 110px;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 8px;
+  border-top: 1px solid #f3f4f6;
+  font-size: 14px;
+}
+
+.requisition-row.head {
+  border-top: 0;
+  background: #f3f4f6;
+  font-weight: 600;
+}
+
+.requisition-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.requisition-head div {
+  display: flex;
+  gap: 8px;
+}
+
+.requisition-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--primary);
+}
+
+.requisition-detail-head,
+.requisition-detail-head div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.requisition-detail h2 {
+  margin: 14px 0 8px;
+  font-size: 16px;
+}
+
+.requisition-detail-head h2 {
+  margin: 0;
+}
+
+.requisition-info em {
+  margin-inline-start: auto;
+}
+
+.requisition-item span:nth-child(2),
+.requisition-item span:nth-child(3) {
+  text-align: center;
+}
+
+.requisition-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+.requisition-info em,
+.requisition-row em {
+  display: inline-flex;
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: #fff;
+  font-style: normal;
+  font-size: 12px;
+}
+
+.requisition-info em.pending,
+.requisition-row em.pending,
+.requisition-info em.undelivered,
+.requisition-row em.undelivered {
+  background: #f5a024;
+}
+
+.requisition-info em.approved,
+.requisition-row em.approved,
+.requisition-info em.delivered,
+.requisition-row em.delivered {
+  background: #16a34a;
+}
+
+.requisition-info em.declined,
+.requisition-row em.declined {
+  background: #dc2626;
+}
+
+.requisition-items {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.requisition-item {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 8px;
+  padding: 10px 12px;
+}
+
+.requisition-item:nth-child(even) {
+  background: #e7f6ea;
+}
+
+.requisition-item.head {
+  background: #fff;
+  font-weight: 600;
+}
+
+.requisition-item input {
+  width: 88px;
+  padding: 6px 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.requisition-decide {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.requisition-decline,
+.requisition-approve {
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 8px;
+  color: #fff;
+}
+
+.requisition-decline {
+  background: #dc2626;
+}
+
+.requisition-approve {
+  background: #16a34a;
+}
+
+.requisition-outline.active {
+  background: color-mix(in srgb, var(--primary) 12%, white);
+}
+
+.requisition-categories,
+.requisition-supply-bar,
+.requisition-entry-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.requisition-categories button,
+.requisition-grid button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 8%, white);
+  color: #374151;
+}
+
+.requisition-categories button.active,
+.requisition-grid button.selected,
+.requisition-letters button.active,
+.requisition-submit {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.requisition-categories > button:first-of-type,
+.requisition-supply-bar a {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.requisition-new-category {
+  display: flex;
+  gap: 8px;
+}
+
+.requisition-new-category input,
+.requisition-supply-bar input,
+.requisition-order-row input,
+.requisition-entry-foot input,
+.requisition-entry-foot select {
+  padding: 8px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.requisition-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(240px, 0.8fr);
+  gap: 14px;
+}
+
+.requisition-supply-bar {
+  justify-content: space-between;
+}
+
+.requisition-supply-bar strong,
+.requisition-supply-bar label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.requisition-popular {
+  margin: 8px 0;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.requisition-grid-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18px;
+  gap: 8px;
+  min-height: 220px;
+}
+
+.requisition-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 8px;
+}
+
+.requisition-grid button {
+  width: 108px;
+  border-radius: 10px;
+  justify-content: flex-start;
+}
+
+.requisition-letters {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.requisition-letters button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 11px;
+  line-height: 1.15;
+}
+
+.requisition-order {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+  min-height: 220px;
+}
+
+.requisition-order-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) 80px 90px;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.requisition-order-row.head {
+  background: #f3f4f6;
+  border-top: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.requisition-order-row span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.requisition-order-row button {
+  margin-inline-start: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #dc2626;
+}
+
+.requisition-entry-foot {
+  justify-content: space-between;
+  padding-top: 8px;
+}
+
+.requisition-entry-foot label,
+.requisition-entry-foot div {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.requisition-cancel,
+.requisition-submit {
+  padding: 8px 16px;
+  border-radius: 8px;
+}
+
+.requisition-cancel {
+  border: 1px solid #fca5a5;
+  background: #fff;
+  color: #dc2626;
+}
+
+.requisition-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.requisition-actions button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 6px;
+  color: #fff;
+}
+
+.requisition-actions button:nth-child(1) {
+  background: #16a34a;
+}
+
+.requisition-actions button:nth-child(2),
+.requisition-actions button:nth-child(3) {
+  background: #f5a024;
+}
+
+.requisition-modal {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(15, 23, 42, 0.35);
+}
+
+.requisition-modal > div,
+.requisition-modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(420px, calc(100% - 32px));
+  padding: 18px;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.requisition-modal form label {
+  justify-content: space-between;
+}
+
+.requisition-modal form div,
+.requisition-modal > div button {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.requisition-modal button[type="button"] {
+  padding: 8px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+}
+
+@media (max-width: 900px) {
+  .requisition-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}

@@ -11,11 +11,18 @@ import Staff from "@pages/Staff/Staff";
 import Departments from "@pages/Departments/Departments";
 import Suppliers from "@pages/Suppliers/Suppliers";
 import Inventory from "@pages/Inventory/Inventory";
+import StockCount from "@pages/StockCount/StockCount";
+import PurchaseReturns from "@pages/PurchaseReturns/PurchaseReturns";
+import Purchase from "@pages/Purchase/Purchase";
+import PurchaseOrders from "@pages/PurchaseOrders/PurchaseOrders";
+import Requisitions from "@pages/Requisitions/Requisitions";
 import PaymentResult from "@pages/PaymentResult/PaymentResult";
 import DashboardLayout from "@layouts/DashboardLayout";
 import Tables from "@pages/Tables/Tables";
 import Reservations from "@pages/Reservations/Reservations";
 import Orders from "@pages/Orders/Orders";
+import WaitingDisplay from "@pages/WaitingDisplay/WaitingDisplay";
+import Kds from "@pages/Kds/Kds";
 import Settings from "@pages/Settings/Settings";
 import Invoices from "@pages/Invoices/Invoices";
 import Dashboard from "@pages/Dashboard/Dashboard";
@@ -61,6 +68,22 @@ function App() {
 
             {/* Protected Routes */}
             <Route element={<ProtectedRoute />}>
+              <Route
+                path="/waiting"
+                element={
+                  <ProtectedRoute permission="view_orders">
+                    <WaitingDisplay />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/kds"
+                element={
+                  <ProtectedRoute permission="view_orders">
+                    <Kds />
+                  </ProtectedRoute>
+                }
+              />
               <Route element={<DashboardLayout />}>
                 {/* Dashboard - view_dashboard permission */}
                 <Route
@@ -154,6 +177,54 @@ function App() {
                   element={
                     <ProtectedRoute permission="view_inventory">
                       <Inventory />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/stock-count"
+                  element={
+                    <ProtectedRoute permission="view_inventory">
+                      <StockCount />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/purchase-returns"
+                  element={
+                    <ProtectedRoute permission="view_inventory">
+                      <PurchaseReturns />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/purchases"
+                  element={
+                    <ProtectedRoute permission="view_inventory">
+                      <Purchase />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/purchase-orders"
+                  element={
+                    <ProtectedRoute permission="view_inventory">
+                      <PurchaseOrders />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/requisitions"
+                  element={
+                    <ProtectedRoute permission="view_inventory">
+                      <Requisitions />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/requisitions/receive"
+                  element={
+                    <ProtectedRoute permission="view_inventory">
+                      <Requisitions mode="receive" />
                     </ProtectedRoute>
                   }
                 />
