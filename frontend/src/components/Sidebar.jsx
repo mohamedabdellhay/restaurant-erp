@@ -55,6 +55,7 @@ const NAV_ENTRIES = [
     items: [
       { label: "nav.inventory", path: "/inventory", permission: "view_inventory" },
       { label: "nav.ingredient_categories", path: "/ingredient-categories", permission: "view_inventory" },
+      { label: "nav.ingredient_items", path: "/ingredient-items", permission: "view_inventory" },
       { label: "nav.stock_count", path: "/stock-count", permission: "view_inventory" },
       { label: "nav.purchase_return", path: "/purchase-returns", permission: "view_inventory" },
     ],

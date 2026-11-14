@@ -14,16 +14,18 @@ import {
   X,
   Save,
   ChevronDown,
+  Loader2,
 } from "lucide-react";
 import inventoryService from "@services/inventoryService";
 import ingredientCategoryService from "@services/ingredientCategoryService";
 import supplierService from "@services/supplierService";
+import uploadService from "@services/uploadService";
 import { useRestaurant } from "@hooks/useRestaurant";
 import { useAuth } from "@hooks/useAuth";
 import { getErrorMessage } from "../../utils/errorMessage";
 import { formatMoney } from "../../utils/money";
 
-const Inventory = () => {
+const Inventory = ({ itemsOnly = false }) => {
   const { t, i18n } = useTranslation();
   const { getCurrency } = useRestaurant();
   const { hasPermission } = useAuth();
@@ -53,6 +55,9 @@ const Inventory = () => {
   });
   const [supplierSearchTerm, setSupplierSearchTerm] = useState("");
   const [showSupplierDropdown, setShowSupplierDropdown] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [addOnItem, setAddOnItem] = useState(null);
+  const [addOnIds, setAddOnIds] = useState([]);
 
   // Form state for add/edit
   const [formData, setFormData] = useState({
@@ -63,6 +68,7 @@ const Inventory = () => {
     supplier: "",
     minStockAlert: 10,
     ingredientCategoryId: "",
+    image: "",
   });
 
   useEffect(() => {
@@ -176,6 +182,7 @@ const Inventory = () => {
       supplier: supplierId,
       minStockAlert: item.minStockAlert || 10,
       ingredientCategoryId: categoryId,
+      image: item.image || "",
     });
 
     if (supplierId) {
@@ -190,6 +197,36 @@ const Inventory = () => {
     }
 
     setShowEditModal(true);
+  };
+
+  const handleImageUpload = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      setMessage({ type: "error", text: t("inventory.invalid_image_type") });
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setMessage({ type: "error", text: t("inventory.image_too_large") });
+      return;
+    }
+    try {
+      setUploadingImage(true);
+      const response = await uploadService.uploadImage(file);
+      if (response.success && response.data?.url) {
+        setFormData((current) => ({ ...current, image: response.data.url }));
+        setMessage({ type: "success", text: t("inventory.image_uploaded") });
+      }
+    } catch (error) {
+      setMessage({
+        type: "error",
+        text: error.response?.data?.message || t("inventory.image_upload_failed"),
+      });
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   const handleDelete = async (itemId) => {
@@ -267,6 +304,7 @@ const Inventory = () => {
       supplier: "",
       minStockAlert: 10,
       ingredientCategoryId: "",
+      image: "",
     });
     setSelectedItem(null);
     setSupplierSearchTerm("");
@@ -374,8 +412,52 @@ const Inventory = () => {
     category.name?.toLowerCase().includes(categoryQuery.trim().toLowerCase()),
   );
 
+  const toggleAddOn = (id) => {
+    setAddOnIds((current) =>
+      current.includes(id) ? current.filter((entry) => entry !== id) : [...current, id],
+    );
+  };
+
+  const saveAddOns = async () => {
+    if (!addOnItem) return;
+    const supplierId =
+      addOnItem.supplier && typeof addOnItem.supplier === "object"
+        ? addOnItem.supplier._id
+        : addOnItem.supplier || "";
+    const categoryId =
+      addOnItem.ingredientCategory && typeof addOnItem.ingredientCategory === "object"
+        ? addOnItem.ingredientCategory._id
+        : addOnItem.ingredientCategory || "";
+    const addOns = items
+      .filter((entry) => addOnIds.includes(entry._id))
+      .map((entry) => ({ itemId: entry._id, name: entry.name }));
+    try {
+      await inventoryService.update(addOnItem._id, {
+        name: addOnItem.name,
+        sku: addOnItem.sku || "",
+        unit: addOnItem.unit || "",
+        costPrice: addOnItem.costPrice ?? 0,
+        supplier: supplierId,
+        minStockAlert: addOnItem.minStockAlert ?? 0,
+        ingredientCategoryId: categoryId,
+        image: addOnItem.image || "",
+        addOns,
+      });
+      setMessage({ type: "success", text: t("inventory.add_ons_saved") });
+      setAddOnItem(null);
+      fetchItems();
+    } catch (error) {
+      setMessage({
+        type: "error",
+        text: error.response?.data?.message || getErrorMessage(error),
+      });
+    }
+  };
+
   return (
     <div data-direction={i18n.dir()}>
+      {!itemsOnly && (
+      <>
       <section className="ingredient-category">
         <h1>{t("inventory.ingredients_category")}</h1>
         <div className="ingredient-category-toolbar">
@@ -490,10 +572,12 @@ const Inventory = () => {
           </div>
         </div>
       )}
+      </>
+      )}
 
       <Alert type={message.type} message={message.text} />
 
-      {lowStockItems.length > 0 && (
+      {!itemsOnly && lowStockItems.length > 0 && (
         <div className="low-stock-alert">
           <div className="low-stock-header">
             <AlertTriangle size={24} style={{ color: "var(--error)" }} />
@@ -566,16 +650,28 @@ const Inventory = () => {
                     <tr key={item._id}>
                       <td>
                         <span className="ingredient-item-name">
-                          <span className="ingredient-item-thumb" aria-hidden="true">
-                            <Package size={16} />
-                          </span>
+                        <span className="ingredient-item-thumb" aria-hidden="true">
+                          {item.image ? <img src={item.image} alt="" /> : <Package size={16} />}
+                        </span>
                           <span>{item.name}</span>
+                          {canManage && (
+                            <button
+                              type="button"
+                              className="ingredient-add-ons"
+                              onClick={() => {
+                                setAddOnItem(item);
+                                setAddOnIds((item.addOns || []).map((entry) => entry.itemId));
+                              }}
+                            >
+                              {t("inventory.add_ons")}
+                            </button>
+                          )}
                         </span>
                       </td>
                       <td>{categoryLabel(item) || "—"}</td>
                       <td>{item.unit || "—"}</td>
                       <td>{formatQty(item.minStockAlert)}</td>
-                      <td>{formatQty(item.stock)}</td>
+                      <td>{formatQty(item.stock).padStart(2, "0")}</td>
                       <td>{formatMoney(item.costPrice, currency)}</td>
                       <td>{formatMoney(value, currency)}</td>
                       <td>
@@ -584,6 +680,7 @@ const Inventory = () => {
                         </span>
                       </td>
                       <td className="ingredient-item-action-col">
+                        {!itemsOnly && (
                         <button
                           type="button"
                           className="ingredient-item-stock"
@@ -592,6 +689,7 @@ const Inventory = () => {
                         >
                           <Package size={15} />
                         </button>
+                        )}
                         <button
                           type="button"
                           className="ingredient-item-edit"
@@ -618,6 +716,7 @@ const Inventory = () => {
         </div>
       </section>
 
+      {!itemsOnly && (
       <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-icon">
@@ -655,6 +754,7 @@ const Inventory = () => {
           </div>
         </div>
       </div>
+      )}
 
       {/* Add/Edit Item Modal */}
       {(showAddModal || showEditModal) && (
@@ -678,6 +778,37 @@ const Inventory = () => {
             </div>
             <form onSubmit={handleSubmit}>
               <div className="modal-body">
+                <div className="form-group">
+                  <label htmlFor="ingredient-item-image">{t("inventory.image")}</label>
+                  <div className="ingredient-image-upload">
+                    <input
+                      id="ingredient-item-image"
+                      className="ingredient-image-input"
+                      type="file"
+                      accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                      onChange={handleImageUpload}
+                      disabled={uploadingImage}
+                    />
+                    {uploadingImage && (
+                      <span className="ingredient-image-loading">
+                        <Loader2 size={16} className="spinner" />
+                        {t("inventory.uploading")}
+                      </span>
+                    )}
+                    {formData.image && !uploadingImage && (
+                      <div className="ingredient-image-preview">
+                        <img src={formData.image} alt="" />
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, image: "" })}
+                          aria-label={t("inventory.remove_image")}
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
                 <div className="form-group">
                   <label>{t("inventory.name") || "Item Name"} *</label>
                   <input
@@ -1001,6 +1132,45 @@ const Inventory = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {addOnItem && (
+        <div className="modal-overlay">
+          <div className="modal" role="dialog" aria-modal="true">
+            <div className="modal-header">
+              <h2>{t("inventory.add_ons")}</h2>
+              <button type="button" onClick={() => setAddOnItem(null)} aria-label={t("common.cancel")}>
+                <X size={20} />
+              </button>
+            </div>
+            <div className="modal-body ingredient-add-on-list">
+              {items.filter((entry) => entry._id !== addOnItem._id).length === 0 ? (
+                <p>{t("inventory.add_ons_empty")}</p>
+              ) : (
+                items
+                  .filter((entry) => entry._id !== addOnItem._id)
+                  .map((entry) => (
+                    <label key={entry._id}>
+                      <input
+                        type="checkbox"
+                        checked={addOnIds.includes(entry._id)}
+                        onChange={() => toggleAddOn(entry._id)}
+                      />
+                      <span>{entry.name}</span>
+                    </label>
+                  ))
+              )}
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn-secondary" onClick={() => setAddOnItem(null)}>
+                {t("common.cancel")}
+              </button>
+              <button type="button" className="btn-primary" onClick={saveAddOns}>
+                {t("common.save")}
+              </button>
+            </div>
           </div>
         </div>
       )}

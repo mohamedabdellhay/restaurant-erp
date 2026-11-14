@@ -670,12 +670,75 @@ tr:hover {
 .ingredient-item-thumb {
   display: inline-grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 6px;
   background: #f3f4f6;
   color: #9ca3af;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.ingredient-item-thumb img {
+  width: 40px;
+  height: 40px;
+  max-width: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.ingredient-image-upload {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.ingredient-image-input {
+  max-width: 16rem;
+  padding: 0.45rem;
+  border: 1px dashed #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.ingredient-image-loading .spinner {
+  animation: ingredient-image-spin 0.8s linear infinite;
+}
+
+@keyframes ingredient-image-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ingredient-image-preview {
+  position: relative;
+  width: 64px;
+  height: 64px;
+}
+
+.ingredient-image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e6e8ec;
+}
+
+.ingredient-image-preview button {
+  position: absolute;
+  top: -6px;
+  inset-inline-end: -6px;
+  display: grid;
+  place-items: center;
+  width: 1.3rem;
+  height: 1.3rem;
+  border: 0;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #fff;
+  cursor: pointer;
 }
 
 .ingredient-item-action-col {
@@ -732,9 +795,33 @@ tr:hover {
   color: #d97706;
 }
 
-.ingredient-stock-critical {
-  background: #fee2e2;
-  color: #dc2626;
+.ingredient-add-ons {
+  display: inline-flex;
+  align-items: center;
+  height: 1.35rem;
+  margin-inline-start: 0.35rem;
+  padding: 0 0.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ingredient-add-on-list {
+  display: grid;
+  gap: 0.45rem;
+  max-height: 18rem;
+  overflow: auto;
+}
+
+.ingredient-add-on-list label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #374151;
 }
 
 .ingredient-item-empty {

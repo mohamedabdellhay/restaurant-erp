@@ -190,6 +190,14 @@ function App() {
                   }
                 />
                 <Route
+                  path="/ingredient-items"
+                  element={
+                    <ProtectedRoute permission="view_inventory">
+                      <Inventory itemsOnly />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="/stock-count"
                   element={
                     <ProtectedRoute permission="view_inventory">

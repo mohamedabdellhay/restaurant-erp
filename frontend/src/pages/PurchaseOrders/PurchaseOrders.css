@@ -258,6 +258,13 @@
   color: #374151;
 }
 
+.po-grid button img {
+  width: 22px;
+  height: 22px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
 .po-categories button.active,
 .po-grid button.selected,
 .po-letters button.active,

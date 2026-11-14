@@ -1,6 +1,8 @@
 model InventoryItem {
   id            String  @id @default(uuid())
   name          String
+  image         String?
+  addOns        Json     @default("[]")
   sku           String?
   unit          String?
   costPrice     Float?

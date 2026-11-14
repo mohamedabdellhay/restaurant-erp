@@ -9,6 +9,13 @@ const listInclude = {
   ingredientCategory: { select: { id: true, name: true } },
 };
 
+function cleanAddOns(value) {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((entry) => entry && entry.itemId && entry.name)
+    .map((entry) => ({ itemId: String(entry.itemId), name: String(entry.name) }));
+}
+
 class InventoryService {
   async resolveCategory(restaurantId, categoryId) {
     if (categoryId === undefined) return undefined;
@@ -47,6 +54,8 @@ class InventoryService {
     const row = await prisma.inventoryItem.create({
       data: {
         name: data.name,
+        image: data.image || null,
+        addOns: cleanAddOns(data.addOns),
         sku: data.sku,
         unit: data.unit,
         costPrice: data.costPrice != null ? Number(data.costPrice) : null,
@@ -71,6 +80,8 @@ class InventoryService {
     for (const field of ["name", "sku", "unit"]) {
       if (data[field] !== undefined) payload[field] = data[field];
     }
+    if (data.image !== undefined) payload.image = data.image || null;
+    if (data.addOns !== undefined) payload.addOns = cleanAddOns(data.addOns);
     if (data.costPrice !== undefined) payload.costPrice = Number(data.costPrice);
     if (data.stock !== undefined) payload.stock = Number(data.stock);
     if (data.minStockAlert !== undefined) payload.minStockAlert = Number(data.minStockAlert);

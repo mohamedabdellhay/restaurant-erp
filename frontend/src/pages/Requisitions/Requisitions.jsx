@@ -446,7 +446,7 @@ const Requisitions = ({ mode = "send" }) => {
                       className={lines.some((line) => line.itemId === item._id) ? "selected" : ""}
                       onClick={() => toggleSupply(item)}
                     >
-                      <Package size={16} />
+                      {item.image ? <img src={item.image} alt="" /> : <Package size={16} />}
                       <span>{item.name}</span>
                     </button>
                   ))}

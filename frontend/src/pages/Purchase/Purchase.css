@@ -64,6 +64,14 @@
   flex-wrap: wrap;
 }
 
+.purchase-grid button img,
+.purchase-categories button img {
+  width: 22px;
+  height: 22px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
 .purchase-categories button,
 .purchase-grid button {
   display: inline-flex;

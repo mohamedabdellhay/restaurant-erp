@@ -245,6 +245,13 @@
   color: #374151;
 }
 
+.requisition-grid button img {
+  width: 22px;
+  height: 22px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
 .requisition-categories button.active,
 .requisition-grid button.selected,
 .requisition-letters button.active,

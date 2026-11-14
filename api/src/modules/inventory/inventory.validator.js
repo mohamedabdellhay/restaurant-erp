@@ -18,6 +18,12 @@ export const validateInventoryItem = [
     .optional({ nullable: true, checkFalsy: true })
     .isUUID()
     .withMessage("Invalid category ID"),
+  body("image")
+    .optional({ nullable: true, checkFalsy: true })
+    .isString()
+    .isLength({ max: 2000 })
+    .withMessage("Image URL is too long"),
+  body("addOns").optional().isArray().withMessage("Add-ons must be a list"),
 ];
 
 export const validateIngredientCategory = [

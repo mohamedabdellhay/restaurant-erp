@@ -278,7 +278,7 @@ const Purchase = () => {
                     className={lineFor(item._id) ? "selected" : ""}
                     onClick={() => toggleItem(item)}
                   >
-                    <Package size={18} />
+                    {item.image ? <img src={item.image} alt="" /> : <Package size={18} />}
                     <span>{item.name}</span>
                   </button>
                 ))}

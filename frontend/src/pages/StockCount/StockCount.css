@@ -27,6 +27,13 @@
   flex-wrap: wrap;
 }
 
+.count-grid button img {
+  width: 22px;
+  height: 22px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
 .count-categories button,
 .count-grid button {
   display: inline-flex;
