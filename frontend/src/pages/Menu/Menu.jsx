@@ -13,6 +13,7 @@ import {
   Plus,
   Search,
   Edit,
+  Pencil,
   Trash2,
   X,
   Save,
@@ -47,6 +48,7 @@ const Menu = () => {
   const [inventoryItems, setInventoryItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [categoryQuery, setCategoryQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -431,6 +433,10 @@ const Menu = () => {
     }
   };
 
+  const filteredCategories = categories.filter((category) =>
+    category.name?.toLowerCase().includes(categoryQuery.trim().toLowerCase()),
+  );
+
   const filteredItems = menuItems.filter((item) => {
     const matchesSearch =
       item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -443,20 +449,95 @@ const Menu = () => {
 
   return (
     <div>
-      {/* Header */}
+      <section className="food-category">
+        <h1>{t("menu.food_category")}</h1>
+        <div className="food-category-toolbar">
+          <label className="food-category-search">
+            <Search size={16} aria-hidden="true" />
+            <input
+              type="search"
+              value={categoryQuery}
+              onChange={(event) => setCategoryQuery(event.target.value)}
+              placeholder={t("menu.quick_search")}
+            />
+          </label>
+          <RoleBasedUI user={user} allowedRoles={["admin", "manager"]}>
+            <button
+              type="button"
+              className="btn-primary food-category-new"
+              onClick={() => handleOpenCategoryModal()}
+            >
+              <Plus size={16} />
+              {t("menu.new_category")}
+            </button>
+          </RoleBasedUI>
+        </div>
+        <div className="table-container food-category-table">
+          <table>
+            <thead>
+              <tr>
+                <th>{t("menu.food_category")}</th>
+                <th className="food-category-action-col">{t("menu.action")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredCategories.length === 0 ? (
+                <tr>
+                  <td colSpan={2} className="food-category-empty">
+                    {t("menu.no_categories")}
+                  </td>
+                </tr>
+              ) : (
+                filteredCategories.map((category) => (
+                  <tr key={category._id}>
+                    <td>
+                      <span className="food-category-name">
+                        {category.image ? (
+                          <img src={category.image} alt="" />
+                        ) : (
+                          <span className="food-category-thumb" aria-hidden="true">
+                            <Utensils size={16} />
+                          </span>
+                        )}
+                        {category.name}
+                      </span>
+                    </td>
+                    <td className="food-category-action-col">
+                      <RoleBasedUI user={user} allowedRoles={["admin", "manager"]}>
+                        <button
+                          type="button"
+                          className="food-category-edit"
+                          onClick={() => handleOpenCategoryModal(category)}
+                          aria-label={t("common.edit")}
+                        >
+                          <Pencil size={15} />
+                        </button>
+                      </RoleBasedUI>
+                      <RoleBasedUI user={user} allowedRoles={["admin"]}>
+                        <button
+                          type="button"
+                          className="food-category-delete"
+                          onClick={() => handleDeleteCategory(category._id)}
+                          aria-label={t("common.delete")}
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </RoleBasedUI>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       <PageHeader
         icon={Utensils}
         title={t("menu.title")}
         subtitle={t("menu.page_description")}
       >
         <RoleBasedUI user={user} allowedRoles={["admin", "manager"]}>
-          <button
-            onClick={() => handleOpenCategoryModal()}
-            className="btn-secondary"
-          >
-            <Filter size={20} />
-            {t("menu.manage_categories")}
-          </button>
           <button
             onClick={() => {
               setShowAddModal(true);
@@ -1043,53 +1124,6 @@ const Menu = () => {
             </div>
             <form onSubmit={handleCategorySubmit} className="category-form">
               <div className="modal-body">
-                {/* Existing Categories List */}
-                <div className="existing-categories">
-                  <h3>{t("menu.existing_categories")}</h3>
-                  {categories.length === 0 ? (
-                    <p className="no-categories">{t("menu.no_categories")}</p>
-                  ) : (
-                    <div className="categories-list">
-                      {categories.map((category) => (
-                        <div key={category._id} className="category-item">
-                          <div className="category-info">
-                            <h4>{category.name}</h4>
-                            {category.description && (
-                              <p>{category.description}</p>
-                            )}
-                            <span
-                              className={`status-badge ${category.isActive ? "active" : "inactive"}`}
-                            >
-                              {category.isActive
-                                ? t("menu.active")
-                                : t("menu.inactive")}
-                            </span>
-                          </div>
-                          <div className="category-actions">
-                            <button
-                              type="button"
-                              onClick={() => handleOpenCategoryModal(category)}
-                              className="btn-icon btn-edit"
-                              title={t("common.edit")}
-                            >
-                              <Edit size={16} />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteCategory(category._id)}
-                              className="btn-icon btn-delete"
-                              title={t("common.delete")}
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Add/Edit Category Form */}
                 <div className="category-form-section">
                   <h3>
                     {selectedCategory

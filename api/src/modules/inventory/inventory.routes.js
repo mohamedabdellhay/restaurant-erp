@@ -2,6 +2,7 @@ import express from "express";
 import groupRoutes from "../../utils/groupRoutes.js";
 import SupplierController from "./supplier.controller.js";
 import InventoryItemController from "./inventoryItem.controller.js";
+import IngredientCategoryController from "./ingredientCategory.controller.js";
 import { protect } from "../../middleware/authMiddleware.js";
 import { hasPermission } from "../../middleware/roleMiddleware.js";
 import { PERMISSIONS } from "../../utils/constants/permissions.js";
@@ -9,6 +10,8 @@ import {
   validateInventoryItem,
   validateSupplier,
   validateStockUpdate,
+  validateIngredientCategory,
+  validateIngredientCategoryId,
 } from "./inventory.validator.js";
 import { handleValidationErrors } from "../../middleware/validationMiddleware.js";
 
@@ -28,6 +31,32 @@ router.group = groupRoutes;
 
 // Protect all inventory routes
 router.use(protect);
+
+router.group("/categories", (route) => {
+  route.get("/", hasPermission(PERMISSIONS.VIEW_INVENTORY), IngredientCategoryController.index);
+  route.post(
+    "/",
+    hasPermission(PERMISSIONS.MANAGE_INVENTORY),
+    validateIngredientCategory,
+    handleValidationErrors,
+    IngredientCategoryController.create,
+  );
+  route.put(
+    "/:id",
+    hasPermission(PERMISSIONS.MANAGE_INVENTORY),
+    validateIngredientCategoryId,
+    validateIngredientCategory,
+    handleValidationErrors,
+    IngredientCategoryController.update,
+  );
+  route.delete(
+    "/:id",
+    hasPermission(PERMISSIONS.MANAGE_INVENTORY),
+    validateIngredientCategoryId,
+    handleValidationErrors,
+    IngredientCategoryController.delete,
+  );
+});
 
 // Suppliers endpoint
 router.group("/suppliers", (route) => {

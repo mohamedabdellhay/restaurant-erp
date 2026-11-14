@@ -753,3 +753,252 @@ tr:hover {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+.opening-cash-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(55, 65, 81, 0.55);
+}
+
+.opening-cash {
+  width: min(100%, 460px);
+  padding: 1.1rem 1.15rem 1rem;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
+}
+
+.opening-cash-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.opening-cash-header h2 {
+  margin: 0;
+  color: #111827;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.opening-cash-close,
+.opening-cash-clear {
+  display: inline-grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 999px;
+  background: transparent;
+  color: #9ca3af;
+}
+
+.opening-cash label {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: #4b5563;
+  font-size: 0.82rem;
+}
+
+.opening-cash-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 2.6rem;
+  padding: 0 0.7rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+.opening-cash-field input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: #111827;
+  font-size: 1.05rem;
+  font-weight: 600;
+  outline: none;
+}
+
+.opening-cash-field span {
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.opening-cash-time {
+  margin: 0.85rem 0 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+  color: #4b5563;
+  font-size: 0.84rem;
+}
+
+.opening-cash-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.opening-cash-actions .btn-primary {
+  height: 2.15rem;
+  padding: 0 0.9rem;
+  border-radius: 4px;
+}
+
+.floor-selection {
+  margin-bottom: 1.5rem;
+}
+
+.floor-selection-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  margin-bottom: 0.9rem;
+  padding: 0.7rem 0.95rem 0.55rem;
+  border-radius: 8px;
+  background: #fff;
+  color: #374151;
+  font-size: 0.92rem;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.floor-selection-tab svg {
+  color: var(--primary);
+}
+
+.floor-selection-tab span {
+  padding-bottom: 0.25rem;
+  border-bottom: 2px solid var(--primary);
+}
+
+.floor-selection-grid {
+  display: grid;
+  grid-template-columns: minmax(148px, 0.8fr) minmax(0, 1.5fr) minmax(132px, 0.85fr);
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+.floor-card {
+  min-height: 280px;
+  padding: 1rem 0.9rem 1.1rem;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.floor-card h2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: 0 0 1rem;
+  color: #111827;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.floor-card h2 svg {
+  color: #6b7280;
+}
+
+.channel-btn,
+.table-tile,
+.waiter-btn {
+  border: 1.5px solid #e5e7eb;
+  background: #fff;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.channel-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 64px;
+  margin-bottom: 0.75rem;
+  border-radius: 8px;
+}
+
+.channel-btn.active,
+.table-tile.active,
+.waiter-btn.active {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.table-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.table-tile {
+  position: relative;
+  height: 72px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  font-size: 0.85rem;
+}
+
+.table-tile::before,
+.table-tile::after {
+  content: "";
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  height: 7px;
+  border-radius: 2px;
+  background: #d1d5db;
+}
+
+.table-tile::before {
+  top: 7px;
+}
+
+.table-tile::after {
+  bottom: 7px;
+}
+
+.table-tile.active {
+  background: #fff;
+}
+
+.waiter-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.waiter-btn {
+  min-width: 88px;
+  height: 56px;
+  padding: 0 0.85rem;
+  border-radius: 8px;
+}
+
+.floor-empty {
+  margin: 0;
+  color: #6b7280;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .floor-selection-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .table-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

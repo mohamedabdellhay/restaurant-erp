@@ -7,16 +7,19 @@ model InventoryItem {
   stock         Float   @default(0)
   minStockAlert Float    @default(0)
   isActive      Boolean  @default(true)
-  supplierId    String
-  restaurantId  String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @default(now()) @updatedAt
-  supplier     Supplier         @relation(fields: [supplierId], references: [id], onDelete: Restrict)
-  restaurant   Restaurant?      @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  supplierId           String
+  restaurantId         String?
+  ingredientCategoryId String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @default(now()) @updatedAt
+  supplier           Supplier            @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  restaurant         Restaurant?         @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  ingredientCategory IngredientCategory? @relation(fields: [ingredientCategoryId], references: [id], onDelete: SetNull)
   movements    StockMovement[]
   recipeItems  MenuRecipeItem[]
 
   @@unique([name, restaurantId])
   @@index([restaurantId])
+  @@index([ingredientCategoryId])
   @@map("inventory_items")
 }

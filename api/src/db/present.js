@@ -4,6 +4,7 @@ const FK_TO_FIELD = {
   departmentId: "department",
   categoryId: "category",
   supplierId: "supplier",
+  ingredientCategoryId: "ingredientCategory",
   tableId: "table",
   customerId: "customer",
   createdById: "createdBy",

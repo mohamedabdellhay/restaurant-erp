@@ -23,11 +23,19 @@ import {
   Banknote,
   Globe,
   Truck,
+  LogIn,
+  Utensils,
+  ShoppingBag,
+  Bike,
+  LayoutGrid,
+  User,
+  X,
 } from "lucide-react";
 import paymentService from "@services/paymentService";
 import orderService from "@services/orderService";
 import invoiceService from "@services/invoiceService";
 import tableService from "@services/tableService";
+import staffService from "@services/staffService";
 import customerService from "@services/customerService";
 import menuService from "@services/menuService";
 import CustomerModal from "@components/CustomerModal";
@@ -39,6 +47,14 @@ import { PERMISSIONS } from "@utils/permissionUtils";
 import { useRestaurant } from "@hooks/useRestaurant";
 import { formatMoney } from "../../utils/money";
 
+const formatOpeningStamp = (date) => {
+  const hours = date.getHours();
+  const hour12 = hours % 12 || 12;
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return `${String(hour12).padStart(2, "0")}:${minutes}${hours >= 12 ? "PM" : "AM"} ${String(date.getDate()).padStart(2, "0")}-${months[date.getMonth()]}-${date.getFullYear()}`;
+};
+
 const Orders = () => {
   const { t, i18n } = useTranslation();
   const { getCurrency } = useRestaurant();
@@ -47,7 +63,16 @@ const Orders = () => {
   const [pinUnlocked, setPinUnlocked] = useState(
     () => sessionStorage.getItem("posPinUnlocked") === "1",
   );
+  const [showOpeningCash, setShowOpeningCash] = useState(
+    () => !sessionStorage.getItem("posOpeningCash") && !sessionStorage.getItem("posOpeningCashClosed"),
+  );
+  const [openingAmount, setOpeningAmount] = useState("0.00");
+  const [openingStamp] = useState(() => formatOpeningStamp(new Date()));
   const [tables, setTables] = useState([]);
+  const [waiters, setWaiters] = useState([]);
+  const [channel, setChannel] = useState("dineIn");
+  const [selectedTable, setSelectedTable] = useState("");
+  const [selectedWaiter, setSelectedWaiter] = useState("");
   const [menuItems, setMenuItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -87,6 +112,7 @@ const Orders = () => {
   useEffect(() => {
     fetchOrders();
     fetchTables();
+    fetchWaiters();
     fetchMenuItems();
     fetchGateways();
   }, []);
@@ -125,6 +151,24 @@ const Orders = () => {
         type: "error",
         text: error.response?.data?.message || "Failed to fetch orders",
       });
+    }
+  };
+
+  const fetchWaiters = async () => {
+    try {
+      const response = await staffService.getAll();
+      const people = response.data || response || [];
+      setWaiters(
+        people.filter((person) => {
+          const roleName =
+            person.role && typeof person.role === "object"
+              ? person.role.name
+              : person.role;
+          return String(roleName || "").toLowerCase() === "waiter" && person.isActive !== false;
+        }),
+      );
+    } catch (error) {
+      console.error("Failed to fetch waiters:", error);
     }
   };
 
@@ -531,6 +575,35 @@ const Orders = () => {
     }, 0);
   };
 
+  const tableLabel = (table) => {
+    const number = String(table.number ?? "");
+    return /^\d+$/.test(number) ? `T${number}` : number;
+  };
+
+  const closeOpeningCash = () => {
+    sessionStorage.setItem("posOpeningCashClosed", "1");
+    setShowOpeningCash(false);
+  };
+
+  const startBusiness = () => {
+    const amount = Number(openingAmount);
+    sessionStorage.setItem(
+      "posOpeningCash",
+      JSON.stringify({
+        amount: Number.isFinite(amount) ? amount : 0,
+        currency,
+        startedAt: new Date().toISOString(),
+      }),
+    );
+    setShowOpeningCash(false);
+  };
+
+  const channels = [
+    { id: "dineIn", label: t("nav.orders_dine_in"), icon: Utensils },
+    { id: "takeaway", label: t("nav.orders_parcel"), icon: ShoppingBag },
+    { id: "delivery", label: t("nav.orders_delivery"), icon: Bike },
+  ];
+
   if (!pinUnlocked) {
     return (
       <PinPad
@@ -544,6 +617,79 @@ const Orders = () => {
 
   return (
     <div data-direction={i18n.dir()}>
+      <section className="floor-selection">
+        <div className="floor-selection-tab">
+          <LogIn size={16} />
+          <span>{t("nav.orders_selection")}</span>
+        </div>
+        <div className="floor-selection-grid">
+          <div className="floor-card">
+            <h2>{t("nav.orders_sales_channel")}</h2>
+            {channels.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`channel-btn ${channel === item.id ? "active" : ""}`}
+                  onClick={() => setChannel(item.id)}
+                >
+                  <Icon size={18} />
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+          <div className="floor-card">
+            <h2>
+              <LayoutGrid size={16} />
+              {t("nav.orders_table")}
+            </h2>
+            {tables.length === 0 ? (
+              <p className="floor-empty">{t("nav.orders_no_tables")}</p>
+            ) : (
+              <div className="table-grid">
+                {tables.map((table) => (
+                  <button
+                    key={table._id}
+                    type="button"
+                    className={`table-tile ${selectedTable === table._id ? "active" : ""}`}
+                    onClick={() =>
+                      setSelectedTable((current) => (current === table._id ? "" : table._id))
+                    }
+                  >
+                    {tableLabel(table)}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="floor-card">
+            <h2>
+              <User size={16} />
+              {t("nav.orders_waiter")}
+            </h2>
+            {waiters.length === 0 ? (
+              <p className="floor-empty">{t("nav.orders_no_waiters")}</p>
+            ) : (
+              <div className="waiter-grid">
+                {waiters.map((waiter) => (
+                  <button
+                    key={waiter._id}
+                    type="button"
+                    className={`waiter-btn ${selectedWaiter === waiter._id ? "active" : ""}`}
+                    onClick={() =>
+                      setSelectedWaiter((current) => (current === waiter._id ? "" : waiter._id))
+                    }
+                  >
+                    {waiter.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
       <PageHeader
         icon={Package}
         title={t("nav.orders")}
@@ -553,6 +699,14 @@ const Orders = () => {
           <button
             onClick={() => {
               resetForm();
+              setFormData({
+                type: channel,
+                table: channel === "dineIn" ? selectedTable : "",
+                customer: "",
+                deliveryAddress: "",
+                items: [],
+                notes: "",
+              });
               setShowAddModal(true);
             }}
             className="btn-primary"
@@ -1265,6 +1419,57 @@ const Orders = () => {
       )}
 
       {/* Customer Modal */}
+      {showOpeningCash && (
+        <div className="opening-cash-overlay">
+          <div
+            className="opening-cash"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="opening-cash-title"
+          >
+            <div className="opening-cash-header">
+              <h2 id="opening-cash-title">{t("nav.orders_opening_cash")}</h2>
+              <button
+                type="button"
+                className="opening-cash-close"
+                onClick={closeOpeningCash}
+                aria-label={t("common.close")}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <label htmlFor="opening-cash-amount">{t("nav.orders_enter_current_cash")}</label>
+            <div className="opening-cash-field">
+              <input
+                id="opening-cash-amount"
+                inputMode="decimal"
+                value={openingAmount}
+                onChange={(event) =>
+                  setOpeningAmount(event.target.value.replace(/[^0-9.]/g, ""))
+                }
+              />
+              <span>{currency}</span>
+              <button
+                type="button"
+                className="opening-cash-clear"
+                onClick={() => setOpeningAmount("0.00")}
+                aria-label={t("common.close")}
+              >
+                <X size={14} />
+              </button>
+            </div>
+            <p className="opening-cash-time">
+              {t("nav.orders_opening_time")}: {openingStamp}
+            </p>
+            <div className="opening-cash-actions">
+              <button type="button" className="btn-primary" onClick={startBusiness}>
+                {t("nav.orders_start_business")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <CustomerModal
         isOpen={showCustomerModal}
         onClose={() => setShowCustomerModal(false)}

@@ -787,3 +787,130 @@
   background: #dc2626;
   transform: scale(1.1);
 }
+
+.food-category {
+  margin-bottom: 2rem;
+}
+
+.food-category h1 {
+  margin: 0;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid #e6e8ec;
+  color: #1f2937;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.food-category-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0.9rem 0;
+}
+
+.food-category-search {
+  position: relative;
+  width: min(100%, 280px);
+}
+
+.food-category-search svg {
+  position: absolute;
+  top: 50%;
+  inset-inline-start: 0.75rem;
+  color: #9ca3af;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.food-category-search input {
+  width: 100%;
+  height: 2.25rem;
+  padding-inline: 2.2rem 0.8rem;
+  border: 1px solid #e6e8ec;
+  border-radius: 8px;
+  background: #fff;
+  color: #1f2937;
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.food-category-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 2.25rem;
+  padding: 0 0.9rem;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.food-category-table {
+  background: #fff;
+}
+
+.food-category-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.food-category-name img,
+.food-category-thumb {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.food-category-thumb {
+  display: inline-grid;
+  place-items: center;
+  background: #f3f4f6;
+  color: #9ca3af;
+}
+
+.food-category-action-col {
+  width: 7rem;
+  text-align: end;
+}
+
+.food-category-action-col .food-category-edit,
+.food-category-action-col .food-category-delete {
+  display: inline-grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  margin-inline-start: 0.35rem;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.food-category-edit {
+  border: 1px solid #86efac;
+  color: #16a34a;
+}
+
+.food-category-delete {
+  border: 1px solid #fca5a5;
+  color: #ef4444;
+}
+
+.food-category-empty {
+  color: #6b7280;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .food-category-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .food-category-search {
+    width: 100%;
+  }
+}

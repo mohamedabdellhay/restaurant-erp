@@ -25,6 +25,7 @@ model Restaurant {
   orders               Order[]
   invoices             Invoice[]
   inventoryItems       InventoryItem[]
+  ingredientCategories IngredientCategory[]
   suppliers            Supplier[]
   supplierTransactions SupplierTransaction[]
   subscriptions        Subscription[]

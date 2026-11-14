@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
-import PageHeader from "@components/PageHeader";
 import Alert from "@components/Alert";
 import "./Inventory.css";
 import { useTranslation } from "react-i18next";
 import {
   Plus,
   Search,
-  Edit2,
+  Pencil,
   Trash2,
   Package,
   AlertTriangle,
@@ -14,26 +13,31 @@ import {
   BarChart3,
   X,
   Save,
-  Filter,
-  ArrowUp,
-  ArrowDown,
-  Eye,
-  Download,
   ChevronDown,
 } from "lucide-react";
 import inventoryService from "@services/inventoryService";
+import ingredientCategoryService from "@services/ingredientCategoryService";
 import supplierService from "@services/supplierService";
 import { useRestaurant } from "@hooks/useRestaurant";
+import { useAuth } from "@hooks/useAuth";
+import { getErrorMessage } from "../../utils/errorMessage";
 import { formatMoney } from "../../utils/money";
 
 const Inventory = () => {
   const { t, i18n } = useTranslation();
   const { getCurrency } = useRestaurant();
+  const { hasPermission } = useAuth();
   const currency = getCurrency();
+  const canManage = hasPermission("manage_inventory");
 
   // Get theme colors for dynamic styling
 
   const [items, setItems] = useState([]);
+  const [ingredientCategories, setIngredientCategories] = useState([]);
+  const [categoryQuery, setCategoryQuery] = useState("");
+  const [categoryName, setCategoryName] = useState("");
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [lowStockItems, setLowStockItems] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +47,6 @@ const Inventory = () => {
   const [showStockModal, setShowStockModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [message, setMessage] = useState({ type: "", text: "" });
-  const [filterCategory, setFilterCategory] = useState("all");
   const [stockUpdateData, setStockUpdateData] = useState({
     amount: "",
     type: "addition",
@@ -59,12 +62,14 @@ const Inventory = () => {
     costPrice: "",
     supplier: "",
     minStockAlert: 10,
+    ingredientCategoryId: "",
   });
 
   useEffect(() => {
     fetchItems();
     fetchLowStockItems();
     fetchSuppliers();
+    fetchIngredientCategories();
   }, []);
 
   // Auto-hide message after 3 seconds
@@ -155,19 +160,31 @@ const Inventory = () => {
 
   const handleEdit = (item) => {
     setSelectedItem(item);
+    const supplierId =
+      item.supplier && typeof item.supplier === "object"
+        ? item.supplier._id
+        : item.supplier || "";
+    const categoryId =
+      item.ingredientCategory && typeof item.ingredientCategory === "object"
+        ? item.ingredientCategory._id
+        : item.ingredientCategoryId || "";
     setFormData({
       name: item.name || "",
       sku: item.sku || "",
       unit: item.unit || "",
       costPrice: item.costPrice || "",
-      supplier: item.supplier || "",
+      supplier: supplierId,
       minStockAlert: item.minStockAlert || 10,
+      ingredientCategoryId: categoryId,
     });
 
-    // Set supplier search term to show supplier name if supplier exists
-    if (item.supplier) {
-      const supplier = suppliers.find((s) => s._id === item.supplier);
-      setSupplierSearchTerm(supplier ? supplier.name : "");
+    if (supplierId) {
+      const supplier = suppliers.find((s) => s._id === supplierId);
+      setSupplierSearchTerm(
+        supplier?.name ||
+          (typeof item.supplier === "object" ? item.supplier.name : "") ||
+          "",
+      );
     } else {
       setSupplierSearchTerm("");
     }
@@ -249,6 +266,7 @@ const Inventory = () => {
       costPrice: "",
       supplier: "",
       minStockAlert: 10,
+      ingredientCategoryId: "",
     });
     setSelectedItem(null);
     setSupplierSearchTerm("");
@@ -264,52 +282,217 @@ const Inventory = () => {
     setShowSupplierDropdown(false);
   };
 
+  const categoryLabel = (item) =>
+    item.ingredientCategory && typeof item.ingredientCategory === "object"
+      ? item.ingredientCategory.name
+      : "";
+
   const filteredItems = items.filter((item) => {
-    const matchesSearch =
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.sku?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.supplier?.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesFilter =
-      filterCategory === "all" || item.category === filterCategory;
-
-    return matchesSearch && matchesFilter;
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) return true;
+    return [item.name, item.sku, item.unit, categoryLabel(item)]
+      .filter(Boolean)
+      .some((value) => String(value).toLowerCase().includes(query));
   });
 
-  const getStockLevelColor = (currentStock, minStock) => {
-    // Handle division by zero 2/5*100
-    if (!minStock || minStock === 0) return "#10b981"; // Green
-    const percentage = (Number(currentStock) / Number(minStock)) * 100;
-    if (percentage <= 60) return "#ef4444"; // Red
-    if (percentage <= 100) return "#f59e0b"; // Orange
-    return "#10b981"; // Green
+  const formatQty = (value) => {
+    const number = Number(value);
+    if (!Number.isFinite(number)) return "0";
+    return new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(number);
   };
 
-  const getStockLevelLabel = (currentStock, minStock) => {
-    // Handle division by zero
-    if (!minStock || minStock === 0) return "Good";
+  const stockLevelKey = (currentStock, minStock) => {
+    if (!minStock || Number(minStock) === 0) return "in_stock";
     const percentage = (Number(currentStock) / Number(minStock)) * 100;
-    if (percentage <= 60) return "Critical";
-    if (percentage <= 100) return "Low";
-    return "Good";
+    if (percentage <= 60) return "critical";
+    if (percentage <= 100) return "low";
+    return "in_stock";
   };
+
+  const fetchIngredientCategories = async () => {
+    try {
+      const response = await ingredientCategoryService.getAll();
+      if (response.success) setIngredientCategories(response.data || []);
+    } catch (error) {
+      setMessage({ type: "error", text: getErrorMessage(error) });
+    }
+  };
+
+  const openCategoryModal = (category = null) => {
+    setEditingCategory(category);
+    setCategoryName(category?.name || "");
+    setShowCategoryModal(true);
+  };
+
+  const closeCategoryModal = () => {
+    setShowCategoryModal(false);
+    setEditingCategory(null);
+    setCategoryName("");
+  };
+
+  const saveCategory = async (event) => {
+    event.preventDefault();
+    const name = categoryName.trim();
+    if (!name) return;
+    try {
+      const response = editingCategory
+        ? await ingredientCategoryService.update(editingCategory._id, name)
+        : await ingredientCategoryService.create(name);
+      if (!response.success) {
+        setMessage({ type: "error", text: response.message });
+        return;
+      }
+      setMessage({
+        type: "success",
+        text: editingCategory
+          ? t("inventory.category_updated")
+          : t("inventory.category_created"),
+      });
+      closeCategoryModal();
+      fetchIngredientCategories();
+    } catch (error) {
+      setMessage({ type: "error", text: getErrorMessage(error) });
+    }
+  };
+
+  const deleteCategory = async (id) => {
+    if (!window.confirm(t("inventory.confirm_delete_category"))) return;
+    try {
+      const response = await ingredientCategoryService.delete(id);
+      if (!response.success) {
+        setMessage({ type: "error", text: response.message });
+        return;
+      }
+      setMessage({ type: "success", text: t("inventory.category_deleted") });
+      fetchIngredientCategories();
+    } catch (error) {
+      setMessage({ type: "error", text: getErrorMessage(error) });
+    }
+  };
+
+  const visibleCategories = ingredientCategories.filter((category) =>
+    category.name?.toLowerCase().includes(categoryQuery.trim().toLowerCase()),
+  );
 
   return (
     <div data-direction={i18n.dir()}>
-      {/* Page Header */}
-      <PageHeader
-        icon={Package}
-        title={t("nav.inventory") || "Inventory Management"}
-      >
-        <button onClick={() => setShowAddModal(true)} className="btn-primary">
-          <Plus size={20} />
-          {t("inventory.add_new") || "Add Item"}
-        </button>
-      </PageHeader>
+      <section className="ingredient-category">
+        <h1>{t("inventory.ingredients_category")}</h1>
+        <div className="ingredient-category-toolbar">
+          <label className="ingredient-category-search">
+            <Search size={16} aria-hidden="true" />
+            <input
+              type="search"
+              value={categoryQuery}
+              onChange={(event) => setCategoryQuery(event.target.value)}
+              placeholder={t("inventory.quick_search")}
+            />
+          </label>
+          {canManage && (
+            <button
+              type="button"
+              className="btn-primary ingredient-category-new"
+              onClick={() => openCategoryModal()}
+            >
+              <Plus size={16} />
+              {t("inventory.new_category")}
+            </button>
+          )}
+        </div>
+        <div className="table-container ingredient-category-table">
+          <table>
+            <thead>
+              <tr>
+                <th>{t("inventory.ingredients_category")}</th>
+                <th className="ingredient-category-action-col">{t("inventory.action")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {visibleCategories.length === 0 ? (
+                <tr>
+                  <td colSpan={2} className="ingredient-category-empty">
+                    {t("inventory.no_categories")}
+                  </td>
+                </tr>
+              ) : (
+                visibleCategories.map((category) => (
+                  <tr key={category._id}>
+                    <td>{category.name}</td>
+                    <td className="ingredient-category-action-col">
+                      {canManage && (
+                        <>
+                          <button
+                            type="button"
+                            className="ingredient-category-edit"
+                            onClick={() => openCategoryModal(category)}
+                            aria-label={t("common.edit")}
+                          >
+                            <Pencil size={15} />
+                          </button>
+                          <button
+                            type="button"
+                            className="ingredient-category-delete"
+                            onClick={() => deleteCategory(category._id)}
+                            aria-label={t("common.delete")}
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {showCategoryModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h2>
+                {editingCategory
+                  ? t("inventory.edit_category")
+                  : t("inventory.new_category")}
+              </h2>
+              <button type="button" className="btn-close" onClick={closeCategoryModal}>
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={saveCategory}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label htmlFor="ingredient-category-name">
+                    {t("inventory.category_name")}
+                  </label>
+                  <input
+                    id="ingredient-category-name"
+                    value={categoryName}
+                    onChange={(event) => setCategoryName(event.target.value)}
+                    required
+                    minLength={2}
+                    maxLength={50}
+                  />
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn-secondary" onClick={closeCategoryModal}>
+                  {t("common.cancel")}
+                </button>
+                <button type="submit" className="btn-primary">
+                  <Save size={16} />
+                  {editingCategory ? t("common.update") : t("common.add")}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <Alert type={message.type} message={message.text} />
 
-      {/* Low Stock Alert */}
       {lowStockItems.length > 0 && (
         <div className="low-stock-alert">
           <div className="low-stock-header">
@@ -326,50 +509,115 @@ const Inventory = () => {
         </div>
       )}
 
-      {/* Search and Filter */}
-      <div className="search-filter-bar">
-        <div className="search-box">
-          <Search
-            size={20}
-            style={{
-              position: "absolute",
-              left: "1rem",
-              top: "50%",
-              transform: "translateY(-50%)",
-              color: "var(--text-secondary)",
-            }}
-          />
-          <input
-            type="text"
-            placeholder={t("inventory.search_placeholder") || "Search items..."}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ paddingLeft: "3rem" }}
-            className="form-input"
-          />
+      <section className="ingredient-item">
+        <h1>{t("inventory.ingredients_item")}</h1>
+        <div className="ingredient-item-toolbar">
+          <label className="ingredient-item-search">
+            <Search size={16} aria-hidden="true" />
+            <input
+              type="search"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder={t("inventory.quick_search")}
+            />
+          </label>
+          <button
+            type="button"
+            className="btn-primary ingredient-item-new"
+            onClick={() => setShowAddModal(true)}
+          >
+            <Plus size={16} />
+            {t("inventory.new_item")}
+          </button>
         </div>
-        <select
-          value={filterCategory}
-          onChange={(e) => setFilterCategory(e.target.value)}
-          className="filter-select"
-        >
-          <option value="all">
-            {t("inventory.filter_all") || "All Categories"}
-          </option>
-          <option value="food">{t("inventory.category_food") || "Food"}</option>
-          <option value="beverage">
-            {t("inventory.category_beverage") || "Beverage"}
-          </option>
-          <option value="supplies">
-            {t("inventory.category_supplies") || "Supplies"}
-          </option>
-          <option value="other">
-            {t("inventory.category_other") || "Other"}
-          </option>
-        </select>
-      </div>
+        <div className="table-container ingredient-item-table">
+          <table>
+            <thead>
+              <tr>
+                <th>{t("inventory.item_name")}</th>
+                <th>{t("inventory.category")}</th>
+                <th>{t("inventory.unit")}</th>
+                <th>{t("inventory.storage_capacity")}</th>
+                <th>{t("inventory.existing_quantity")}</th>
+                <th>{t("inventory.price_per_unit")}</th>
+                <th>{t("inventory.value")}</th>
+                <th>{t("inventory.stock_level")}</th>
+                <th className="ingredient-item-action-col">{t("inventory.action")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={9} className="ingredient-item-empty">
+                    {t("common.loading") || "Loading..."}
+                  </td>
+                </tr>
+              ) : filteredItems.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="ingredient-item-empty">
+                    {t("inventory.no_items_found")}
+                  </td>
+                </tr>
+              ) : (
+                filteredItems.map((item) => {
+                  const level = stockLevelKey(item.stock, item.minStockAlert);
+                  const value = (Number(item.stock) || 0) * (Number(item.costPrice) || 0);
+                  return (
+                    <tr key={item._id}>
+                      <td>
+                        <span className="ingredient-item-name">
+                          <span className="ingredient-item-thumb" aria-hidden="true">
+                            <Package size={16} />
+                          </span>
+                          <span>{item.name}</span>
+                        </span>
+                      </td>
+                      <td>{categoryLabel(item) || "—"}</td>
+                      <td>{item.unit || "—"}</td>
+                      <td>{formatQty(item.minStockAlert)}</td>
+                      <td>{formatQty(item.stock)}</td>
+                      <td>{formatMoney(item.costPrice, currency)}</td>
+                      <td>{formatMoney(value, currency)}</td>
+                      <td>
+                        <span className={`ingredient-stock ingredient-stock-${level}`}>
+                          {t(`inventory.${level}`)}
+                        </span>
+                      </td>
+                      <td className="ingredient-item-action-col">
+                        <button
+                          type="button"
+                          className="ingredient-item-stock"
+                          onClick={() => handleStockUpdate(item)}
+                          aria-label={t("inventory.update_stock")}
+                        >
+                          <Package size={15} />
+                        </button>
+                        <button
+                          type="button"
+                          className="ingredient-item-edit"
+                          onClick={() => handleEdit(item)}
+                          aria-label={t("common.edit")}
+                        >
+                          <Pencil size={15} />
+                        </button>
+                        <button
+                          type="button"
+                          className="ingredient-item-delete"
+                          onClick={() => handleDelete(item._id)}
+                          aria-label={t("common.delete")}
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-      {/* Statistics Cards */}
       <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-icon">
@@ -405,107 +653,6 @@ const Inventory = () => {
             </h3>
             <p>{t("inventory.total_value") || "Total Value"}</p>
           </div>
-        </div>
-      </div>
-
-      {/* Inventory Table */}
-      <div className="inventory-table">
-        <div className="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>{t("inventory.name") || "Name"}</th>
-                <th>{t("inventory.sku") || "SKU"}</th>
-                <th>{t("inventory.unit") || "Unit"}</th>
-                <th>{t("inventory.cost_price") || "Cost Price"}</th>
-                <th>{t("inventory.stock") || "Stock"}</th>
-                <th>{t("inventory.min_stock") || "Min Stock"}</th>
-                <th>{t("inventory.status") || "Status"}</th>
-                <th>{t("inventory.actions") || "Actions"}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td
-                    colSpan="8"
-                    style={{ textAlign: "center", padding: "2rem" }}
-                  >
-                    {t("common.loading") || "Loading..."}
-                  </td>
-                </tr>
-              ) : filteredItems.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan="8"
-                    style={{ textAlign: "center", padding: "2rem" }}
-                  >
-                    {t("inventory.no_items_found") || "No items found"}
-                  </td>
-                </tr>
-              ) : (
-                filteredItems.map((item) => (
-                  <tr key={item._id}>
-                    <td>{item.name}</td>
-                    <td>{item.sku || "-"}</td>
-                    <td>{item.unit || "-"}</td>
-                    <td>{formatMoney(item.costPrice, currency)}</td>
-                    <td>{item.stock || 0}</td>
-                    <td>{item.minStockAlert || 10}</td>
-                    <td>
-                      <span
-                        className="stock-level"
-                        style={{
-                          color: getStockLevelColor(
-                            item.stock,
-                            item.minStockAlert,
-                          ),
-                        }}
-                      >
-                        <div
-                          className="stock-indicator"
-                          style={{
-                            backgroundColor: getStockLevelColor(
-                              item.stock,
-                              item.minStockAlert,
-                            ),
-                          }}
-                        ></div>
-                        {t(
-                          `inventory.${getStockLevelLabel(item.stock, item.minStockAlert).toLowerCase()}`,
-                        )}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="action-buttons">
-                        <button
-                          onClick={() => handleStockUpdate(item)}
-                          className="btn-icon btn-stock"
-                          title={t("inventory.update_stock") || "Update Stock"}
-                        >
-                          <Package size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleEdit(item)}
-                          className="btn-icon btn-edit"
-                          title={t("common.edit") || "Edit"}
-                        >
-                          <Edit2 size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(item._id)}
-                          className="btn-icon btn-delete"
-                          title={t("common.delete") || "Delete"}
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
         </div>
       </div>
 
@@ -559,6 +706,29 @@ const Inventory = () => {
                     placeholder={t("inventory.sku_placeholder") || "Enter SKU"}
                     className="form-input"
                   />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="ingredient-item-category">
+                    {t("inventory.category")}
+                  </label>
+                  <select
+                    id="ingredient-item-category"
+                    className="form-input"
+                    value={formData.ingredientCategoryId}
+                    onChange={(event) =>
+                      setFormData({
+                        ...formData,
+                        ingredientCategoryId: event.target.value,
+                      })
+                    }
+                  >
+                    <option value="">{t("inventory.no_category")}</option>
+                    {ingredientCategories.map((category) => (
+                      <option key={category._id} value={category._id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div className="form-group">
                   <label>{t("inventory.unit") || "Unit"}</label>

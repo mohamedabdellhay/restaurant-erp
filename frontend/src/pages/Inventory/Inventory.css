@@ -492,3 +492,263 @@ tr:hover {
 [data-direction="rtl"] .modal-footer {
   flex-direction: row-reverse;
 }
+
+.ingredient-category {
+  margin-bottom: 2rem;
+}
+
+.ingredient-category h1 {
+  margin: 0;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid #e6e8ec;
+  color: #1f2937;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.ingredient-category-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0.9rem 0;
+}
+
+.ingredient-category-search {
+  position: relative;
+  width: min(100%, 280px);
+}
+
+.ingredient-category-search svg {
+  position: absolute;
+  top: 50%;
+  inset-inline-start: 0.75rem;
+  color: #9ca3af;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.ingredient-category-search input {
+  width: 100%;
+  height: 2.25rem;
+  padding-inline: 2.2rem 0.8rem;
+  border: 1px solid #e6e8ec;
+  border-radius: 8px;
+  background: #fff;
+  color: #1f2937;
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.ingredient-category-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 2.25rem;
+  padding: 0 0.9rem;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.ingredient-category-action-col {
+  width: 7rem;
+  text-align: end;
+}
+
+.ingredient-category-edit,
+.ingredient-category-delete {
+  display: inline-grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  margin-inline-start: 0.35rem;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.ingredient-category-edit {
+  border: 1px solid #86efac;
+  color: #16a34a;
+}
+
+.ingredient-category-delete {
+  border: 1px solid #fca5a5;
+  color: #ef4444;
+}
+
+.ingredient-category-empty {
+  color: #6b7280;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .ingredient-category-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .ingredient-category-search {
+    width: 100%;
+  }
+}
+
+.ingredient-item {
+  margin-bottom: 1.5rem;
+}
+
+.ingredient-item h1 {
+  margin: 0;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid #e6e8ec;
+  color: #1f2937;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.ingredient-item-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0.9rem 0;
+}
+
+.ingredient-item-search {
+  position: relative;
+  width: min(100%, 280px);
+}
+
+.ingredient-item-search svg {
+  position: absolute;
+  top: 50%;
+  inset-inline-start: 0.75rem;
+  color: #9ca3af;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.ingredient-item-search input {
+  width: 100%;
+  height: 2.25rem;
+  padding-inline: 2.2rem 0.8rem;
+  border: 1px solid #e6e8ec;
+  border-radius: 8px;
+  background: #fff;
+  color: #1f2937;
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.ingredient-item-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 2.25rem;
+  padding: 0 0.9rem;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.ingredient-item-table {
+  background: #fff;
+  overflow-x: auto;
+}
+
+.ingredient-item-table.table-container th {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.ingredient-item-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.ingredient-item-thumb {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background: #f3f4f6;
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+.ingredient-item-action-col {
+  width: 7.5rem;
+  text-align: end;
+  white-space: nowrap;
+}
+
+.ingredient-item-stock,
+.ingredient-item-edit,
+.ingredient-item-delete {
+  display: inline-grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  margin-inline-start: 0.35rem;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.ingredient-item-stock {
+  border: 1px solid #d1d5db;
+  color: #4b5563;
+}
+
+.ingredient-item-edit {
+  border: 1px solid #86efac;
+  color: #16a34a;
+}
+
+.ingredient-item-delete {
+  border: 1px solid #fca5a5;
+  color: #ef4444;
+}
+
+.ingredient-stock {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.6rem;
+  padding: 0.15rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ingredient-stock-in_stock {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.ingredient-stock-low {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.ingredient-stock-critical {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.ingredient-item-empty {
+  color: #6b7280;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .ingredient-item-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .ingredient-item-search {
+    width: 100%;
+  }
+}

@@ -1,13 +1,26 @@
 import prisma from "../../db/client.js";
 import { toDoc, toDocs } from "../../db/present.js";
 import { requireUuid } from "../../db/ids.js";
+import AppError from "../../utils/errors/AppError.js";
 
 const listInclude = {
   supplier: { select: { id: true, name: true, email: true, phone: true, contactPerson: true } },
   restaurant: { select: { id: true, name: true } },
+  ingredientCategory: { select: { id: true, name: true } },
 };
 
 class InventoryService {
+  async resolveCategory(restaurantId, categoryId) {
+    if (categoryId === undefined) return undefined;
+    if (categoryId === "" || categoryId == null) return null;
+    const id = requireUuid(categoryId);
+    const category = await prisma.ingredientCategory.findFirst({
+      where: { id, restaurantId: requireUuid(restaurantId) },
+    });
+    if (!category) throw new AppError("Category not found", 400);
+    return category.id;
+  }
+
   async getAllItems(restaurantId, filter = {}) {
     const where = { restaurantId: requireUuid(restaurantId) };
     if (filter.supplier) where.supplierId = requireUuid(filter.supplier);
@@ -41,6 +54,10 @@ class InventoryService {
         minStockAlert: data.minStockAlert != null ? Number(data.minStockAlert) : 0,
         supplierId: requireUuid(data.supplier || data.supplierId),
         restaurantId: requireUuid(data.restaurant || data.restaurantId),
+        ingredientCategoryId: await this.resolveCategory(
+          data.restaurant || data.restaurantId,
+          data.ingredientCategoryId,
+        ),
       },
       include: listInclude,
     });
@@ -58,6 +75,12 @@ class InventoryService {
     if (data.stock !== undefined) payload.stock = Number(data.stock);
     if (data.minStockAlert !== undefined) payload.minStockAlert = Number(data.minStockAlert);
     if (data.supplier) payload.supplierId = requireUuid(data.supplier);
+    if (data.ingredientCategoryId !== undefined) {
+      payload.ingredientCategoryId = await this.resolveCategory(
+        restaurantId,
+        data.ingredientCategoryId,
+      );
+    }
     return toDoc(
       await prisma.inventoryItem.update({
         where: { id: existing.id },
