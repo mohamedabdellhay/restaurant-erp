@@ -100,6 +100,8 @@ const NAV_ENTRIES = [
     label: "nav.group_menu",
     icon: UtensilsCrossed,
     items: [
+      { label: "nav.food_category", path: "/food-categories", permission: "view_categories" },
+      { label: "nav.food_items", path: "/food-items", permission: "view_menu" },
       { label: "nav.menu", path: "/menu", permission: "view_menu" },
       { label: "nav.tables", path: "/tables", permission: "view_tables" },
     ],

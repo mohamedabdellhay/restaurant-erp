@@ -1,0 +1,269 @@
+.food-items {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.food-items h1 {
+  margin: 0 0 0.9rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid #e6e8ec;
+  color: #1f2937;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.food-items-toolbar,
+.food-items-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.food-items-toolbar {
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+}
+
+.food-items-tools label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: min(100%, 240px);
+  height: 2.25rem;
+  padding: 0 0.7rem;
+  border: 1px solid #e6e8ec;
+  border-radius: 8px;
+  background: #fff;
+  color: #9ca3af;
+}
+
+.food-items-tools input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #111827;
+}
+
+.food-items-new,
+.food-items-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 2.25rem;
+  padding: 0 0.85rem;
+  border-radius: 6px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.food-items-new {
+  border: 0;
+  background: var(--primary);
+  color: #fff;
+}
+
+.food-items-ghost {
+  border: 1px solid #86efac;
+  background: #fff;
+  color: #16a34a;
+}
+
+.food-items-drop {
+  position: relative;
+}
+
+.food-items-menu {
+  position: absolute;
+  z-index: 5;
+  inset-block-start: calc(100% + 0.3rem);
+  inset-inline-start: 0;
+  min-width: 11rem;
+  padding: 0.3rem;
+  border: 1px solid #e6e8ec;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 8px 20px rgb(15 23 42 / 0.08);
+}
+
+.food-items-menu button {
+  display: block;
+  width: 100%;
+  padding: 0.4rem 0.55rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #374151;
+  text-align: start;
+  cursor: pointer;
+}
+
+.food-items-menu button.is-current,
+.food-items-menu button:hover {
+  background: #f3f4f6;
+}
+
+.food-items .table-container {
+  overflow-x: auto;
+}
+
+.food-items-actions {
+  white-space: nowrap;
+  text-align: end;
+}
+
+.food-items-view,
+.food-items-edit,
+.food-items-delete {
+  display: inline-grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  margin-inline-start: 0.3rem;
+  border: 0;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.food-items-view {
+  background: #f97316;
+}
+
+.food-items-edit {
+  background: #16a34a;
+}
+
+.food-items-delete {
+  background: #ef4444;
+}
+
+.food-items-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(15 23 42 / 0.35);
+}
+
+.food-items-dialog {
+  width: min(100%, 520px);
+  max-height: min(90vh, 720px);
+  overflow: auto;
+  padding: 1rem 1.1rem 1.1rem;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.food-items-dialog header,
+.food-items-dialog footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.food-items-dialog footer {
+  justify-content: flex-end;
+  margin-top: 0.8rem;
+}
+
+.food-items-dialog h2,
+.food-items-dialog h3 {
+  margin: 0;
+  color: #111827;
+}
+
+.food-items-dialog h3 {
+  margin: 0.4rem 0 0.55rem;
+  font-size: 0.95rem;
+}
+
+.food-items-dialog header button {
+  display: inline-grid;
+  place-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+.food-items-dialog label {
+  display: grid;
+  gap: 0.3rem;
+  margin-bottom: 0.65rem;
+  color: #4b5563;
+  font-size: 0.84rem;
+}
+
+.food-items-dialog input,
+.food-items-dialog select {
+  height: 2.25rem;
+  padding: 0 0.65rem;
+  border: 1px solid #e6e8ec;
+  border-radius: 8px;
+  background: #fff;
+  color: #111827;
+}
+
+.food-items-line {
+  display: grid;
+  grid-template-columns: 1fr 6rem auto;
+  gap: 0.4rem;
+  margin-bottom: 0.45rem;
+}
+
+.food-items-dialog dl {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.8rem 0;
+}
+
+.food-items-dialog dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.food-items-dialog dt {
+  color: #6b7280;
+}
+
+.food-items-dialog dd {
+  margin: 0;
+  color: #111827;
+  font-weight: 600;
+}
+
+.food-items-dialog ul {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.food-items-dialog li {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.75rem;
+  color: #374151;
+}
+
+.food-items-cancel {
+  height: 2.25rem;
+  padding: 0 0.9rem;
+  border: 1px solid #e6e8ec;
+  border-radius: 6px;
+  background: #fff;
+  color: #374151;
+  font-weight: 600;
+  cursor: pointer;
+}

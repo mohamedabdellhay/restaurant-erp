@@ -39,6 +39,9 @@ import ExpenseCategories from "@pages/ExpenseCategories/ExpenseCategories";
 import Expenses from "@pages/Expenses/Expenses";
 import Dashboard from "@pages/Dashboard/Dashboard";
 import Menu from "@pages/Menu/Menu";
+import FoodCategories from "@pages/FoodCategories/FoodCategories";
+import FoodItems from "@pages/FoodItems/FoodItems";
+import FoodItemForm from "@pages/FoodItems/FoodItemForm";
 import Reports from "@pages/Reports/Reports";
 import Roles from "@pages/Roles/Roles";
 import Platform from "@pages/Platform/Platform";
@@ -124,6 +127,38 @@ function App() {
                 />
 
                 {/* Menu - view_menu permission */}
+                <Route
+                  path="/food-categories"
+                  element={
+                    <ProtectedRoute permission="view_categories">
+                      <FoodCategories />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/food-items/new"
+                  element={
+                    <ProtectedRoute permission="manage_menu">
+                      <FoodItemForm />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/food-items/:id/edit"
+                  element={
+                    <ProtectedRoute permission="manage_menu">
+                      <FoodItemForm />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/food-items"
+                  element={
+                    <ProtectedRoute permission="view_menu">
+                      <FoodItems />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="/menu"
                   element={
