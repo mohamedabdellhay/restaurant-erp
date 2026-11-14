@@ -197,21 +197,17 @@
   border-collapse: collapse;
 }
 
+.staff-table th,
+.staff-table td {
+  text-align: start;
+}
+
 .staff-table th {
   background: var(--bg-base);
   padding: 1rem;
-  text-align: right;
   font-weight: 600;
   color: var(--text-secondary);
   border-bottom: 1px solid var(--border-color);
-}
-
-[data-direction="rtl"] .staff-table th {
-  text-align: left;
-}
-
-[data-direction="rtl"] .staff-table td {
-  text-align: right;
 }
 
 [data-direction="rtl"] .contact-info {

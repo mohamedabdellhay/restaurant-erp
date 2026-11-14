@@ -24,7 +24,7 @@ import { formatMoney } from "../../utils/money";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
-const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DAY_KEYS = ["day_sun", "day_mon", "day_tue", "day_wed", "day_thu", "day_fri", "day_sat"];
 
 // ─── sub-components ─────────────────────────────────────────────────────────
 
@@ -54,13 +54,13 @@ const EmptyState = ({ text }) => (
 // ─── main component ──────────────────────────────────────────────────────────
 
 const TABS = [
-  { key: "sales", label: "Sales Performance", icon: TrendingUp },
-  { key: "revenue", label: "Revenue Breakdown", icon: DollarSign },
-  { key: "topItems", label: "Top Items", icon: Star },
-  { key: "orders", label: "Order Analytics", icon: ShoppingCart },
-  { key: "inventory", label: "Inventory", icon: Package },
-  { key: "reservations", label: "Reservations", icon: CalendarCheck },
-  { key: "staff", label: "Staff Performance", icon: Users },
+  { key: "sales", labelKey: "reports.sales_performance", icon: TrendingUp },
+  { key: "revenue", labelKey: "reports.revenue_breakdown", icon: DollarSign },
+  { key: "topItems", labelKey: "reports.top_selling_items", icon: Star },
+  { key: "orders", labelKey: "reports.order_analytics", icon: ShoppingCart },
+  { key: "inventory", labelKey: "reports.inventory_summary", icon: Package },
+  { key: "reservations", labelKey: "reports.reservations_report", icon: CalendarCheck },
+  { key: "staff", labelKey: "reports.staff_performance", icon: Users },
 ];
 
 const Reports = () => {
@@ -155,7 +155,7 @@ const Reports = () => {
         };
         await map[activeTab]?.();
       } catch (err) {
-        setError(getErrorMessage(err, "Could not load this report."));
+        setError(getErrorMessage(err, t("reports.load_failed")));
       } finally {
         setLoading(false);
       }
@@ -172,6 +172,7 @@ const Reports = () => {
     fetchInventory,
     fetchReservations,
     fetchStaff,
+    t,
   ]);
 
   // ── quick date helpers ───────────────────────────────────────────────────
@@ -240,14 +241,14 @@ const Reports = () => {
 
         {/* Tab navigation */}
         <div className="tab-bar">
-          {TABS.map(({ key, label, icon: Icon }) => (
+          {TABS.map(({ key, labelKey, icon: Icon }) => (
             <button
               key={key}
               className={`tab-btn ${activeTab === key ? "active" : ""}`}
               onClick={() => setActiveTab(key)}
             >
               <Icon size={16} />
-              {label}
+              {t(labelKey)}
             </button>
           ))}
         </div>
@@ -266,33 +267,33 @@ const Reports = () => {
       {/* ── SALES ── */}
       {!loading && !error && activeTab === "sales" && (
         <div className="tab-content">
-          <SectionTitle>Sales Performance</SectionTitle>
+          <SectionTitle>{t("reports.sales_performance")}</SectionTitle>
           {data.sales ? (
             <>
               <div className="stats-grid">
                 <StatCard
                   icon={DollarSign}
-                  label="Total Revenue"
+                  label={t("reports.total_revenue")}
                   value={money(data.sales.totalRevenue)}
                 />
                 <StatCard
                   icon={ShoppingCart}
-                  label="Total Orders"
+                  label={t("reports.total_orders")}
                   value={(data.sales.count || 0).toLocaleString()}
                 />
                 <StatCard
                   icon={TrendingUp}
-                  label="Avg Order Value"
+                  label={t("reports.average_order_value")}
                   value={money(data.sales.averageOrderValue)}
                 />
                 <StatCard
                   icon={ArrowUpRight}
-                  label="Total Tax"
+                  label={t("reports.total_tax")}
                   value={money(data.sales.totalTax)}
                 />
                 <StatCard
                   icon={ArrowDownRight}
-                  label="Service Charge"
+                  label={t("reports.service_charge")}
                   value={money(data.sales.totalServiceCharge)}
                 />
               </div>
@@ -300,14 +301,14 @@ const Reports = () => {
               {/* Payment methods */}
               {data.sales.byPaymentMethod?.length > 0 && (
                 <div className="report-card">
-                  <h3>Revenue by Payment Method</h3>
+                  <h3>{t("reports.revenue_by_method")}</h3>
                   <div className="table-container">
                     <table>
                       <thead>
                         <tr>
-                          <th data-direction={i18n.dir()}>Method</th>
-                          <th data-direction={i18n.dir()}>Revenue</th>
-                          <th data-direction={i18n.dir()}>Orders</th>
+                          <th data-direction={i18n.dir()}>{t("reports.method")}</th>
+                          <th data-direction={i18n.dir()}>{t("reports.revenue")}</th>
+                          <th data-direction={i18n.dir()}>{t("reports.orders")}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -333,14 +334,14 @@ const Reports = () => {
               {/* Daily trend */}
               {data.sales.dailyTrend?.length > 0 && (
                 <div className="report-card">
-                  <h3>Daily Revenue Trend</h3>
+                  <h3>{t("reports.daily_trend")}</h3>
                   <div className="table-container">
                     <table>
                       <thead>
                         <tr>
-                          <th data-direction={i18n.dir()}>Date</th>
-                          <th data-direction={i18n.dir()}>Revenue</th>
-                          <th data-direction={i18n.dir()}>Orders</th>
+                          <th data-direction={i18n.dir()}>{t("reports.date")}</th>
+                          <th data-direction={i18n.dir()}>{t("reports.revenue")}</th>
+                          <th data-direction={i18n.dir()}>{t("reports.orders")}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -360,7 +361,7 @@ const Reports = () => {
               )}
             </>
           ) : (
-            <EmptyState text="No sales data for the selected period." />
+            <EmptyState text={t("reports.no_sales")} />
           )}
         </div>
       )}
@@ -369,7 +370,7 @@ const Reports = () => {
       {!loading && !error && activeTab === "revenue" && (
         <div className="tab-content">
           <div className="section-header-row">
-            <SectionTitle>Revenue Breakdown</SectionTitle>
+            <SectionTitle>{t("reports.revenue_breakdown")}</SectionTitle>
             <div className="groupby-btns">
               {["day", "week", "month"].map((g) => (
                 <button
@@ -388,26 +389,26 @@ const Reports = () => {
               <div className="stats-grid">
                 <StatCard
                   icon={DollarSign}
-                  label="Total Revenue"
+                  label={t("reports.total_revenue")}
                   value={money(data.revenue.totalRevenue)}
                 />
                 <StatCard
                   icon={ShoppingCart}
-                  label="Total Orders"
+                  label={t("reports.total_orders")}
                   value={(data.revenue.totalOrders || 0).toLocaleString()}
                 />
               </div>
 
               {data.revenue.trend?.length > 0 && (
                 <div className="report-card">
-                  <h3>Revenue Trend ({data.revenue.groupBy})</h3>
+                  <h3>{t("reports.revenue_trend")} ({data.revenue.groupBy})</h3>
                   <div className="table-container">
                     <table>
                       <thead>
                         <tr>
-                          <th data-direction={i18n.dir()}>Period</th>
-                          <th data-direction={i18n.dir()}>Revenue</th>
-                          <th data-direction={i18n.dir()}>Orders</th>
+                          <th data-direction={i18n.dir()}>{t("reports.period")}</th>
+                          <th data-direction={i18n.dir()}>{t("reports.revenue")}</th>
+                          <th data-direction={i18n.dir()}>{t("reports.orders")}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -428,14 +429,14 @@ const Reports = () => {
 
               {data.revenue.byPaymentMethod?.length > 0 && (
                 <div className="report-card">
-                  <h3>By Payment Method</h3>
+                  <h3>{t("reports.by_method")}</h3>
                   <div className="table-container">
                     <table>
                       <thead>
                         <tr>
-                          <th data-direction={i18n.dir()}>Method</th>
-                          <th data-direction={i18n.dir()}>Revenue</th>
-                          <th data-direction={i18n.dir()}>Orders</th>
+                          <th data-direction={i18n.dir()}>{t("reports.method")}</th>
+                          <th data-direction={i18n.dir()}>{t("reports.revenue")}</th>
+                          <th data-direction={i18n.dir()}>{t("reports.orders")}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -459,7 +460,7 @@ const Reports = () => {
               )}
             </>
           ) : (
-            <EmptyState text="No revenue data for the selected period." />
+            <EmptyState text={t("reports.no_revenue")} />
           )}
         </div>
       )}
@@ -467,7 +468,7 @@ const Reports = () => {
       {/* ── TOP ITEMS ── */}
       {!loading && !error && activeTab === "topItems" && (
         <div className="tab-content">
-          <SectionTitle>Top Selling Items</SectionTitle>
+          <SectionTitle>{t("reports.top_selling_items")}</SectionTitle>
           {data.topItems?.length > 0 ? (
             <div className="report-card">
               <div className="table-container">
@@ -475,9 +476,9 @@ const Reports = () => {
                   <thead>
                     <tr>
                       <th data-direction={i18n.dir()}>#</th>
-                      <th data-direction={i18n.dir()}>Item Name</th>
-                      <th data-direction={i18n.dir()}>Qty Sold</th>
-                      <th data-direction={i18n.dir()}>Revenue</th>
+                      <th data-direction={i18n.dir()}>{t("reports.item_name")}</th>
+                      <th data-direction={i18n.dir()}>{t("reports.quantity_sold")}</th>
+                      <th data-direction={i18n.dir()}>{t("reports.revenue")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -502,7 +503,7 @@ const Reports = () => {
               </div>
             </div>
           ) : (
-            <EmptyState text="No items data for the selected period." />
+            <EmptyState text={t("reports.no_items")} />
           )}
         </div>
       )}
@@ -510,7 +511,7 @@ const Reports = () => {
       {/* ── ORDER ANALYTICS ── */}
       {!loading && !error && activeTab === "orders" && (
         <div className="tab-content">
-          <SectionTitle>Order Analytics</SectionTitle>
+          <SectionTitle>{t("reports.order_analytics")}</SectionTitle>
           {data.orders ? (
             <>
               {/* Status distribution */}
@@ -539,13 +540,13 @@ const Reports = () => {
               {/* Type distribution */}
               {data.orders.typeDistribution?.length > 0 && (
                 <div className="report-card">
-                  <h3>Order Types</h3>
+                  <h3>{t("reports.order_types")}</h3>
                   <div className="table-container">
                     <table>
                       <thead>
                         <tr>
-                          <th data-direction={i18n.dir()}>Type</th>
-                          <th data-direction={i18n.dir()}>Count</th>
+                          <th data-direction={i18n.dir()}>{t("reports.type")}</th>
+                          <th data-direction={i18n.dir()}>{t("reports.count")}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -566,14 +567,14 @@ const Reports = () => {
               {/* Top items */}
               {data.orders.topItems?.length > 0 && (
                 <div className="report-card">
-                  <h3>Top 5 Menu Items</h3>
+                  <h3>{t("reports.top_five")}</h3>
                   <div className="table-container">
                     <table>
                       <thead>
                         <tr>
-                          <th data-direction={i18n.dir()}>Item</th>
-                          <th data-direction={i18n.dir()}>Qty</th>
-                          <th data-direction={i18n.dir()}>Revenue</th>
+                          <th data-direction={i18n.dir()}>{t("reports.item")}</th>
+                          <th data-direction={i18n.dir()}>{t("reports.qty")}</th>
+                          <th data-direction={i18n.dir()}>{t("reports.revenue")}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -599,13 +600,13 @@ const Reports = () => {
               {/* Hourly trends */}
               {data.orders.hourlyTrends?.length > 0 && (
                 <div className="report-card">
-                  <h3>Hourly Traffic</h3>
+                  <h3>{t("reports.hourly_traffic")}</h3>
                   <div className="table-container">
                     <table>
                       <thead>
                         <tr>
-                          <th data-direction={i18n.dir()}>Hour</th>
-                          <th data-direction={i18n.dir()}>Orders</th>
+                          <th data-direction={i18n.dir()}>{t("reports.hour")}</th>
+                          <th data-direction={i18n.dir()}>{t("reports.orders")}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -624,7 +625,7 @@ const Reports = () => {
               )}
             </>
           ) : (
-            <EmptyState text="No order data for the selected period." />
+            <EmptyState text={t("reports.no_orders")} />
           )}
         </div>
       )}
@@ -632,23 +633,23 @@ const Reports = () => {
       {/* ── INVENTORY ── */}
       {!loading && !error && activeTab === "inventory" && (
         <div className="tab-content">
-          <SectionTitle>Inventory Summary</SectionTitle>
+          <SectionTitle>{t("reports.inventory_summary")}</SectionTitle>
           {data.inventory ? (
             <>
               <div className="stats-grid">
                 <StatCard
                   icon={Package}
-                  label="Total Items"
+                  label={t("reports.total_items")}
                   value={(data.inventory.totalItems || 0).toLocaleString()}
                 />
                 <StatCard
                   icon={DollarSign}
-                  label="Total Stock Value"
+                  label={t("reports.total_stock_value")}
                   value={money(data.inventory.totalStockValue)}
                 />
                 <StatCard
                   icon={AlertTriangle}
-                  label="Low Stock Items"
+                  label={t("reports.low_stock_items")}
                   value={data.inventory.lowStockCount || 0}
                   accent={data.inventory.lowStockCount > 0 ? "accent-warning" : ""}
                 />
@@ -664,13 +665,13 @@ const Reports = () => {
                     <table>
                       <thead>
                         <tr>
-                          <th data-direction={i18n.dir()}>Item</th>
-                          <th data-direction={i18n.dir()}>SKU</th>
-                          <th data-direction={i18n.dir()}>Stock</th>
-                          <th data-direction={i18n.dir()}>Min Alert</th>
-                          <th data-direction={i18n.dir()}>Unit</th>
-                          <th data-direction={i18n.dir()}>Cost Price</th>
-                          <th data-direction={i18n.dir()}>Supplier</th>
+                          <th data-direction={i18n.dir()}>{t("reports.item")}</th>
+                          <th data-direction={i18n.dir()}>{t("reports.sku")}</th>
+                          <th data-direction={i18n.dir()}>{t("reports.stock")}</th>
+                          <th data-direction={i18n.dir()}>{t("reports.min_alert")}</th>
+                          <th data-direction={i18n.dir()}>{t("reports.unit")}</th>
+                          <th data-direction={i18n.dir()}>{t("reports.cost_price")}</th>
+                          <th data-direction={i18n.dir()}>{t("reports.supplier")}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -704,7 +705,7 @@ const Reports = () => {
               )}
             </>
           ) : (
-            <EmptyState text="No inventory data available." />
+            <EmptyState text={t("reports.no_inventory")} />
           )}
         </div>
       )}
@@ -712,27 +713,27 @@ const Reports = () => {
       {/* ── RESERVATIONS ── */}
       {!loading && !error && activeTab === "reservations" && (
         <div className="tab-content">
-          <SectionTitle>Reservations Report</SectionTitle>
+          <SectionTitle>{t("reports.reservations_report")}</SectionTitle>
           {data.reservations ? (
             <>
               <div className="stats-grid">
                 <StatCard
                   icon={CalendarCheck}
-                  label="Total Reservations"
+                  label={t("reports.reservations_total")}
                   value={(
                     data.reservations.totalReservations || 0
                   ).toLocaleString()}
                 />
                 <StatCard
                   icon={Users}
-                  label="Total Guests"
+                  label={t("reports.total_guests")}
                   value={(
                     data.reservations.totalGuests || 0
                   ).toLocaleString()}
                 />
                 <StatCard
                   icon={Clock}
-                  label="Upcoming"
+                  label={t("reports.upcoming")}
                   value={data.reservations.upcomingCount || 0}
                 />
               </div>
@@ -740,14 +741,14 @@ const Reports = () => {
               {/* Status distribution */}
               {data.reservations.statusDistribution?.length > 0 && (
                 <div className="report-card">
-                  <h3>Status Breakdown</h3>
+                  <h3>{t("reports.status_breakdown")}</h3>
                   <div className="table-container">
                     <table>
                       <thead>
                         <tr>
-                          <th data-direction={i18n.dir()}>Status</th>
-                          <th data-direction={i18n.dir()}>Count</th>
-                          <th data-direction={i18n.dir()}>Guests</th>
+                          <th data-direction={i18n.dir()}>{t("reports.status")}</th>
+                          <th data-direction={i18n.dir()}>{t("reports.count")}</th>
+                          <th data-direction={i18n.dir()}>{t("reports.guests")}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -775,13 +776,13 @@ const Reports = () => {
               {/* Busiest days */}
               {data.reservations.busiestDays?.length > 0 && (
                 <div className="report-card">
-                  <h3>Busiest Days of Week</h3>
+                  <h3>{t("reports.busiest_days")}</h3>
                   <div className="table-container">
                     <table>
                       <thead>
                         <tr>
-                          <th data-direction={i18n.dir()}>Day</th>
-                          <th data-direction={i18n.dir()}>Reservations</th>
+                          <th data-direction={i18n.dir()}>{t("reports.day")}</th>
+                          <th data-direction={i18n.dir()}>{t("reports.reservations_total")}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -789,7 +790,9 @@ const Reports = () => {
                           <tr key={i}>
                             <td data-direction={i18n.dir()}>
                               {/* MongoDB $dayOfWeek: 1=Sun … 7=Sat */}
-                              {DAY_NAMES[row.dayOfWeek - 1] ?? row.dayOfWeek}
+                              {DAY_KEYS[row.dayOfWeek - 1]
+                                ? t(`reports.${DAY_KEYS[row.dayOfWeek - 1]}`)
+                                : row.dayOfWeek}
                             </td>
                             <td data-direction={i18n.dir()}>{row.count}</td>
                           </tr>
@@ -801,7 +804,7 @@ const Reports = () => {
               )}
             </>
           ) : (
-            <EmptyState text="No reservation data for the selected period." />
+            <EmptyState text={t("reports.no_reservations")} />
           )}
         </div>
       )}
@@ -809,18 +812,18 @@ const Reports = () => {
       {/* ── STAFF PERFORMANCE ── */}
       {!loading && !error && activeTab === "staff" && (
         <div className="tab-content">
-          <SectionTitle>Staff Performance</SectionTitle>
+          <SectionTitle>{t("reports.staff_performance")}</SectionTitle>
           {data.staff?.length > 0 ? (
             <div className="report-card">
               <div className="table-container">
                 <table>
                   <thead>
                     <tr>
-                      <th data-direction={i18n.dir()}>Staff Member</th>
-                      <th data-direction={i18n.dir()}>Email</th>
-                      <th data-direction={i18n.dir()}>Orders Handled</th>
-                      <th data-direction={i18n.dir()}>Total Revenue</th>
-                      <th data-direction={i18n.dir()}>Avg Order Value</th>
+                      <th data-direction={i18n.dir()}>{t("reports.staff_member")}</th>
+                      <th data-direction={i18n.dir()}>{t("reports.email")}</th>
+                      <th data-direction={i18n.dir()}>{t("reports.orders_handled")}</th>
+                      <th data-direction={i18n.dir()}>{t("reports.total_revenue")}</th>
+                      <th data-direction={i18n.dir()}>{t("reports.average_order_value")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -853,7 +856,7 @@ const Reports = () => {
               </div>
             </div>
           ) : (
-            <EmptyState text="No staff performance data for the selected period." />
+            <EmptyState text={t("reports.no_staff")} />
           )}
         </div>
       )}

@@ -186,8 +186,7 @@ const ARABIC_SANS = firstFont([
 ]);
 const ARABIC_SANS_BOLD = firstFont([
   "/usr/share/fonts/truetype/noto/NotoSansArabic-Bold.ttf",
-  ARABIC_SANS,
-]);
+]) || ARABIC_SANS || null;
 const LATIN_SANS = firstFont([
   "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf",
   "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
@@ -197,12 +196,19 @@ const LATIN_SANS_BOLD = firstFont([
   "/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf",
   "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
   "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-]);
+]) || LATIN_SANS || null;
 const arabicImageCache = new Map();
 
 const arabicImage = (text, size, color, maxWidth, bold = false) => {
   const key = JSON.stringify([text, size, color, maxWidth, bold]);
   if (arabicImageCache.has(key)) return arabicImageCache.get(key);
+  const empty = { buffer: Buffer.alloc(0), width: 0, height: size };
+  const arabicPath = bold ? ARABIC_SANS_BOLD || ARABIC_SANS : ARABIC_SANS;
+  const latinPath = bold ? LATIN_SANS_BOLD || LATIN_SANS : LATIN_SANS;
+  if (!arabicPath || !latinPath) {
+    arabicImageCache.set(key, empty);
+    return empty;
+  }
   const result = spawnSync(
     "python3",
     [
@@ -213,8 +219,12 @@ const arabicImage = (text, size, color, maxWidth, bold = false) => {
         "text, size, color, max_width, bold, ar, ar_bold, lat, lat_bold = sys.argv[1:10]",
         "size = float(size)",
         "max_width = max(20.0, float(max_width))",
-        "font_r = ImageFont.truetype(ar_bold if bold == '1' else ar, size)",
-        "font_l = ImageFont.truetype(lat_bold if bold == '1' else lat, size)",
+        "ar_path = (ar_bold or ar) if bold == '1' else ar",
+        "lat_path = (lat_bold or lat) if bold == '1' else lat",
+        "if not ar_path or not lat_path or ar_path == 'None' or lat_path == 'None':",
+        "    raise SystemExit(1)",
+        "font_r = ImageFont.truetype(ar_path, size)",
+        "font_l = ImageFont.truetype(lat_path, size)",
         "def is_ar(ch):",
         "    o = ord(ch)",
         "    return (0x0600 <= o <= 0x06FF or 0x0750 <= o <= 0x077F or 0x08A0 <= o <= 0x08FF or 0xFB50 <= o <= 0xFDFF or 0xFE70 <= o <= 0xFEFF)",
@@ -285,10 +295,10 @@ const arabicImage = (text, size, color, maxWidth, bold = false) => {
       color,
       String(maxWidth || 400),
       bold ? "1" : "0",
-      ARABIC_SANS,
-      ARABIC_SANS_BOLD,
-      LATIN_SANS,
-      LATIN_SANS_BOLD,
+      arabicPath,
+      arabicPath,
+      latinPath,
+      latinPath,
     ],
     { maxBuffer: 8 * 1024 * 1024 },
   );

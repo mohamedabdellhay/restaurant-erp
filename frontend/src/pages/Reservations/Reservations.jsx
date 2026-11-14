@@ -136,7 +136,7 @@ const Reservations = () => {
     if (!formData.name || !formData.phone) {
       setMessage({
         type: "error",
-        text: "Name and phone are required to create a customer",
+        text: t("reservations.name_phone_required"),
       });
       return null;
     }
@@ -155,7 +155,7 @@ const Reservations = () => {
       console.error("Error creating customer:", error);
       setMessage({
         type: "error",
-        text: error.response?.data?.message || "Failed to create customer",
+        text: error.response?.data?.message || t("reservations.customer_create_failed"),
       });
       return null;
     }
@@ -168,7 +168,7 @@ const Reservations = () => {
     setShowCustomerModal(false);
     setMessage({
       type: "success",
-      text: "Customer created and selected successfully!",
+      text: t("reservations.customer_created"),
     });
   };
 
@@ -185,7 +185,7 @@ const Reservations = () => {
     } catch (error) {
       setMessage({
         type: "error",
-        text: error.response?.data?.message || "Failed to fetch reservations",
+        text: error.response?.data?.message || t("reservations.error_loading_reservations"),
       });
     } finally {
       setLoading(false);
@@ -216,7 +216,7 @@ const Reservations = () => {
         if (updateData.status === "confirmed" && !updateData.table) {
           setMessage({
             type: "error",
-            text: "Table must be assigned when confirming reservation",
+            text: t("reservations.table_required_confirm"),
           });
           return;
         }
@@ -224,7 +224,7 @@ const Reservations = () => {
         await reservationService.update(selectedReservation._id, updateData);
         setMessage({
           type: "success",
-          text: "Reservation updated successfully!",
+          text: t("reservations.reservation_updated"),
         });
       } else {
         // Create new reservation or guest request
@@ -267,8 +267,8 @@ const Reservations = () => {
           setMessage({
             type: "success",
             text: customer
-              ? "Customer created and reservation request submitted successfully!"
-              : "Reservation request submitted successfully!",
+              ? t("reservations.guest_and_request")
+              : t("reservations.request_submitted"),
           });
         } else {
           // Create admin reservation
@@ -282,7 +282,7 @@ const Reservations = () => {
           await reservationService.create(adminReservationData);
           setMessage({
             type: "success",
-            text: "Reservation created successfully!",
+            text: t("reservations.reservation_created"),
           });
         }
       }
@@ -294,24 +294,24 @@ const Reservations = () => {
     } catch (error) {
       setMessage({
         type: "error",
-        text: error.response?.data?.message || "Operation failed",
+        text: error.response?.data?.message || t("reservations.operation_failed"),
       });
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this reservation?")) {
+    if (window.confirm(t("reservations.delete_confirm"))) {
       try {
         await reservationService.delete(id);
         setMessage({
           type: "success",
-          text: "Reservation deleted successfully!",
+          text: t("reservations.deleted"),
         });
         fetchReservations();
       } catch (error) {
         setMessage({
           type: "error",
-          text: error.response?.data?.message || "Delete failed",
+          text: error.response?.data?.message || t("reservations.delete_failed"),
         });
       }
     }
@@ -422,7 +422,7 @@ const Reservations = () => {
   };
 
   const getTableName = (table) => {
-    return table ? table.number : "Unknown";
+    return table ? table.number : t("reservations.unknown_table");
   };
 
   const formatDateTime = (dateTimeString) => {
@@ -595,7 +595,7 @@ const Reservations = () => {
                               (typeof reservation.customer === "string"
                                 ? reservation.customer
                                 : reservation.customer?.name ||
-                                  "Unknown Customer")}
+                                  t("reservations.unknown_customer"))}
                           </span>
                         </div>
                       </td>
@@ -627,7 +627,11 @@ const Reservations = () => {
                       <td data-direction={i18n.dir()}>
                         <div className="duration-info">
                           <Clock size={16} />
-                          <span>{reservation.durationMinutes} min</span>
+                          <span>
+                            {t("reservations.minutes", {
+                              count: reservation.durationMinutes,
+                            })}
+                          </span>
                         </div>
                       </td>
                       <td data-direction={i18n.dir()}>
