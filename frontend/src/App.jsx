@@ -12,6 +12,7 @@ import Departments from "@pages/Departments/Departments";
 import Suppliers from "@pages/Suppliers/Suppliers";
 import Inventory from "@pages/Inventory/Inventory";
 import IngredientCategories from "@pages/IngredientCategories/IngredientCategories";
+import SemiFinished from "@pages/SemiFinished/SemiFinished";
 import StockCount from "@pages/StockCount/StockCount";
 import PurchaseReturns from "@pages/PurchaseReturns/PurchaseReturns";
 import Purchase from "@pages/Purchase/Purchase";
@@ -194,6 +195,14 @@ function App() {
                   element={
                     <ProtectedRoute permission="view_inventory">
                       <Inventory itemsOnly />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/semi-finished"
+                  element={
+                    <ProtectedRoute permission="view_inventory">
+                      <SemiFinished />
                     </ProtectedRoute>
                   }
                 />

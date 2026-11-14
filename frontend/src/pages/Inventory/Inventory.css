@@ -795,6 +795,11 @@ tr:hover {
   color: #d97706;
 }
 
+.ingredient-stock-critical {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
 .ingredient-add-ons {
   display: inline-flex;
   align-items: center;

@@ -1,0 +1,372 @@
+.sfg-page h1 {
+  margin: 0;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid #e6e8ec;
+  color: #1f2937;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.sfg-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0.9rem 0;
+}
+
+.sfg-search {
+  position: relative;
+  width: min(100%, 280px);
+}
+
+.sfg-search svg {
+  position: absolute;
+  top: 50%;
+  inset-inline-start: 0.75rem;
+  color: #9ca3af;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.sfg-search input,
+.sfg-modal input,
+.sfg-modal select {
+  width: 100%;
+  height: 2.25rem;
+  border: 1px solid #e6e8ec;
+  border-radius: 8px;
+  background: #fff;
+  color: #1f2937;
+  font-size: 0.875rem;
+}
+
+.sfg-search input {
+  padding-inline: 2.2rem 0.8rem;
+}
+
+.sfg-new {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  height: 2.25rem;
+  padding: 0 0.9rem;
+  border: 0;
+  border-radius: 6px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.sfg-action {
+  width: 7rem;
+  text-align: end;
+}
+
+.sfg-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.sfg-addons {
+  height: 1.35rem;
+  padding: 0 0.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sfg-edit,
+.sfg-delete {
+  display: inline-grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  margin-inline-start: 0.35rem;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.sfg-edit {
+  border: 1px solid #86efac;
+  color: #16a34a;
+}
+
+.sfg-delete {
+  border: 1px solid #fca5a5;
+  color: #ef4444;
+}
+
+.sfg-empty {
+  color: #6b7280;
+  text-align: center;
+}
+
+.sfg-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  border: 0;
+  background: transparent;
+  color: #1f2937;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sfg-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem 1.5rem;
+  max-width: 760px;
+}
+
+.sfg-fields label,
+.sfg-switch {
+  display: grid;
+  gap: 0.35rem;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.sfg-fields input,
+.sfg-fields select,
+.sfg-recipe input,
+.sfg-recipe select {
+  height: 2.25rem;
+  padding: 0 0.7rem;
+  border: 1px solid #e6e8ec;
+  border-radius: 8px;
+  background: #fff;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.sfg-switch {
+  align-content: end;
+  justify-items: start;
+}
+
+.sfg-switch input {
+  appearance: none;
+  width: 2.4rem;
+  height: 1.35rem;
+  margin: 0;
+  border-radius: 999px;
+  background: #e5e7eb;
+  cursor: pointer;
+  position: relative;
+}
+
+.sfg-switch input::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  inset-inline-start: 2px;
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s ease;
+}
+
+.sfg-switch input:checked {
+  background: var(--primary);
+}
+
+.sfg-switch input:checked::after {
+  transform: translateX(1.05rem);
+}
+
+[data-direction="rtl"] .sfg-switch input:checked::after {
+  transform: translateX(-1.05rem);
+}
+
+.sfg-recipe {
+  margin-top: 1.25rem;
+  padding: 0.9rem;
+  border: 1px solid #e6e8ec;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.sfg-recipe h2 {
+  margin: 0 0 0.75rem;
+  color: #1f2937;
+  font-size: 1rem;
+}
+
+.sfg-recipe-head,
+.sfg-recipe-line {
+  display: grid;
+  grid-template-columns: 2.2rem 1.4fr 0.8fr 0.9fr 1fr 1fr 2rem;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.sfg-recipe-head {
+  margin-bottom: 0.45rem;
+  color: #6b7280;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.sfg-recipe-line + .sfg-recipe-line {
+  margin-top: 0.45rem;
+}
+
+.sfg-recipe input:disabled {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.sfg-plus {
+  display: grid;
+  place-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  border: 0;
+  border-radius: 6px;
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
+}
+
+.sfg-cost {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.8rem;
+  color: #374151;
+  font-weight: 600;
+}
+
+.sfg-cost input {
+  width: 8rem;
+}
+
+.sfg-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.sfg-cancel {
+  height: 2.25rem;
+  padding: 0 0.9rem;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  background: #fff;
+  color: #ef4444;
+  cursor: pointer;
+}
+
+@media (max-width: 800px) {
+  .sfg-fields,
+  .sfg-recipe-head,
+  .sfg-recipe-line {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sfg-modal {
+  width: min(100%, 28rem);
+  max-height: 90vh;
+  overflow: auto;
+  padding: 1.25rem;
+  border: 1px solid #eceff3;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.sfg-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.sfg-modal-head h2 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 1.1rem;
+}
+
+.sfg-modal-head button {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+.sfg-modal label {
+  display: block;
+  margin: 0.75rem 0 0.35rem;
+  color: #374151;
+  font-weight: 600;
+}
+
+.sfg-modal input,
+.sfg-modal select {
+  padding: 0 0.75rem;
+}
+
+.sfg-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.sfg-cancel {
+  height: 2.25rem;
+  padding: 0 0.9rem;
+  border: 1px solid #e6e8ec;
+  border-radius: 6px;
+  background: #fff;
+  color: #374151;
+  cursor: pointer;
+}
+
+.sfg-addons-list {
+  display: grid;
+  gap: 0.45rem;
+  max-height: 18rem;
+  overflow: auto;
+}
+
+.sfg-addons-list label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .sfg-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .sfg-search {
+    width: 100%;
+  }
+}
