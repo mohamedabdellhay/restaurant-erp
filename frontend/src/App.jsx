@@ -45,6 +45,7 @@ import FoodItemForm from "@pages/FoodItems/FoodItemForm";
 import Reports from "@pages/Reports/Reports";
 import ItemsBySupplier from "@pages/ItemsBySupplier/ItemsBySupplier";
 import SupplierTrx from "@pages/SupplierTrx/SupplierTrx";
+import SupplierCredit from "@pages/SupplierCredit/SupplierCredit";
 import Roles from "@pages/Roles/Roles";
 import Platform from "@pages/Platform/Platform";
 import { useAuth } from "@hooks/useAuth";
@@ -393,6 +394,14 @@ function App() {
                 />
 
                 {/* Reports - view_reports permission */}
+                <Route
+                  path="/reports/supplier-credit"
+                  element={
+                    <ProtectedRoute permission="view_reports">
+                      <SupplierCredit />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="/reports/supplier-transactions"
                   element={

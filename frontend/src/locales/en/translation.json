@@ -554,6 +554,11 @@
     "supplier_trx_total": "Total Purchase",
     "supplier_trx_grn": "GRN Date Time",
     "supplier_trx_empty": "No supplier purchases yet",
+    "supplier_credit": "Supplier Credit Report",
+    "supplier_credit_mobile": "Supplier Mobile",
+    "supplier_credit_paid": "Paid",
+    "supplier_credit_due": "Due",
+    "supplier_credit_empty": "No suppliers found",
     "departments": "Departments",
     "settings": "Settings"
   },

@@ -114,6 +114,7 @@ const NAV_ENTRIES = [
       { label: "nav.reports_home", path: "/reports", permission: "view_reports" },
       { label: "nav.items_by_supplier", path: "/reports/items-by-supplier", permission: "view_reports" },
       { label: "nav.supplier_trx", path: "/reports/supplier-transactions", permission: "view_reports" },
+      { label: "nav.supplier_credit", path: "/reports/supplier-credit", permission: "view_reports" },
     ],
   },
   {
