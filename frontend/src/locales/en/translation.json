@@ -342,6 +342,10 @@
     "access_denied": "Access denied",
     "actions": "Actions"
   },
+  "pos": {
+    "enter_pin": "Enter PIN",
+    "clear_all": "Clear All"
+  },
   "dashboard": {
     "title": "Business Dashboard",
     "subtitle": "Comprehensive analytics and insights for your restaurant",

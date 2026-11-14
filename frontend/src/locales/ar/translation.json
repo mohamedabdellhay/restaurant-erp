@@ -250,6 +250,10 @@
   "reservations_status_completed": "مكتمل",
   "reservations_table": "الحجوزات",
   "reservations_actions": "إجراءات الحجوزات",
+  "pos": {
+    "enter_pin": "أدخل الرقم السري",
+    "clear_all": "مسح الكل"
+  },
   "dashboard": {
     "title": "لوحة التحكم",
     "subtitle": "تحليلات و رؤى شاملة لمطعمك",

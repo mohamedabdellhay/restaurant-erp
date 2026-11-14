@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PageHeader from "@components/PageHeader";
 import Alert from "@components/Alert";
+import PinPad from "@components/PinPad";
 import "./Orders.css";
 import { useTranslation } from "react-i18next";
 import {
@@ -43,6 +44,9 @@ const Orders = () => {
   const { getCurrency } = useRestaurant();
   const currency = getCurrency();
   const [orders, setOrders] = useState([]);
+  const [pinUnlocked, setPinUnlocked] = useState(
+    () => sessionStorage.getItem("posPinUnlocked") === "1",
+  );
   const [tables, setTables] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -526,6 +530,17 @@ const Orders = () => {
       return total + (itemPrice + modifiersTotal) * qty;
     }, 0);
   };
+
+  if (!pinUnlocked) {
+    return (
+      <PinPad
+        onComplete={() => {
+          sessionStorage.setItem("posPinUnlocked", "1");
+          setPinUnlocked(true);
+        }}
+      />
+    );
+  }
 
   return (
     <div data-direction={i18n.dir()}>
