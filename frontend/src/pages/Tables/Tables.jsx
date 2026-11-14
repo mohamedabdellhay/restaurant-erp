@@ -1,475 +1,170 @@
-import React, { useState, useEffect } from "react";
-import PageHeader from "@components/PageHeader";
-import Alert from "@components/Alert";
-import "./Tables.css";
+import { useEffect, useState } from "react";
+import { Pencil, Plus, Trash2, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
-// import { useRestaurant } from "@hooks/useRestaurant";
-import {
-  SquareMenu,
-  Plus,
-  Search,
-  Edit,
-  Trash2,
-  Users,
-  Clock,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  X,
-  Save,
-  Filter,
-} from "lucide-react";
+import Alert from "@components/Alert";
+import { useAuth } from "@hooks/useAuth";
 import tableService from "@services/tableService";
 import { getErrorMessage } from "@utils/errorMessage";
+import "./Tables.css";
+
+function tableLabel(number) {
+  const value = String(number ?? "");
+  return /^\d+$/.test(value) ? `T${value}` : value;
+}
+
+function sortTables(rows) {
+  return [...rows].sort((left, right) => {
+    const a = String(left.number ?? "");
+    const b = String(right.number ?? "");
+    if (/^\d+$/.test(a) && /^\d+$/.test(b)) return Number(a) - Number(b);
+    return a.localeCompare(b);
+  });
+}
 
 const Tables = () => {
-  const { t, i18n } = useTranslation();
-  // const { getThemeColors } = useRestaurant();
-
-  // Get theme colors for dynamic styling
-  // const themeColors = getThemeColors();
-  // const primaryColor = themeColors.primary || "#f59e0b";
-  // const secondaryColor = themeColors.secondary || "#6366f1";
-  // const accentColor = themeColors.accent || "#10b981";
-
+  const { t } = useTranslation();
+  const { hasPermission } = useAuth();
+  const canManage = hasPermission("manage_tables");
   const [tables, setTables] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [selectedTable, setSelectedTable] = useState(null);
+  const [form, setForm] = useState(null);
+  const draft = form || { id: "", number: "", seats: "", status: "available" };
   const [message, setMessage] = useState({ type: "", text: "" });
-  const [filterStatus, setFilterStatus] = useState("all");
-  const user = JSON.parse(localStorage.getItem("user"));
-  // Auto-hide message after 3 seconds
-  useEffect(() => {
-    if (message.text) {
-      const timer = setTimeout(() => {
-        setMessage({ type: "", text: "" });
-      }, 3000);
 
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
-
-  // Form state for add/edit
-  const [formData, setFormData] = useState({
-    number: "",
-    seats: "",
-    status: "available",
-  });
-
-  useEffect(() => {
-    fetchTables();
-  }, []);
-
-  const fetchTables = async () => {
-    try {
-      setLoading(true);
-      const response = await tableService.getAll();
-      setTables(response.data || response);
-    } catch (error) {
-      setMessage({
-        type: "error",
-        text: getErrorMessage(error, t("table.tables_fetch_failed")),
-      });
-    } finally {
-      setLoading(false);
-    }
+  const load = () => {
+    tableService
+      .getAll()
+      .then((result) => setTables(sortTables(result?.data || result || [])))
+      .catch((error) => setMessage({ type: "error", text: getErrorMessage(error, t("table.tables_fetch_failed")) }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  useEffect(() => {
+    load();
+  }, [t]);
+
+  const openNew = () => setForm({ id: "", number: "", seats: "", status: "available" });
+
+  const openEdit = (table) => {
+    setForm({
+      id: table._id,
+      number: String(table.number ?? ""),
+      seats: String(table.seats ?? ""),
+      status: table.status || "available",
+    });
+  };
+
+  const save = async (event) => {
+    event.preventDefault();
+    const seats = Number(draft.seats);
+    if (!draft.number.trim() || !Number.isInteger(seats) || seats < 1) return;
+    const payload = { number: draft.number.trim(), seats, status: draft.status || "available" };
     try {
-      if (selectedTable) {
-        // Update table
-        await tableService.update(selectedTable._id, formData);
+      if (draft.id) {
+        await tableService.update(draft.id, payload);
         setMessage({ type: "success", text: t("table.tables_updated") });
       } else {
-        await tableService.create(formData);
+        await tableService.create(payload);
         setMessage({ type: "success", text: t("table.tables_created") });
       }
-
-      setShowAddModal(false);
-      setShowEditModal(false);
-      resetForm();
-      fetchTables();
+      setForm(null);
+      load();
     } catch (error) {
-      setMessage({
-        type: "error",
-        text: getErrorMessage(error, t("table.tables_save_failed")),
-      });
+      setMessage({ type: "error", text: getErrorMessage(error, t("table.tables_save_failed")) });
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm(t("table.tables_delete_confirm"))) {
-      try {
-        await tableService.delete(id);
-        setMessage({ type: "success", text: t("table.tables_deleted") });
-        fetchTables();
-      } catch (error) {
-        setMessage({
-          type: "error",
-          text: getErrorMessage(error, t("table.tables_delete_failed")),
-        });
-      }
+  const remove = async (table) => {
+    if (!window.confirm(t("table.tables_delete_confirm"))) return;
+    try {
+      await tableService.delete(table._id);
+      setMessage({ type: "success", text: t("table.tables_deleted") });
+      load();
+    } catch (error) {
+      setMessage({ type: "error", text: getErrorMessage(error, t("table.tables_delete_failed")) });
     }
   };
-
-  const handleEdit = (table) => {
-    setSelectedTable(table);
-    setFormData({
-      number: table.number,
-      seats: table.seats,
-      status: table.status,
-    });
-    setShowEditModal(true);
-  };
-
-  const resetForm = () => {
-    setFormData({
-      number: "",
-      seats: "",
-      status: "available",
-    });
-    setSelectedTable(null);
-  };
-
-  const filteredTables = tables.filter((table) => {
-    const matchesSearch = table.number
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-
-    const matchesFilter =
-      filterStatus === "all" || table.status === filterStatus;
-
-    return matchesSearch && matchesFilter;
-  });
-
-  const availableTablesCount = tables.filter(
-    (table) => table.status === "available",
-  ).length;
-
-  const occupiedTablesCount = tables.filter(
-    (table) => table.status === "occupied",
-  ).length;
-
-  const reservedTablesCount = tables.filter(
-    (table) => table.status === "reserved",
-  ).length;
-
-  // const maintenanceTablesCount = tables.filter(
-  //   (table) => table.status === "maintenance",
-  // ).length;
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "available":
-        return <CheckCircle size={16} />;
-      case "occupied":
-        return <Users size={16} />;
-      case "reserved":
-        return <Clock size={16} />;
-      case "maintenance":
-        return <AlertCircle size={16} />;
-      default:
-        return <AlertCircle size={16} />;
-    }
-  };
-
-  // const getStatusColor = (status) => {
-  //   switch (status) {
-  //     case "available":
-  //       return "var(--success)";
-  //     case "occupied":
-  //       return "var(--primary)";
-  //     case "reserved":
-  //       return "var(--warning)";
-  //     case "maintenance":
-  //       return "var(--danger)";
-  //     default:
-  //       return "var(--text-muted)";
-  //   }
-  // };
 
   return (
-    <div data-direction={i18n.dir()}>
-      <PageHeader
-        icon={SquareMenu}
-        title={t("nav.tables")}
-        subtitle={t("table.tables_manage_description")}
-      >
-        <button
-          onClick={() => {
-            resetForm();
-            setShowAddModal(true);
-          }}
-          className="btn-primary"
-        >
-          <Plus size={20} />
-          {t("table.tables_add_new")}
-        </button>
-      </PageHeader>
-
-      {/* Stats Cards */}
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon">
-            <SquareMenu />
-          </div>
-          <div className="stat-content">
-            <h3>{tables.length}</h3>
-            <p>{t("table.tables_total_tables")}</p>
-          </div>
-        </div>
-        <div className="stat-card available">
-          <div className="stat-icon">
-            <CheckCircle />
-          </div>
-          <div className="stat-content">
-            <h3>{availableTablesCount}</h3>
-            <p>{t("table.tables_available_tables")}</p>
-          </div>
-        </div>
-        <div className="stat-card occupied">
-          <div className="stat-icon">
-            <Users />
-          </div>
-          <div className="stat-content">
-            <h3>{occupiedTablesCount}</h3>
-            <p>{t("table.tables_occupied_tables")}</p>
-          </div>
-        </div>
-        <div className="stat-card reserved">
-          <div className="stat-icon">
-            <Clock />
-          </div>
-          <div className="stat-content">
-            <h3>{reservedTablesCount}</h3>
-            <p>{t("table.tables_reserved_tables")}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Search and Filter */}
-      <div className="search-filter-bar">
-        <div className="search-box">
-          <Search size={20} />
-          <input
-            type="text"
-            placeholder={t("table.tables_search_placeholder")}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <div className="filter-buttons">
-          <button
-            className={`filter-btn ${filterStatus === "all" ? "active" : ""}`}
-            onClick={() => setFilterStatus("all")}
-          >
-            {t("table.tables_filter_all")}
-          </button>
-          <button
-            className={`filter-btn ${filterStatus === "available" ? "active" : ""}`}
-            onClick={() => setFilterStatus("available")}
-          >
-            {t("table.tables_filter_available")}
-          </button>
-          <button
-            className={`filter-btn ${filterStatus === "occupied" ? "active" : ""}`}
-            onClick={() => setFilterStatus("occupied")}
-          >
-            {t("table.tables_filter_occupied")}
-          </button>
-          <button
-            className={`filter-btn ${filterStatus === "reserved" ? "active" : ""}`}
-            onClick={() => setFilterStatus("reserved")}
-          >
-            {t("table.tables_filter_reserved")}
-          </button>
-          <button
-            className={`filter-btn ${filterStatus === "maintenance" ? "active" : ""}`}
-            onClick={() => setFilterStatus("maintenance")}
-          >
-            {t("table.tables_filter_maintenance")}
-          </button>
-        </div>
-      </div>
-
-      {/* Message */}
+    <div className="table-setup">
       <Alert type={message.type} message={message.text} />
-
-      {/* Tables Grid */}
-      <div className="tables-container">
-        {loading ? (
-          <div className="loading-spinner">
-            <div className="spinner"></div>
-            <p>{t("common.loading")}</p>
-          </div>
-        ) : (
-          <div className="tables-grid">
-            {filteredTables.length === 0 ? (
-              <div className="no-data">
-                <SquareMenu size={48} />
-                <h3>{t("table.tables_no_tables_found")}</h3>
-                <p>{t("table.tables_no_tables_description")}</p>
-              </div>
-            ) : (
-              filteredTables.map((table) => (
-                <div key={table._id} className={`table-card ${table.status}`}>
-                  <div className="table-header">
-                    <div className="table-number">
-                      <span className="number">{table.number}</span>
-                      <span className="capacity">
-                        {table.seats} {t("table.tables_seats")}
-                      </span>
-                    </div>
-                    <div className="table-status">
-                      {getStatusIcon(table.status)}
-                      <span>{t(`table.tables_status_${table.status}`)}</span>
-                    </div>
-                  </div>
-
-                  <div className="table-body"></div>
-
-                  {["admin", "manager"].includes(user?.role) && (
-                    <div className="table-actions">
-                      <button
-                        onClick={() => handleEdit(table)}
-                        className="btn-icon btn-edit"
-                        title={t("common.edit")}
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(table._id)}
-                        className="btn-icon btn-delete"
-                        title={t("common.delete")}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))
-            )}
-          </div>
+      <div className="table-setup-head">
+        <h1>{t("nav.table_title")}</h1>
+        {canManage && (
+          <button type="button" onClick={openNew}>
+            <Plus size={16} />
+            {t("nav.table_new")}
+          </button>
         )}
       </div>
-
-      {/* Add/Edit Modal */}
-      {(showAddModal || showEditModal) && (
-        <div className="modal-overlay">
-          <div className="modal" data-direction={i18n.dir()}>
-            <div className="modal-header">
-              <h2>
-                {showEditModal ? (
-                  <>
-                    <Edit size={20} />
-                    {t("table.tables_edit_table")}
-                  </>
-                ) : (
-                  <>
-                    <Plus size={20} />
-                    {t("table.tables_add_new_table")}
-                  </>
-                )}
-              </h2>
-              <button
-                onClick={() => {
-                  setShowAddModal(false);
-                  setShowEditModal(false);
-                  resetForm();
-                }}
-                className="btn-close"
-              >
-                <X size={20} />
+      <div className="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>{t("nav.table_no")}</th>
+              <th>{t("nav.table_chairs")}</th>
+              <th>{t("menu.action")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tables.length === 0 ? (
+              <tr>
+                <td colSpan={3}>{t("nav.table_empty")}</td>
+              </tr>
+            ) : (
+              tables.map((table) => (
+                <tr key={table._id}>
+                  <td>{tableLabel(table.number)}</td>
+                  <td>{table.seats}</td>
+                  <td>
+                    {canManage && (
+                      <span className="table-setup-actions">
+                        <button type="button" className="is-edit" onClick={() => openEdit(table)} aria-label={t("common.edit")}>
+                          <Pencil size={15} />
+                        </button>
+                        <button type="button" className="is-delete" onClick={() => remove(table)} aria-label={t("common.delete")}>
+                          <Trash2 size={15} />
+                        </button>
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+      {form && (
+        <div className="table-setup-overlay" role="presentation" onClick={() => setForm(null)}>
+          <form
+            className="table-setup-dialog"
+            role="dialog"
+            aria-modal="true"
+            onClick={(event) => event.stopPropagation()}
+            onSubmit={save}
+          >
+            <header>
+              <strong>{draft.id ? t("common.edit") : t("nav.table_new")}</strong>
+              <button type="button" onClick={() => setForm(null)} aria-label={t("common.close")}>
+                <X size={16} />
               </button>
+            </header>
+            <label>
+              {t("nav.table_no")}
+              <input value={draft.number} onChange={(event) => setForm({ ...draft, number: event.target.value })} required />
+            </label>
+            <label>
+              {t("nav.table_chairs")}
+              <input
+                inputMode="numeric"
+                value={draft.seats}
+                onChange={(event) => setForm({ ...draft, seats: event.target.value.replace(/\D/g, "") })}
+                required
+              />
+            </label>
+            <div className="table-setup-dialog-actions">
+              <button type="button" onClick={() => setForm(null)}>{t("common.cancel")}</button>
+              <button type="submit">{t("common.save")}</button>
             </div>
-
-            <form onSubmit={handleSubmit} className="table-form">
-              <div className="form-grid">
-                <div className="form-group">
-                  <label>{t("table.tables_table_number")} *</label>
-                  <input
-                    type="text"
-                    value={formData.number}
-                    onChange={(e) =>
-                      setFormData({ ...formData, number: e.target.value })
-                    }
-                    required
-                    placeholder={t("table.tables_number_placeholder")}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>{t("table.tables_capacity")} *</label>
-                  <input
-                    type="number"
-                    value={formData.seats}
-                    onChange={(e) =>
-                      setFormData({ ...formData, seats: e.target.value })
-                    }
-                    required
-                    min="1"
-                    max="20"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>{t("table.tables_status")} *</label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) =>
-                      setFormData({ ...formData, status: e.target.value })
-                    }
-                    required
-                  >
-                    <option value="available">
-                      {t("table.tables_status_available")}
-                    </option>
-                    <option value="occupied">
-                      {t("table.tables_status_occupied")}
-                    </option>
-                    <option value="reserved">
-                      {t("table.tables_status_reserved")}
-                    </option>
-                    <option value="maintenance">
-                      {t("table.tables_status_maintenance")}
-                    </option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="form-actions">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAddModal(false);
-                    setShowEditModal(false);
-                    resetForm();
-                  }}
-                  className="btn-secondary"
-                >
-                  {t("common.cancel")}
-                </button>
-                <button type="submit" className="btn-primary">
-                  {showEditModal ? (
-                    <>
-                      <Save size={16} />
-                      {t("common.update")}
-                    </>
-                  ) : (
-                    <>
-                      <Plus size={16} />
-                      {t("common.create")}
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
+          </form>
         </div>
       )}
     </div>
