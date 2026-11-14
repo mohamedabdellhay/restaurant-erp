@@ -167,7 +167,7 @@ const Inventory = () => {
     const categoryId =
       item.ingredientCategory && typeof item.ingredientCategory === "object"
         ? item.ingredientCategory._id
-        : item.ingredientCategoryId || "";
+        : item.ingredientCategory || "";
     setFormData({
       name: item.name || "",
       sku: item.sku || "",

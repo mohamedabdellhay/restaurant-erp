@@ -30,6 +30,15 @@ import {
   LayoutGrid,
   User,
   X,
+  ArrowLeft,
+  Megaphone,
+  Split,
+  History,
+  ClipboardList,
+  Monitor,
+  Printer,
+  FileText,
+  Minus,
 } from "lucide-react";
 import paymentService from "@services/paymentService";
 import orderService from "@services/orderService";
@@ -38,6 +47,7 @@ import tableService from "@services/tableService";
 import staffService from "@services/staffService";
 import customerService from "@services/customerService";
 import menuService from "@services/menuService";
+import categoryService from "@services/categoryService";
 import CustomerModal from "@components/CustomerModal";
 import {
   ProtectedElement,
@@ -57,7 +67,7 @@ const formatOpeningStamp = (date) => {
 
 const Orders = () => {
   const { t, i18n } = useTranslation();
-  const { getCurrency } = useRestaurant();
+  const { getCurrency, getTaxPercent, getServiceCharge } = useRestaurant();
   const currency = getCurrency();
   const [orders, setOrders] = useState([]);
   const [pinUnlocked, setPinUnlocked] = useState(
@@ -73,6 +83,19 @@ const Orders = () => {
   const [channel, setChannel] = useState("dineIn");
   const [selectedTable, setSelectedTable] = useState("");
   const [selectedWaiter, setSelectedWaiter] = useState("");
+  const [categories, setCategories] = useState([]);
+  const [showPos, setShowPos] = useState(false);
+  const [draftOrder, setDraftOrder] = useState(null);
+  const [posCategoryId, setPosCategoryId] = useState("");
+  const [posSearch, setPosSearch] = useState("");
+  const [posItemChip, setPosItemChip] = useState("");
+  const [posPanel, setPosPanel] = useState("");
+  const [covers, setCovers] = useState("1");
+  const [splitWays, setSplitWays] = useState("2");
+  const [discountMode, setDiscountMode] = useState("group");
+  const [discountAmount, setDiscountAmount] = useState("");
+  const [noteIndex, setNoteIndex] = useState(null);
+  const [moreItemId, setMoreItemId] = useState("");
   const [menuItems, setMenuItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -114,6 +137,7 @@ const Orders = () => {
     fetchTables();
     fetchWaiters();
     fetchMenuItems();
+    fetchCategories();
     fetchGateways();
   }, []);
 
@@ -190,6 +214,19 @@ const Orders = () => {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const response = await categoryService.getAll();
+      const rows = (response.data || response || []).filter(
+        (category) => category.isActive !== false,
+      );
+      setCategories(rows);
+      setPosCategoryId((current) => current || rows[0]?._id || "");
+    } catch (error) {
+      console.error("Failed to fetch categories:", error);
+    }
+  };
+
   // Search customers by phone or name
   const searchCustomers = async (query) => {
     if (!query || query.length < 3) {
@@ -262,18 +299,36 @@ const Orders = () => {
   };
 
   // Order items management
-  const addOrderItem = (menuItem) => {
-    const newItem = {
-      menuItem: menuItem._id,
-      name: menuItem.name,
-      price: menuItem.price,
-      quantity: 1,
-      modifiers: [],
-      notes: "",
-    };
-    setFormData({
-      ...formData,
-      items: [...formData.items, newItem],
+  const addOrderItem = (menuItem, modifiers = []) => {
+    if (menuItem.isActive === false || menuItem.isAvailable === false) return;
+    setFormData((current) => {
+      const modifierKey = modifiers.map((modifier) => modifier.name).join("|");
+      const existing = current.items.findIndex((item) => {
+        const itemKey = (item.modifiers || []).map((modifier) => modifier.name).join("|");
+        return item.menuItem === menuItem._id && itemKey === modifierKey && !item.notes;
+      });
+      if (existing >= 0) {
+        return {
+          ...current,
+          items: current.items.map((item, index) =>
+            index === existing ? { ...item, quantity: (item.quantity || 1) + 1 } : item,
+          ),
+        };
+      }
+      return {
+        ...current,
+        items: [
+          ...current.items,
+          {
+            menuItem: menuItem._id,
+            name: menuItem.name,
+            price: menuItem.price,
+            quantity: 1,
+            modifiers,
+            notes: "",
+          },
+        ],
+      };
     });
   };
 
@@ -307,15 +362,34 @@ const Orders = () => {
     }, 0);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const billFigures = () => {
+    const subtotal = calculateOrderTotal();
+    const requested = discountMode === "custom" ? Number(discountAmount) || 0 : 0;
+    const discountValue = Math.min(Math.max(requested, 0), subtotal);
+    const taxable = subtotal - discountValue;
+    const vatAmount = (taxable * getTaxPercent()) / 100;
+    const serviceAmount = (taxable * getServiceCharge()) / 100;
+    return {
+      subtotal,
+      discountValue,
+      vatAmount,
+      serviceAmount,
+      sdAmount: 0,
+      total: taxable + vatAmount + serviceAmount,
+    };
+  };
+
+  const buildOrderPayload = (status) => {
+    const { discountValue } = billFigures();
+    const discountNote =
+      discountValue > 0 ? `Discount: ${discountValue.toFixed(2)} ${currency}` : "";
     const payload = {
       type: formData.type,
       table: formData.type === "dineIn" ? recordId(formData.table) : null,
       customer: recordId(formData.customer) || null,
       deliveryAddress:
         formData.type === "delivery" ? formData.deliveryAddress.trim() : "",
-      notes: formData.notes,
+      notes: [formData.notes.trim(), discountNote].filter(Boolean).join("\n"),
       items: formData.items.map((item) => ({
         menuItem: recordId(item.menuItem),
         qty: Number(item.quantity || item.qty) || 1,
@@ -323,43 +397,66 @@ const Orders = () => {
         modifiers: item.modifiers || [],
       })),
     };
+    if (status) payload.status = status;
 
     if (!payload.items.length) {
       setMessage({ type: "error", text: t("nav.orders_no_items") });
-      return;
+      return null;
     }
     if (payload.type === "dineIn" && !payload.table) {
       setMessage({ type: "error", text: t("nav.orders_select_table") });
-      return;
+      return null;
     }
     if (payload.type === "delivery" && !payload.customer) {
       setMessage({ type: "error", text: t("nav.orders_delivery_needs_customer") });
-      return;
+      return null;
     }
     if (payload.type === "delivery" && !payload.deliveryAddress) {
       setMessage({ type: "error", text: t("nav.orders_delivery_needs_address") });
-      return;
+      return null;
     }
+    return payload;
+  };
 
+  const saveOrder = async (status) => {
+    const payload = buildOrderPayload(status);
+    if (!payload) return null;
+    const editingId = draftOrder?._id || selectedOrder?._id;
     try {
-      if (selectedOrder) {
-        await orderService.update(selectedOrder._id, payload);
-        setMessage({ type: "success", text: "Order updated successfully!" });
-      } else {
-        await orderService.create(payload);
-        setMessage({ type: "success", text: "Order created successfully!" });
-      }
-
-      setShowAddModal(false);
-      setShowEditModal(false);
-      resetForm();
+      const result = editingId
+        ? await orderService.update(editingId, payload)
+        : await orderService.create(payload);
+      const saved = result?.data || result;
+      if (showPos) setDraftOrder(saved);
+      setMessage({
+        type: "success",
+        text:
+          status === "in_kitchen"
+            ? t("nav.orders_sent_kitchen")
+            : editingId
+              ? "Order updated successfully!"
+              : "Order created successfully!",
+      });
       fetchOrders();
+      return saved;
     } catch (error) {
       setMessage({
         type: "error",
         text: error.response?.data?.message || "Operation failed",
       });
+      return null;
     }
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const saved = await saveOrder();
+    if (!saved) return;
+    setShowAddModal(false);
+    setShowEditModal(false);
+    setShowPos(false);
+    setDraftOrder(null);
+    resetForm();
   };
 
   const handleEdit = (order) => {
@@ -604,6 +701,137 @@ const Orders = () => {
     { id: "delivery", label: t("nav.orders_delivery"), icon: Bike },
   ];
 
+  const categoryIdOf = (item) => {
+    if (item.category && typeof item.category === "object") {
+      return item.category._id || item.category.id || "";
+    }
+    return item.category || "";
+  };
+
+  const itemsForCategory = (categoryId) =>
+    menuItems.filter((item) => categoryIdOf(item) === categoryId);
+
+  const openPos = () => {
+    const table = tables.find((item) => item._id === selectedTable);
+    resetForm();
+    setDraftOrder(null);
+    setDiscountMode("group");
+    setDiscountAmount("");
+    setPosSearch("");
+    setPosItemChip("");
+    setPosPanel("");
+    setNoteIndex(null);
+    setMoreItemId("");
+    setCovers(String(table?.seats || 1));
+    setSplitWays(String(Math.max(table?.seats || 2, 1)));
+    setFormData({
+      type: channel,
+      table: channel === "dineIn" ? selectedTable : "",
+      customer: "",
+      deliveryAddress: "",
+      items: [],
+      notes: "",
+    });
+    setShowPos(true);
+  };
+
+  const startNewTicket = () => {
+    setDraftOrder(null);
+    setDiscountMode("group");
+    setDiscountAmount("");
+    setNoteIndex(null);
+    setMoreItemId("");
+    setPosItemChip("");
+    setFormData((current) => ({ ...current, items: [], notes: "" }));
+  };
+
+  const cancelPosOrder = async () => {
+    if (draftOrder?._id) {
+      if (!window.confirm(t("nav.orders_cancel_order"))) return;
+      try {
+        await orderService.updateStatus(draftOrder._id, { status: "cancelled" });
+        setMessage({ type: "success", text: t("nav.orders_cancel_order") });
+        fetchOrders();
+      } catch (error) {
+        setMessage({
+          type: "error",
+          text: error.response?.data?.message || "Status update failed",
+        });
+        return;
+      }
+    }
+    setDraftOrder(null);
+    setDiscountMode("group");
+    setDiscountAmount("");
+    setNoteIndex(null);
+    setFormData((current) => ({ ...current, items: [], notes: "" }));
+  };
+
+  const loadOrder = (order) => {
+    setDraftOrder(order);
+    setSelectedOrder(null);
+    setFormData({
+      type: order.type || "dineIn",
+      table: recordId(order.table),
+      customer: recordId(order.customer),
+      deliveryAddress: order.deliveryAddress || order.customer?.address || "",
+      items: (order.items || []).map((item) => ({
+        menuItem: recordId(item.menuItem),
+        name: item.menuItem?.name || item.name || "",
+        price: item.price,
+        quantity: item.qty || item.quantity || 1,
+        modifiers: item.modifiers || [],
+        notes: item.notes || "",
+      })),
+      notes: String(order.notes || "").replace(/\n?Discount:.*$/, ""),
+    });
+    if (order.customer && typeof order.customer === "object") {
+      setSelectedCustomer(order.customer);
+      setCustomerSearch(order.customer.phone || order.customer.name || "");
+    } else {
+      setSelectedCustomer(null);
+      setCustomerSearch("");
+    }
+    setChannel(order.type || "dineIn");
+    setPosPanel("");
+    setShowPos(true);
+  };
+
+  const changeQty = (index, delta) => {
+    setFormData((current) => ({
+      ...current,
+      items: current.items.map((item, itemIndex) =>
+        itemIndex === index
+          ? { ...item, quantity: Math.max(1, (item.quantity || 1) + delta) }
+          : item,
+      ),
+    }));
+  };
+
+  const togglePanel = (name) => setPosPanel((current) => (current === name ? "" : name));
+
+  const activeOrders = orders.filter(
+    (order) => order.status !== "paid" && order.status !== "cancelled",
+  );
+  const selectedTableRecord = tables.find((table) => table._id === formData.table);
+  const selectedWaiterRecord = waiters.find((waiter) => waiter._id === selectedWaiter);
+  const selectedCategory = categories.find((category) => category._id === posCategoryId);
+  const categoryItems = itemsForCategory(posCategoryId);
+  const itemChips = [...new Set(categoryItems.map((item) => item.name).filter(Boolean))];
+  const visibleMenu = categoryItems.filter((item) => {
+    const query = posSearch.trim().toLowerCase();
+    const matchesSearch = !query || String(item.name || "").toLowerCase().includes(query);
+    const matchesChip = !posItemChip || item.name === posItemChip;
+    return matchesSearch && matchesChip;
+  });
+  const figures = billFigures();
+  const shareCount = Math.max(1, Number(splitWays) || 1);
+  const channelMeta = channels.find((item) => item.id === formData.type) || channels[0];
+  const ChannelIcon = channelMeta.icon;
+  const ticketNumber = draftOrder?.orderNumber
+    ? `#${draftOrder.orderNumber}`
+    : t("nav.orders_new_ticket");
+
   if (!pinUnlocked) {
     return (
       <PinPad
@@ -615,8 +843,481 @@ const Orders = () => {
     );
   }
 
+  const orderLabel = (order) =>
+    order.orderNumber ? `#${order.orderNumber}` : String(order._id || "").slice(0, 8);
+
   return (
     <div data-direction={i18n.dir()}>
+      <Alert type={message.type} message={message.text} />
+      {showPos ? (
+        <section className="pos-screen">
+          <div className="pos-toolbar">
+            <button
+              type="button"
+              className="pos-back"
+              onClick={() => {
+                setShowPos(false);
+                setPosPanel("");
+              }}
+              aria-label={t("nav.orders_back")}
+            >
+              <ArrowLeft size={18} />
+            </button>
+            <div className="pos-chips">
+              <button type="button" className="pos-chip" onClick={() => togglePanel("channel")}>
+                <ChannelIcon size={15} />
+                {channelMeta.label}
+              </button>
+              {formData.type === "dineIn" && (
+                <button type="button" className="pos-chip" onClick={() => togglePanel("table")}>
+                  <LayoutGrid size={15} />
+                  {selectedTableRecord ? tableLabel(selectedTableRecord) : t("nav.orders_select_table")}
+                </button>
+              )}
+              <button type="button" className="pos-chip" onClick={() => togglePanel("waiter")}>
+                <User size={15} />
+                {selectedWaiterRecord?.name || t("nav.orders_waiter")}
+              </button>
+              <button type="button" className="pos-chip pos-chip-customer" onClick={() => togglePanel("customer")}>
+                <User size={15} />
+                {selectedCustomer
+                  ? `${selectedCustomer.name} (${selectedCustomer.phone || ""})`
+                  : t("nav.orders_select_customer")}
+              </button>
+              <label className="pos-chip pos-covers">
+                <Users size={15} />
+                <input
+                  inputMode="numeric"
+                  aria-label={t("nav.orders_covers")}
+                  value={covers}
+                  onChange={(event) => setCovers(event.target.value.replace(/\D/g, "").slice(0, 2))}
+                />
+              </label>
+            </div>
+            <div className="pos-actions">
+              <button type="button" className="pos-action promo" onClick={() => togglePanel("promotion")}>
+                <Megaphone size={15} />
+                {t("nav.orders_promotion")}
+                <span>0</span>
+              </button>
+              <button type="button" className="pos-action split" onClick={() => togglePanel("split")}>
+                <Split size={15} />
+                {t("nav.orders_split_bill")}
+              </button>
+              <button type="button" className="pos-action history" onClick={() => togglePanel("history")}>
+                <History size={15} />
+                {t("nav.orders_order_history")}
+                <span>{orders.length}</span>
+              </button>
+              <button type="button" className="pos-action active-order" onClick={() => togglePanel("active")}>
+                <ClipboardList size={15} />
+                {t("nav.orders_active_order")}
+                <span>{activeOrders.length}</span>
+              </button>
+              <button type="button" className="pos-action new-order" onClick={startNewTicket}>
+                <Plus size={15} />
+                {t("nav.orders_new_order")}
+              </button>
+            </div>
+          </div>
+
+          {posPanel && (
+            <div className="pos-panel">
+              {posPanel === "channel" &&
+                channels.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className={formData.type === item.id ? "active" : ""}
+                      onClick={() => {
+                        setChannel(item.id);
+                        setFormData((current) => ({
+                          ...current,
+                          type: item.id,
+                          table: item.id === "dineIn" ? current.table : "",
+                        }));
+                        setPosPanel("");
+                      }}
+                    >
+                      <Icon size={15} />
+                      {item.label}
+                    </button>
+                  );
+                })}
+              {posPanel === "table" &&
+                (tables.length === 0 ? (
+                  <p>{t("nav.orders_no_tables")}</p>
+                ) : (
+                  tables.map((table) => (
+                    <button
+                      key={table._id}
+                      type="button"
+                      className={formData.table === table._id ? "active" : ""}
+                      onClick={() => {
+                        setSelectedTable(table._id);
+                        setFormData((current) => ({ ...current, table: table._id }));
+                        setCovers(String(table.seats || 1));
+                        setPosPanel("");
+                      }}
+                    >
+                      {tableLabel(table)}
+                    </button>
+                  ))
+                ))}
+              {posPanel === "waiter" &&
+                (waiters.length === 0 ? (
+                  <p>{t("nav.orders_no_waiters")}</p>
+                ) : (
+                  waiters.map((waiter) => (
+                    <button
+                      key={waiter._id}
+                      type="button"
+                      className={selectedWaiter === waiter._id ? "active" : ""}
+                      onClick={() => {
+                        setSelectedWaiter(waiter._id);
+                        setPosPanel("");
+                      }}
+                    >
+                      {waiter.name}
+                    </button>
+                  ))
+                ))}
+              {posPanel === "customer" && (
+                <div className="pos-customer-search">
+                  <input
+                    type="text"
+                    value={customerSearch}
+                    onChange={(event) => handleCustomerSearch(event.target.value)}
+                    placeholder={t("nav.orders_customer_placeholder")}
+                  />
+                  {showCustomerDropdown &&
+                    customerSearchResults.map((customer) => (
+                      <button key={customer._id} type="button" onClick={() => selectCustomer(customer)}>
+                        {customer.name} · {customer.phone}
+                      </button>
+                    ))}
+                  {selectedCustomer && (
+                    <button type="button" onClick={clearCustomerSelection}>
+                      {t("common.close")}
+                    </button>
+                  )}
+                </div>
+              )}
+              {posPanel === "promotion" && <p>{t("nav.orders_no_promotions")}</p>}
+              {posPanel === "split" && (
+                <div className="pos-split">
+                  <label>
+                    {t("nav.orders_ways")}
+                    <input
+                      inputMode="numeric"
+                      value={splitWays}
+                      onChange={(event) => setSplitWays(event.target.value.replace(/\D/g, "").slice(0, 2))}
+                    />
+                  </label>
+                  <strong>
+                    {t("nav.orders_split_each")}: {formatMoney(figures.total / shareCount, currency)}
+                  </strong>
+                </div>
+              )}
+              {posPanel === "history" &&
+                (orders.length === 0 ? (
+                  <p>{t("nav.orders_none")}</p>
+                ) : (
+                  orders.slice(0, 8).map((order) => (
+                    <button key={order._id} type="button" onClick={() => loadOrder(order)}>
+                      {orderLabel(order)} · {order.customer?.name || t("nav.orders_guest_customer")} ·{" "}
+                      {formatMoney(order.total || calculateTotal(order.items || []), currency)}
+                    </button>
+                  ))
+                ))}
+              {posPanel === "active" &&
+                (activeOrders.length === 0 ? (
+                  <p>{t("nav.orders_none")}</p>
+                ) : (
+                  activeOrders.slice(0, 8).map((order) => (
+                    <button key={order._id} type="button" onClick={() => loadOrder(order)}>
+                      {orderLabel(order)} · {orderTypeLabel(order.type)} ·{" "}
+                      {formatMoney(order.total || calculateTotal(order.items || []), currency)}
+                    </button>
+                  ))
+                ))}
+            </div>
+          )}
+
+          <div className="pos-layout">
+            <aside className="pos-categories">
+              <h2>
+                {t("nav.orders_food_categories")} ({String(categories.length).padStart(2, "0")})
+              </h2>
+              {categories.map((category) => {
+                const count = itemsForCategory(category._id).length;
+                return (
+                  <button
+                    key={category._id}
+                    type="button"
+                    className={posCategoryId === category._id ? "active" : ""}
+                    onClick={() => {
+                      setPosCategoryId(category._id);
+                      setPosItemChip("");
+                      setMoreItemId("");
+                    }}
+                  >
+                    <span className="pos-cat-thumb">
+                      {category.image ? <img src={category.image} alt="" /> : <Utensils size={16} />}
+                    </span>
+                    <span>
+                      <strong>{category.name}</strong>
+                      <small>{t("nav.orders_item_count", { count })}</small>
+                    </span>
+                  </button>
+                );
+              })}
+            </aside>
+
+            <div className="pos-menu">
+              <div className="pos-menu-head">
+                <h2>
+                  {selectedCategory?.name || t("nav.menu")} (
+                  {String(itemsForCategory(posCategoryId).length).padStart(2, "0")})
+                </h2>
+                <label className="pos-search">
+                  <Search size={15} />
+                  <input
+                    type="search"
+                    value={posSearch}
+                    onChange={(event) => setPosSearch(event.target.value)}
+                    placeholder={t("nav.orders_quick_search")}
+                  />
+                </label>
+              </div>
+              {itemChips.length > 0 && (
+                <div className="pos-item-chips">
+                  {itemChips.map((name) => (
+                    <button
+                      key={name}
+                      type="button"
+                      className={posItemChip === name ? "active" : ""}
+                      onClick={() => setPosItemChip((current) => (current === name ? "" : name))}
+                    >
+                      {name}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {visibleMenu.length === 0 ? (
+                <p className="pos-empty">{t("nav.orders_no_menu_items")}</p>
+              ) : (
+                <div className="pos-item-grid">
+                  {visibleMenu.map((item) => {
+                    const modifiers = Array.isArray(item.modifiers) ? item.modifiers : [];
+                    const unavailable = item.isActive === false || item.isAvailable === false;
+                    const inTicket = formData.items.some((line) => line.menuItem === item._id);
+                    return (
+                      <article
+                        key={item._id}
+                        className={`pos-product ${inTicket ? "in-ticket" : ""} ${unavailable ? "unavailable" : ""}`}
+                      >
+                        <button
+                          type="button"
+                          disabled={unavailable}
+                          onClick={() => addOrderItem(item)}
+                        >
+                          <span className="pos-product-photo">
+                            {item.image ? <img src={item.image} alt="" /> : <Utensils size={20} />}
+                          </span>
+                          <span className="pos-product-copy">
+                            <strong>{item.name}</strong>
+                            <em>{formatMoney(item.price, currency)}</em>
+                          </span>
+                        </button>
+                        {modifiers.length > 0 && (
+                          <button
+                            type="button"
+                            className="pos-more"
+                            onClick={() => setMoreItemId((current) => (current === item._id ? "" : item._id))}
+                          >
+                            {t("nav.orders_more")}
+                          </button>
+                        )}
+                        {moreItemId === item._id && (
+                          <div className="pos-modifiers">
+                            {modifiers.map((modifier, index) => (
+                              <button
+                                key={`${modifier.name}-${index}`}
+                                type="button"
+                                onClick={() => {
+                                  addOrderItem(item, [modifier]);
+                                  setMoreItemId("");
+                                }}
+                              >
+                                {modifier.name || t("nav.orders_add_ons")}
+                                {modifier.price ? ` · ${formatMoney(modifier.price, currency)}` : ""}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </article>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <aside className="pos-ticket">
+              <div className="pos-ticket-head">
+                <strong>{ticketNumber}</strong>
+                <button type="button" className="pos-kot" onClick={() => saveOrder("in_kitchen")}>
+                  <Monitor size={15} />
+                  {t("nav.orders_kot")}
+                </button>
+                <button
+                  type="button"
+                  className="pos-bill"
+                  onClick={async () => {
+                    const saved = await saveOrder();
+                    if (saved) handleGenerateInvoice(saved);
+                  }}
+                >
+                  <Printer size={15} />
+                  {t("nav.orders_customer_bill")}
+                </button>
+                <button
+                  type="button"
+                  className="pos-settle"
+                  onClick={async () => {
+                    const saved = await saveOrder();
+                    if (!saved) return;
+                    setPaymentData({ orderId: saved._id, method: "cash", status: "paid" });
+                    setShowPaymentModal(true);
+                  }}
+                >
+                  <FileText size={15} />
+                  {t("nav.orders_settle_bill")}
+                </button>
+              </div>
+              {formData.type === "delivery" && (
+                <label className="pos-address">
+                  {t("nav.orders_delivery_address")}
+                  <textarea
+                    rows={2}
+                    value={formData.deliveryAddress}
+                    onChange={(event) =>
+                      setFormData((current) => ({ ...current, deliveryAddress: event.target.value }))
+                    }
+                    placeholder={t("nav.orders_delivery_address_placeholder")}
+                  />
+                </label>
+              )}
+              <div className="pos-ticket-columns">
+                <span>{t("nav.orders_food")}</span>
+                <span>{t("nav.orders_quantity")}</span>
+                <span>{t("nav.orders_price")}</span>
+                <span>{t("nav.orders_subtotal")}</span>
+              </div>
+              <div className="pos-lines">
+                {formData.items.length === 0 && <p className="pos-empty">{t("nav.orders_no_items")}</p>}
+                {formData.items.map((item, index) => {
+                  const modifiers = item.modifiers || [];
+                  const extra = modifiers.reduce((sum, modifier) => sum + (Number(modifier.price) || 0), 0);
+                  const lineTotal = (Number(item.price) + extra) * (item.quantity || 1);
+                  return (
+                    <div key={`${item.menuItem}-${index}`} className="pos-line">
+                      <div>
+                        <strong>{item.name}</strong>
+                        {modifiers.length > 0 && (
+                          <em className="pos-addons">{t("nav.orders_add_ons")}</em>
+                        )}
+                        <button type="button" className="pos-note" onClick={() => setNoteIndex(index)}>
+                          + {t("nav.orders_add_note")}
+                        </button>
+                        {noteIndex === index && (
+                          <input
+                            value={item.notes || ""}
+                            onChange={(event) => updateOrderItem(index, "notes", event.target.value)}
+                            placeholder={t("nav.orders_item_notes")}
+                          />
+                        )}
+                      </div>
+                      <div className="pos-qty">
+                        <button type="button" onClick={() => changeQty(index, -1)} aria-label="-">
+                          <Minus size={12} />
+                        </button>
+                        <span>{item.quantity || 1}</span>
+                        <button type="button" onClick={() => changeQty(index, 1)} aria-label="+">
+                          <Plus size={12} />
+                        </button>
+                      </div>
+                      <span>{formatMoney(Number(item.price) + extra, currency)}</span>
+                      <span>{formatMoney(lineTotal, currency)}</span>
+                      <button
+                        type="button"
+                        className="pos-remove"
+                        onClick={() => removeOrderItem(index)}
+                        aria-label={t("nav.orders_delete_order")}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="pos-summary">
+                <div className="pos-discount">
+                  <span>{t("nav.orders_discount")}</span>
+                  <div>
+                    <button
+                      type="button"
+                      className={discountMode === "group" ? "active" : ""}
+                      onClick={() => setDiscountMode("group")}
+                    >
+                      {t("nav.orders_group")}
+                    </button>
+                    <button
+                      type="button"
+                      className={discountMode === "custom" ? "active" : ""}
+                      onClick={() => setDiscountMode("custom")}
+                    >
+                      {t("nav.orders_custom")}
+                    </button>
+                  </div>
+                  {discountMode === "custom" && (
+                    <input
+                      inputMode="decimal"
+                      value={discountAmount}
+                      onChange={(event) => setDiscountAmount(event.target.value.replace(/[^0-9.]/g, ""))}
+                      aria-label={t("nav.orders_discount")}
+                    />
+                  )}
+                  <span>-{formatMoney(figures.discountValue, currency)}</span>
+                </div>
+                <p>
+                  <span>{t("nav.orders_vat")}</span>
+                  <span>{formatMoney(figures.vatAmount, currency)}</span>
+                </p>
+                <p>
+                  <span>{t("nav.orders_sd")}</span>
+                  <span>{formatMoney(figures.sdAmount, currency)}</span>
+                </p>
+                <p>
+                  <span>{t("nav.orders_service_charge")}</span>
+                  <span>{formatMoney(figures.serviceAmount, currency)}</span>
+                </p>
+              </div>
+              <button type="button" className="pos-cancel" onClick={cancelPosOrder}>
+                <X size={14} />
+                {t("nav.orders_cancel_order")}
+              </button>
+              <div className="pos-total">
+                <span>{t("nav.orders_total_bill")}</span>
+                <strong>{formatMoney(figures.total, currency)}</strong>
+              </div>
+            </aside>
+          </div>
+        </section>
+      ) : (
+      <>
       <section className="floor-selection">
         <div className="floor-selection-tab">
           <LogIn size={16} />
@@ -696,29 +1397,12 @@ const Orders = () => {
         subtitle={t("nav.orders_manage_description")}
       >
         <ProtectedElement permission={PERMISSIONS.MANAGE_ORDERS}>
-          <button
-            onClick={() => {
-              resetForm();
-              setFormData({
-                type: channel,
-                table: channel === "dineIn" ? selectedTable : "",
-                customer: "",
-                deliveryAddress: "",
-                items: [],
-                notes: "",
-              });
-              setShowAddModal(true);
-            }}
-            className="btn-primary"
-          >
+          <button onClick={openPos} className="btn-primary">
             <Plus size={20} />
             {t("nav.orders_add_new")}
           </button>
         </ProtectedElement>
       </PageHeader>
-
-      {/* Message */}
-      <Alert type={message.type} message={message.text} />
 
       {/* Stats Cards */}
       <div className="stats-grid">
@@ -1012,6 +1696,8 @@ const Orders = () => {
           </tbody>
         </table>
       </div>
+      </>
+      )}
 
       {/* Add/Edit Order Modal */}
       {(showAddModal || showEditModal) && (

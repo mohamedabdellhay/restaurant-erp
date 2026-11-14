@@ -71,7 +71,7 @@ app.use(cookieParser());
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000000, // limit each IP to 100 requests per windowMs
+  max: 100, // limit each IP to 100 requests per windowMs
   handler: (req, res) => {
     const lang = req.headers["accept-language"]?.startsWith("ar") ? "ar" : "en";
     const message = getTranslation(
