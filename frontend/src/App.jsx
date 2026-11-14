@@ -10,6 +10,7 @@ import Profile from "@pages/Profile/Profile";
 import Staff from "@pages/Staff/Staff";
 import Departments from "@pages/Departments/Departments";
 import Suppliers from "@pages/Suppliers/Suppliers";
+import SupplierDues from "@pages/SupplierDues/SupplierDues";
 import Inventory from "@pages/Inventory/Inventory";
 import IngredientCategories from "@pages/IngredientCategories/IngredientCategories";
 import SupportItemCategories from "@pages/SupportItemCategories/SupportItemCategories";
@@ -31,6 +32,8 @@ import Settings from "@pages/Settings/Settings";
 import Invoices from "@pages/Invoices/Invoices";
 import BusinessClosing from "@pages/BusinessClosing/BusinessClosing";
 import ProfitLoss from "@pages/ProfitLoss/ProfitLoss";
+import ExpenseCategories from "@pages/ExpenseCategories/ExpenseCategories";
+import Expenses from "@pages/Expenses/Expenses";
 import Dashboard from "@pages/Dashboard/Dashboard";
 import Menu from "@pages/Menu/Menu";
 import Reports from "@pages/Reports/Reports";
@@ -176,6 +179,14 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path="/supplier-dues"
+                  element={
+                    <ProtectedRoute permission="view_inventory">
+                      <SupplierDues />
+                    </ProtectedRoute>
+                  }
+                />
 
                 {/* Inventory - view_inventory permission */}
                 <Route
@@ -297,6 +308,22 @@ function App() {
                   element={
                     <ProtectedRoute permission="view_invoices">
                       <ProfitLoss />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/expense-categories"
+                  element={
+                    <ProtectedRoute permission="view_invoices">
+                      <ExpenseCategories />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/expenses"
+                  element={
+                    <ProtectedRoute permission="view_invoices">
+                      <Expenses />
                     </ProtectedRoute>
                   }
                 />

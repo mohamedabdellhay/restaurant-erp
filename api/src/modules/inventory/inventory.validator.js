@@ -42,7 +42,7 @@ export const validateIngredientCategoryId = [
 export const validateSupplier = [
   body("name").notEmpty().withMessage("Supplier name is required"),
   body("phone").notEmpty().withMessage("Phone number is required"),
-  body("email").optional().isEmail().withMessage("Invalid email address"),
+  body("email").optional({ values: "falsy" }).isEmail().withMessage("Invalid email address"),
   body("paymentTerms")
     .optional()
     .isIn(["cash", "credit", "installment"])

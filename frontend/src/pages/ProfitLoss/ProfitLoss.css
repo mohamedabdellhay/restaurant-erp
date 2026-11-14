@@ -52,10 +52,85 @@
   color: var(--primary);
 }
 
-.profit-loss th:last-child,
-.profit-loss td:last-child,
+.pl-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.9rem;
+  border: 0;
+  background: transparent;
+  color: #1f2937;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+[data-direction="rtl"] .pl-back svg {
+  transform: scaleX(-1);
+}
+
+.pl-periods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem 1.2rem;
+}
+
+.pl-periods label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.pl-period th {
+  background: #fff;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.pl-margin {
+  margin-inline-start: 0.75rem;
+  font-size: 0.82rem;
+}
+
+.pl-total-from,
+.pl-total-to {
+  color: #fff;
+  font-weight: 700;
+}
+
+.pl-total-from {
+  background: var(--primary);
+}
+
+.pl-total-to {
+  background: #f97316;
+}
+
+.pl-total-from .pl-toggle,
+.pl-total-to .pl-toggle {
+  color: #fff;
+}
+
+.pl-change {
+  font-weight: 600;
+}
+
+.pl-up {
+  color: #16a34a;
+}
+
+.pl-down {
+  color: #ef4444;
+}
+
 .profit-loss th:nth-child(2),
-.profit-loss td:nth-child(2) {
+.profit-loss td:nth-child(2),
+.profit-loss th:nth-child(4),
+.profit-loss td:nth-child(4),
+.profit-loss th:nth-child(5),
+.profit-loss td:nth-child(5) {
   text-align: end;
   white-space: nowrap;
 }
@@ -85,7 +160,7 @@
   transform: rotate(0deg);
 }
 
-.pl-summary td {
+.pl-summary td:not(.pl-change) {
   background: #e5e7eb;
   font-weight: 700;
 }

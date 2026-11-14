@@ -70,6 +70,8 @@ const NAV_ENTRIES = [
     items: [
       { label: "nav.pl", path: "/profit-loss", permission: "view_invoices" },
       { label: "nav.business_closing", path: "/business-closing", permission: "view_invoices" },
+      { label: "nav.expense_categories", path: "/expense-categories", permission: "view_invoices" },
+      { label: "nav.expense", path: "/expenses", permission: "view_invoices" },
       { label: "nav.invoices", path: "/invoices", permission: "view_invoices" },
     ],
   },
@@ -78,7 +80,8 @@ const NAV_ENTRIES = [
     label: "nav.group_suppliers",
     icon: Truck,
     items: [
-      { label: "nav.suppliers", path: "/suppliers", permission: "view_inventory" },
+      { label: "nav.supplier_information", path: "/suppliers", permission: "view_inventory" },
+      { label: "nav.supplier_dues", path: "/supplier-dues", permission: "view_inventory" },
     ],
   },
   {

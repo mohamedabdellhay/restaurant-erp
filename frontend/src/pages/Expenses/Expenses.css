@@ -1,0 +1,126 @@
+.expenses h1 {
+  margin: 0 0 1rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid #e6e8ec;
+  color: #1f2937;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.expenses-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+}
+
+.expenses-meta label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: #4b5563;
+  font-size: 0.9rem;
+}
+
+.expenses-meta label span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 2.3rem;
+  padding: 0 0.7rem;
+  border: 1px solid #e6e8ec;
+  border-radius: 8px;
+  background: #fff;
+  color: #6b7280;
+}
+
+.expenses-meta input[type="date"] {
+  border: 0;
+  background: transparent;
+  color: #374151;
+  outline: none;
+}
+
+.expenses-meta p {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin: 0;
+  color: #6b7280;
+}
+
+.expenses-meta strong {
+  color: #111827;
+  font-size: 1.35rem;
+}
+
+.expenses td input,
+.expenses td select {
+  width: 100%;
+  height: 2.1rem;
+  padding: 0 0.5rem;
+  border: 1px solid #e6e8ec;
+  border-radius: 6px;
+  background: #fff;
+  color: #111827;
+}
+
+.expenses-delete {
+  display: inline-grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border: 1px solid #fca5a5;
+  border-radius: 4px;
+  background: #fff;
+  color: #ef4444;
+  cursor: pointer;
+}
+
+.expenses-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.7rem;
+  border: 0;
+  background: transparent;
+  color: var(--primary);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.expenses-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.expenses-cancel,
+.expenses-submit {
+  height: 2.25rem;
+  padding: 0 0.95rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.expenses-cancel {
+  border: 1px solid #fca5a5;
+  background: #fff;
+  color: #ef4444;
+}
+
+.expenses-submit {
+  border: 0;
+  background: var(--primary);
+  color: #fff;
+}
+
+@media (max-width: 720px) {
+  .expenses-meta {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
