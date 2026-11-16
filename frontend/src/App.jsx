@@ -34,6 +34,7 @@ import WaitingDisplay from "@pages/WaitingDisplay/WaitingDisplay";
 import AdsBoard from "@pages/AdsBoard/AdsBoard";
 import Kds from "@pages/Kds/Kds";
 import Settings from "@pages/Settings/Settings";
+import CompanySetup from "@pages/CompanySetup/CompanySetup";
 import Invoices from "@pages/Invoices/Invoices";
 import BusinessClosing from "@pages/BusinessClosing/BusinessClosing";
 import ProfitLoss from "@pages/ProfitLoss/ProfitLoss";
@@ -442,6 +443,14 @@ function App() {
                   element={
                     <ProtectedRoute permission="manage_settings">
                       <AdsBoard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/company"
+                  element={
+                    <ProtectedRoute permission="manage_settings">
+                      <CompanySetup />
                     </ProtectedRoute>
                   }
                 />

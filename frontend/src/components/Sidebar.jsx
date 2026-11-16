@@ -127,6 +127,7 @@ const NAV_ENTRIES = [
       { label: "nav.staff", path: "/staff", permission: "view_staff" },
       { label: "nav.waiter", path: "/waiters", permission: "view_staff" },
       { label: "nav.roles", path: "/roles", permission: "view_roles" },
+      { label: "nav.company", path: "/company", permission: "manage_settings" },
       { label: "nav.settings", path: "/settings/general", match: "/settings", permission: "manage_settings" },
     ],
   },

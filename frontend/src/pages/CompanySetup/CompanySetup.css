@@ -1,0 +1,160 @@
+.company-setup h1 {
+  margin: 0 0 1rem;
+  color: #1f2937;
+  font-size: 1.25rem;
+  font-weight: 650;
+}
+
+.company-card {
+  margin-bottom: 1rem;
+  padding: 1.1rem 1.2rem 1.25rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.company-card h2 {
+  margin: 0 0 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #eceff3;
+  color: #111827;
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.company-grid,
+.company-stack {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr) 190px minmax(0, 1fr);
+  gap: 0.9rem 1rem;
+  align-items: center;
+}
+
+.company-stack {
+  grid-template-columns: 190px minmax(220px, 460px);
+}
+
+.company-grid label,
+.company-stack label,
+.company-kot > span {
+  color: #374151;
+  font-size: 0.92rem;
+}
+
+.company-grid input,
+.company-stack input,
+.company-stack select,
+.company-phone input,
+.company-phone select {
+  width: 100%;
+  height: 2.4rem;
+  padding: 0 0.7rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  background: #fff;
+  color: #111827;
+}
+
+.company-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+.company-logo button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 2.3rem;
+  padding: 0 0.8rem;
+  border: 0;
+  border-radius: 4px;
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
+}
+
+.company-logo p,
+.company-logo span,
+.company-error {
+  margin: 0;
+  color: #9ca3af;
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.company-error {
+  color: #dc2626;
+}
+
+.company-phone {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.company-phone select {
+  width: 5.5rem;
+  flex: none;
+}
+
+.company-radios,
+.company-kot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.company-radios label,
+.company-kot label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+}
+
+.company-radios input,
+.company-kot input {
+  accent-color: var(--primary);
+}
+
+.company-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.7rem;
+}
+
+.company-cancel,
+.company-save {
+  min-width: 7.5rem;
+  height: 2.4rem;
+  padding: 0 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.company-cancel {
+  border: 1px solid #fb7185;
+  background: #fff;
+  color: #e11d48;
+}
+
+.company-save {
+  border: 0;
+  background: var(--primary);
+  color: #fff;
+}
+
+.company-save:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+@media (max-width: 900px) {
+  .company-grid,
+  .company-stack {
+    grid-template-columns: 1fr;
+  }
+}

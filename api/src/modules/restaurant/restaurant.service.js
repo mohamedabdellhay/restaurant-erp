@@ -3,7 +3,10 @@ import { toDoc, toDocs } from "../../db/present.js";
 import { requireUuid } from "../../db/ids.js";
 import RoleService from "../role/role.service.js";
 import DepartmentService from "../department/department.service.js";
-import { normalizeBusinessFields } from "./businessValidation.js";
+import AppError from "../../utils/errors/AppError.js";
+import { BUSINESS_MESSAGES, normalizeBusinessFields, validateBusiness } from "./businessValidation.js";
+
+const COMPANY_CURRENCIES = new Set(["USD", "EUR", "GBP", "EGP", "SAR", "AED", "JOD", "LBP"]);
 
 const RESTAURANT_FIELDS = [
   "name",
@@ -147,6 +150,66 @@ class RestaurantService {
     const row = await prisma.restaurant.update({
       where: { id: restaurantId },
       data: { settings: { ...current, adsBoard: next } },
+    });
+    return toDoc(row);
+  }
+
+  async updateCompany(id, body = {}) {
+    const restaurantId = requireUuid(id);
+    if (!restaurantId) return null;
+    const existing = await prisma.restaurant.findUnique({ where: { id: restaurantId } });
+    if (!existing) return null;
+
+    const requested = String(body.currency || existing.currency || "USD").toUpperCase();
+    const currency = COMPANY_CURRENCIES.has(requested) ? requested : existing.currency;
+    const merged = normalizeBusinessFields({
+      name: body.name,
+      address: body.address,
+      phone: body.phone,
+      email: existing.email,
+      currency,
+      vatNumber: body.vatNumber,
+      crNumber: body.crNumber,
+    });
+    const check = validateBusiness(merged, { requireIdentity: true });
+    if (!check.valid) {
+      throw new AppError(check.issues.map((issue) => BUSINESS_MESSAGES[issue.code]).join(". "), 400);
+    }
+
+    const current = existing.settings && typeof existing.settings === "object" ? existing.settings : {};
+    const incoming = body.company && typeof body.company === "object" ? body.company : {};
+    const percent = (value, fallback) => {
+      const number = Number(value);
+      if (!Number.isFinite(number)) return fallback;
+      return Math.min(100, Math.max(0, Math.round(number * 10) / 10));
+    };
+    const zone = String(incoming.timezone || "").trim();
+    const company = {
+      outletName: String(incoming.outletName || "").trim().slice(0, 80),
+      siteType: incoming.siteType === "warehouse" ? "warehouse" : "outlet",
+      timezone: /^[A-Za-z0-9_+./-]{1,64}$/.test(zone) ? zone : "",
+      language: incoming.language === "ar" ? "ar" : "en",
+      kotMode: incoming.kotMode === "kds" ? "kds" : "print",
+      receiptFooter: String(incoming.receiptFooter || "").trim().slice(0, 160),
+      dialCode: String(incoming.dialCode || "").replace(/\D/g, "").slice(0, 4),
+    };
+
+    const row = await prisma.restaurant.update({
+      where: { id: restaurantId },
+      data: {
+        name: merged.name,
+        address: merged.address,
+        phone: merged.phone,
+        currency: merged.currency,
+        vatNumber: merged.vatNumber,
+        crNumber: merged.crNumber,
+        settings: {
+          ...current,
+          taxPercent: percent(body.taxPercent, Number(current.taxPercent) || 0),
+          serviceChargePercent: percent(body.serviceChargePercent, Number(current.serviceChargePercent) || 0),
+          company,
+        },
+      },
     });
     return toDoc(row);
   }

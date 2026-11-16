@@ -102,7 +102,9 @@ const SalesReceipt = ({ receipt, restaurant, currency, onClose }) => {
               <dd>{formatMoney(receipt.figures.total, currency)}</dd>
             </div>
           </dl>
-          <p className="sales-receipt-thanks">{t("nav.receipt_thanks")}</p>
+          <p className="sales-receipt-thanks">
+            {restaurant?.settings?.company?.receiptFooter || t("nav.receipt_thanks")}
+          </p>
         </article>
       </div>
     </div>

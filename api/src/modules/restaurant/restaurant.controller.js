@@ -70,6 +70,16 @@ class RestaurantController {
     ResponseHandler.success(res, withLogoUrls(restaurant).settings.theme, "Theme saved successfully");
   });
 
+  updateCompany = asyncHandler(async (req, res) => {
+    const id = req.params.id;
+    if (req.user?.restaurant && req.user.restaurant !== id) {
+      return ResponseHandler.error(res, "You can only update your restaurant", 403);
+    }
+    const restaurant = await RestaurantService.updateCompany(id, req.body);
+    if (!restaurant) return ResponseHandler.error(res, "Restaurant not found", 404);
+    ResponseHandler.success(res, withLogoUrls(restaurant), "Company settings saved");
+  });
+
   updateAds = asyncHandler(async (req, res) => {
     const id = req.params.id;
     if (req.user?.restaurant && req.user.restaurant !== id) {
